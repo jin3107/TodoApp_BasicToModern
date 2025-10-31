@@ -10,8 +10,10 @@ namespace Todo.API
         public void Mapping(WebApplicationBuilder builder)
         {
             builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+            builder.Services.AddScoped<ITaskProgressReportReporitory, TaskProgressReportRepository>();
 
             builder.Services.AddScoped<ITaskService, TaskService>();
+            builder.Services.AddScoped<ITasksReportService, TaskReportService>();
         }
     }
 }

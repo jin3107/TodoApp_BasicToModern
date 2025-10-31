@@ -17,6 +17,7 @@ namespace Todo.Models.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         public DbSet<Task> Tasks { get; set; }
+        public DbSet<TaskProgressReport> TaskProgressReports { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
