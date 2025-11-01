@@ -31,13 +31,5 @@ namespace Todo.API.Controllers
             var result = await _taskReportsService.CreateDailySnapshotAsync();
             return Ok(result);
         }
-
-        [HttpGet]
-        [Route("trend")]
-        public async Task<IActionResult> GetCompletionTrend([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
-        {
-            var result = await _taskReportsService.GetCompletionTrendAsync(startDate, endDate);
-            return Ok(result);
-        }
     }
 }

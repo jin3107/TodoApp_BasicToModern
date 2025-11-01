@@ -17,11 +17,10 @@ namespace Todo.DTOs.Responses
         public int LowPriorityPendingTasks { get; set; }
         public decimal CompletionRate { get; set; }
         public decimal AverageCompletionTimeHours { get; set; }
-        public int TasksCompletedToday { get; set; }
+        public int TasksCompletedThisToday { get; set; }
         public int TasksCompletedThisWeek { get; set; }
         public int TasksCompletedThisMonth { get; set; }
 
-        public List<TaskResponse> UpcomingTasks { get; set; }
         public List<TaskResponse> MostOverdueTasks { get; set; }
         public PriorityDistribution PriorityDistribution { get; set; }
         public List<DailyCompletionTrend> CompletionTrend { get; set; }

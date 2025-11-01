@@ -1,1 +1,5 @@
 export type { default as TaskResponse } from './TaskResponse'
+export type { default as DailyCompletionTrendResponse } from './DailyCompletionTrendResponse'
+export type { default as PriorityDistributionResponse } from './PriorityDistributionResponse'
+export type { default as TaskReportResponse } from './TaskReportResponse'
+export type { default as TaskReportItemResponse } from './TaskReportItemResponse'

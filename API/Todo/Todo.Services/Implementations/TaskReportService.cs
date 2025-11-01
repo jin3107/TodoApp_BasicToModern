@@ -50,27 +50,6 @@ namespace Todo.Services.Implementations
             return result;
         }
 
-        public async Task<AppResponse<List<DailyCompletionTrend>>> GetCompletionTrendAsync(DateTime startDate, DateTime endDate)
-        {
-            var result = new AppResponse<List<DailyCompletionTrend>>();
-            try
-            {
-                var allTasks = await _taskRepository.FindByAsync(t => t.IsDeleted == false).ToListAsync();
-                var dayCount = (endDate.Date - startDate.Date).Days + 1;
-                var dateRange = Enumerable.Range(0, dayCount).Select(i => startDate.Date.AddDays(i)).ToList();
-                var trend = dateRange
-                    .Select(date => TaskReportMapper.CreateDailyTrend(date, allTasks))
-                    .ToList();
-
-                result.BuildResult(trend, "Completion trend retrieved successfully.");
-            }
-            catch (Exception ex)
-            {
-                result.BuildError($"Error getting completion trend: {ex.Message}");
-            }
-            return result;
-        }
-
         public async Task<AppResponse<TaskReportResponse>> GetProgressReportAsync(TaskReportRequest request)
         {
             var result = new AppResponse<TaskReportResponse>();
@@ -112,11 +91,8 @@ namespace Todo.Services.Implementations
                 var tasksCompletedThisMonth = allTasks.Count(t => t.IsCompleted && t.CompletedOn.HasValue
                     && t.CompletedOn.Value.Date >= startOfMonth);
 
-                var upcomingDealine = now.AddDays(3);
-                var upcomingTasks = allTasks.Where(t => !t.IsCompleted && t.DueDate >= now && t.DueDate <= upcomingDealine)
-                    .OrderBy(t => t.DueDate).Take(10).Select(TaskMapper.ToResponse).ToList();
-
-                var mostOverdueTasks = allTasks.Where(t => !t.IsCompleted && t.DueDate < now)
+                // Overdue tasks: DueDate < hôm nay
+                var mostOverdueTasks = allTasks.Where(t => !t.IsCompleted && t.DueDate.Date < today)
                     .OrderBy(t => t.DueDate) // task có duedate càng xa = quá hạn càng lâu
                     .Take(5).Select(TaskMapper.ToResponse).ToList();
 
@@ -127,10 +103,13 @@ namespace Todo.Services.Implementations
                     LowPriority = allTasks.Count(t => t.Priority == Tier.Low)
                 };
 
-                var last7Days = Enumerable.Range(0, 7).Select(i => today.AddDays(-i))
-                    .OrderBy(d => d).ToList();
-
-                var completionTrend = last7Days.Select(date => new DailyCompletionTrend
+                // Tính completion trend theo khoảng thời gian filter (startDate -> endDate)
+                var startDate = request.StartDate ?? now.AddDays(-29);
+                var endDate = request.EndDate ?? now;
+                var dayCount = (endDate.Date - startDate.Date).Days + 1;
+                var dateRange = Enumerable.Range(0, dayCount).Select(i => startDate.Date.AddDays(i)).ToList();
+                
+                var completionTrend = dateRange.Select(date => new DailyCompletionTrend
                 {
                     Date = date,
                     CompletedCount = allTasks.Count(t =>
@@ -150,10 +129,9 @@ namespace Todo.Services.Implementations
                     LowPriorityPendingTasks = lowPriorityPending,
                     CompletionRate = completionRate,
                     AverageCompletionTimeHours = Math.Round(avgCompletionTime, 2),
-                    TasksCompletedToday = tasksCompletedToday,
+                    TasksCompletedThisToday = tasksCompletedToday,
                     TasksCompletedThisWeek = tasksCompletedThisWeek,
                     TasksCompletedThisMonth = tasksCompletedThisMonth,
-                    UpcomingTasks = upcomingTasks,
                     MostOverdueTasks = mostOverdueTasks,
                     PriorityDistribution = priorityDistribution,
                     CompletionTrend = completionTrend

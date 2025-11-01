@@ -13,6 +13,5 @@ namespace Todo.Services.Interfaces
     {
         Task<AppResponse<TaskReportResponse>> GetProgressReportAsync(TaskReportRequest request); 
         Task<AppResponse<Guid>> CreateDailySnapshotAsync();
-        Task<AppResponse<List<DailyCompletionTrend>>> GetCompletionTrendAsync(DateTime startDate, DateTime endDate);
     }
 }

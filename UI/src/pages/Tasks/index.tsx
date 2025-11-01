@@ -30,9 +30,9 @@ import {
   SortDescendingOutlined,
 } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
-import { Tier } from "../commons";
-import type { Filter, SearchRequest, SearchResponse, TaskRequest, TaskResponse } from "../interfaces";
-import { createTask, deleteTask, getTaskById, searchTasks, updateTask } from "../apis/taskAPI";
+import { Tier } from "../../commons";
+import type { Filter, SearchRequest, SearchResponse, TaskRequest, TaskResponse } from "../../interfaces";
+import { createTask, deleteTask, getTaskById, searchTasks, updateTask } from "../../apis/taskAPI";
 import "./style.scss";
 
 const { TextArea } = Input;
@@ -158,13 +158,19 @@ const Tasks = () => {
     try {
       setSubmitting(true);
 
+      const formatDateOnly = (date: Dayjs | string | undefined): string | undefined => {
+        if (!date) return undefined;
+        const dayjsDate = typeof date === 'string' ? dayjs(date) : date;
+        return dayjsDate.format('YYYY-MM-DD');
+      };
+
       const common = {
         title: values.title,
         description: values.description,
-        dueDate: values.dueDate,
+        dueDate: formatDateOnly(values.dueDate),
         isCompleted: values.isCompleted || false,
         priority: values.priority,
-        completedOn: values.completedOn,
+        completedOn: formatDateOnly(values.completedOn),
       };
 
       if (mode === "create") {

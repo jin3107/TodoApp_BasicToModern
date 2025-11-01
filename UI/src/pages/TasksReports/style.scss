@@ -1,0 +1,61 @@
+
+.report-container {
+  padding: 24px;
+  background: #f0f2f5;
+  min-height: 100vh;
+
+  .report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    h2 {
+      margin: 0;
+    }
+  }
+
+  .ant-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+  }
+
+  .ant-statistic {
+    .ant-statistic-title {
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.65);
+      margin-bottom: 8px;
+    }
+
+    .ant-statistic-content {
+      font-size: 24px;
+      font-weight: 600;
+    }
+  }
+
+  .ant-progress {
+    margin-top: 8px;
+  }
+
+  .ant-table {
+    .ant-table-tbody > tr:hover {
+      cursor: pointer;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+
+    .report-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+}

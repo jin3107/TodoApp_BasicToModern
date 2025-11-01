@@ -23,7 +23,7 @@ namespace Todo.Services.Mapping
                 HighPriorityPendingTasks = response.HighPriorityPendingTasks,
                 CompletionRate = response.CompletionRate,
                 AverageCompletionTimeHours = response.AverageCompletionTimeHours,
-                TasksCompletedToday = response.TasksCompletedToday,
+                TasksCompletedToday = response.TasksCompletedThisToday,
                 Notes = notes,
                 CreatedOn = DateTime.UtcNow,
                 IsDeleted = false
@@ -41,21 +41,21 @@ namespace Todo.Services.Mapping
                 HighPriorityPendingTasks = entity.HighPriorityPendingTasks,
                 CompletionRate = entity.CompletionRate,
                 AverageCompletionTimeHours = entity.AverageCompletionTimeHours,
-                TasksCompletedToday = entity.TasksCompletedToday
+                TasksCompletedThisToday = entity.TasksCompletedToday
             };
         }
 
-        public static DailyCompletionTrend CreateDailyTrend(DateTime date, List<Models.Entities.Task> allTasks)
-        {
-            return new DailyCompletionTrend
-            {
-                Date = date,
-                CompletedCount = allTasks.Count(t =>
-                    t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value.Date == date),
-                CreatedCount = allTasks.Count(t =>
-                    t.CreatedOn.HasValue && t.CreatedOn.Value.Date == date)
-            };
-        }
+        //public static DailyCompletionTrend CreateDailyTrend(DateTime date, List<Models.Entities.Task> allTasks)
+        //{
+        //    return new DailyCompletionTrend
+        //    {
+        //        Date = date,
+        //        CompletedCount = allTasks.Count(t =>
+        //            t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value.Date == date),
+        //        CreatedCount = allTasks.Count(t =>
+        //            t.CreatedOn.HasValue && t.CreatedOn.Value.Date == date)
+        //    };
+        //}
 
         public static PriorityDistribution CreatePriorityDistribution(List<Models.Entities.Task> allTasks)
         {
