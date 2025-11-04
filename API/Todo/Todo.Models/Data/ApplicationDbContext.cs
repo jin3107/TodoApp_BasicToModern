@@ -25,7 +25,16 @@ namespace Todo.Models.Data
             {
                 var appSetting = JsonConvert.DeserializeObject<AppSetting>(File.ReadAllText("appsettings.json"));
                 optionsBuilder.UseMySql(appSetting!.ConnectionString,
-                    new MySqlServerVersion(new Version(8, 0, 41)));
+                    new MySqlServerVersion(new Version(8, 0, 41)),
+                    mySQLOptions =>
+                    {
+                        mySQLOptions.CommandTimeout(300);
+                        mySQLOptions.EnableRetryOnFailure(
+                            maxRetryCount: 3,
+                            maxRetryDelay: TimeSpan.FromSeconds(300),
+                            errorNumbersToAdd: null
+                        );
+                    });
             }
         }
     }

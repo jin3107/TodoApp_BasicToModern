@@ -56,7 +56,7 @@ namespace Todo.Services.Implementations
             try
             {
                 var now = DateTime.UtcNow;
-                var allTasksQuery = _taskRepository.AsQueryable().Where(t => t.IsDeleted == false);
+                var allTasksQuery = _taskRepository.AsQueryable().Where(t => t.IsDeleted == false).AsNoTracking();
                 if (request.StartDate.HasValue)
                     allTasksQuery = allTasksQuery.Where(t => t.CreatedOn >= request.StartDate.Value);
 

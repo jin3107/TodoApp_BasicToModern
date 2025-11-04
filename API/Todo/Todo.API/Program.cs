@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Todo.API;
 using Todo.Models.Data;
 using Todo.Models.Entities;
+using Quartz;
+using Todo.Services.Implementations;
+using Todo.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,12 +14,25 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        new MySqlServerVersion(new Version(8, 0, 41))
+        new MySqlServerVersion(new Version(8, 0, 41)),
+        mySqlOptions =>
+        {
+            mySqlOptions.CommandTimeout(300);
+            mySqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 3,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null
+            );
+        }
     )
 );
-new Startup().Mapping(builder);
+
+builder.Services.AddApplicationServices().AddRepositories();
+builder.Services.AddQuartzConfiguration();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddScoped<UserManager<ApplicationUser>>();
 builder.Services.AddScoped<SignInManager<ApplicationUser>>();
 builder.Services.AddScoped<RoleManager<IdentityRole>>();
