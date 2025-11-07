@@ -1,9 +1,9 @@
-# ?? Configuration Setup Guide
+# Configuration Setup Guide
 
-## ?? Security Notice
+## Security Notice
 Sensitive configuration values are **NOT** stored in `appsettings.json` for security reasons.
 
-## ?? Setup Instructions
+## Setup Instructions
 
 ### Option 1: User Secrets (Recommended for Development)
 
@@ -57,7 +57,7 @@ export ConnectionStrings__DefaultConnection="Server=localhost;..."
 export EmailSettings__SmtpPassword="your-password"
 ```
 
-## ?? Gmail App Password Setup
+## Gmail App Password Setup
 
 To get an app password for Gmail:
 1. Enable 2-Factor Authentication on your Google Account
@@ -65,7 +65,7 @@ To get an app password for Gmail:
 3. Generate a new app password
 4. Use that password in your configuration
 
-## ?? Verify Your Configuration
+## Verify Your Configuration
 
 ```bash
 cd Todo.API
