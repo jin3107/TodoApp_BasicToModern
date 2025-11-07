@@ -32,6 +32,7 @@ namespace Todo.Services.Jobs
             } catch (Exception ex)
             {
                 _logger.LogError(ex, "Daily Task Report Job failed");
+                throw new JobExecutionException(ex, refireImmediately: false);
             }
         }
     }

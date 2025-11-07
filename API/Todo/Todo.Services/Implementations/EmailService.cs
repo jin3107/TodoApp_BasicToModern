@@ -39,7 +39,7 @@ namespace Todo.Services.Implementations
         {
             try
             {
-                _logger.LogInformation("Sending daily task report at {Time}", DateTime.Now);
+                _logger.LogInformation("Sending daily task report at {DateTime.Now}", DateTime.Now);
 
                 var request = new TaskReportRequest();
                 var reportResponse = await _taskReportService.GetProgressReportAsync(request);
@@ -62,7 +62,7 @@ namespace Todo.Services.Implementations
         private string BuildDailyReportEmail(TaskReportResponse report)
         {
             return $"""
-                Daily Task Report - {DateTime.Now:dd MM yyyy}
+                Daily Task Report - {DateTime.Now:dd-MM-yyyy}
                 
                 Tasks Completed Today: {report.CompletedTasks}
                 Tasks In Progress: {report.InProgressTasks}
@@ -99,14 +99,127 @@ namespace Todo.Services.Implementations
             }
         }
 
-        public Task SendTaskReminderAsync()
+        public async Task SendTaskReminderAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                _logger.LogInformation("Sending task reminder report at {Time}", DateTime.Now);
+
+                var request = new TaskReportRequest();
+                var reportResponse = await _taskReportService.GetProgressReportAsync(request);
+                if (reportResponse?.Data == null)
+                {
+                    _logger.LogWarning("Cannot get task report data");
+                    return;
+                }
+
+                var report = reportResponse.Data;
+                var hasOverdueTasks = report.OverdueTasks > 0;
+                var hasOverdueTaskList = report.MostOverdueTasks?.Any() ?? false;
+                if (!hasOverdueTaskList && !hasOverdueTasks)
+                {
+                    _logger.LogWarning("No overdue tasks. Skip sending reminder email");
+                    return;
+                }
+                var emailBody = BuildTaskReminderEmail(report);
+                await SendEmailAsync(
+                    to: RecipientEmail,
+                    subject: $"Task Reminder - {report.OverdueTasks} Overdue Tasks",
+                    body: emailBody
+                ); 
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send task reminder");
+                throw;
+            }
         }
 
-        public Task SendWeeklyTaskSummaryAsync()
+        private string BuildTaskReminderEmail(TaskReportResponse report)
         {
-            throw new NotImplementedException();
+            var overdueCount = report.OverdueTasks;
+            var overdueTasks = report.MostOverdueTasks;
+            var taskList = "";
+            if (overdueTasks.Any())
+            {
+                taskList = "\nMost Overdue Tasks:\n";
+                var count = 1;
+                foreach (var task in overdueTasks.Take(5))
+                {
+                    var dueDate = task.DueDate.ToString("dd-MM-yyyy");
+                    var priority = task.Priority.ToString();
+                    string priorityIcon = "";
+                    switch (priority)
+                    {
+                        case "High":
+                            priorityIcon = "🔴"; break;
+
+                        case "Medium":
+                            priorityIcon = "🟡"; break;
+
+                        case "Low":
+                            priorityIcon = "🟢"; break;
+
+                        default:
+                            priorityIcon = "⚪"; break;
+                    }
+                    taskList += $"{count}. {priorityIcon} {task.Title}\n";
+                    taskList += $"Due: {dueDate} | Priority: {priority}\n\n";
+                    count++;
+                }
+            }
+
+            return $"""
+                Task Reminder - {DateTime.Now:dd-MM-yyyy}
+                
+                You have {overdueCount} overdue task(s) that need attention!
+                {taskList}
+                Current Status:
+                Completed: {report.CompletedTasks} tasks
+                In Progress: {report.InProgressTasks} tasks
+                Overdue: {overdueCount} tasks
+                """;
+        }
+
+        public async Task SendWeeklyTaskSummaryAsync()
+        {
+            try
+            {
+                _logger.LogInformation("Seding weekly task summary at {Time}", DateTime.Now);
+                var request = new TaskReportRequest();
+                var reportResponse = await _taskReportService.GetProgressReportAsync(request);
+                var emailBody = BuildWeeklyReportEmail(reportResponse.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send weekly task summary");
+            }
+        }
+
+        private string BuildWeeklyReportEmail(TaskReportResponse report)
+        {
+            return $"""
+                Weekly Task Summary - Week of {DateTime.Now:dd-MM-yyyy}
+
+                This Week's Achievements:
+                Completed: {report.CompletedTasks} tasks
+                In Progress: {report.InProgressTasks} tasks
+                Total: {report.TotalTasks} tasks
+
+                Productivity Score: {CalculateProductivityScore(report)}%
+                """;
+        }
+
+        private int CalculateProductivityScore(TaskReportResponse report)
+        {
+            if (report == null) return 0;
+            var total = report.TotalTasks;
+            var completed = report.CompletedTasks;
+            var result = 0;
+            if (total > 0)
+                result = (int)((completed / (double)total) * 100);
+            else result = 0;
+            return result;
         }
     }
 }
