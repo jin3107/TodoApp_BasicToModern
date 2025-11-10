@@ -15,12 +15,12 @@ using Todo.Services.Mapping;
 
 namespace Todo.Services.Implementations
 {
-    public class TaskReportService : ITasksReportService
+    public class TodoItemReportService : ITodoItemReportService
     {
-        private readonly ITaskRepository _taskRepository;
-        private readonly ITaskProgressReportReporitory _reportRepository;
+        private readonly ITodoItemRepository _taskRepository;
+        private readonly ITodoItemProgressReportReporitory _reportRepository;
 
-        public TaskReportService(ITaskRepository taskRepository, ITaskProgressReportReporitory reportRepository)
+        public TodoItemReportService(ITodoItemRepository taskRepository, ITodoItemProgressReportReporitory reportRepository)
         {
             _taskRepository = taskRepository;
             _reportRepository = reportRepository;
@@ -31,14 +31,14 @@ namespace Todo.Services.Implementations
             var result = new AppResponse<Guid>();
             try
             {
-                var reportRequest = new TaskReportRequest();
+                var reportRequest = new TodoItemReportRequest();
                 var reportResponse = await GetProgressReportAsync(reportRequest);
                 if (!reportResponse.IsSuccess || reportResponse.Data == null)
                     return result.BuildError("Failed to generate report for snapshot");
 
                 var report = reportResponse.Data;
                 var now = DateTime.UtcNow;
-                var snapshot = TaskReportMapper.ToEntity(report, now.Date, "Auto-generated daily snapshot");
+                var snapshot = TodoItemReportMapper.ToEntity(report, now.Date, "Auto-generated daily snapshot");
 
                 await _reportRepository.AddAsync(snapshot);
                 result.BuildResult(snapshot.Id, "Daily snapshot created successfully.");
@@ -50,9 +50,9 @@ namespace Todo.Services.Implementations
             return result;
         }
 
-        public async Task<AppResponse<TaskReportResponse>> GetProgressReportAsync(TaskReportRequest request)
+        public async Task<AppResponse<TodoItemReportResponse>> GetProgressReportAsync(TodoItemReportRequest request)
         {
-            var result = new AppResponse<TaskReportResponse>();
+            var result = new AppResponse<TodoItemReportResponse>();
             try
             {
                 var now = DateTime.UtcNow;
@@ -91,10 +91,9 @@ namespace Todo.Services.Implementations
                 var tasksCompletedThisMonth = allTasks.Count(t => t.IsCompleted && t.CompletedOn.HasValue
                     && t.CompletedOn.Value.Date >= startOfMonth);
 
-                // Overdue tasks: DueDate < hôm nay
                 var mostOverdueTasks = allTasks.Where(t => !t.IsCompleted && t.DueDate.Date < today)
                     .OrderBy(t => t.DueDate) // task có duedate càng xa = quá hạn càng lâu
-                    .Take(5).Select(TaskMapper.ToResponse).ToList();
+                    .Take(5).Select(TodoItemMapper.ToResponse).ToList();
 
                 var priorityDistribution = new PriorityDistribution
                 {
@@ -103,7 +102,6 @@ namespace Todo.Services.Implementations
                     LowPriority = allTasks.Count(t => t.Priority == Tier.Low)
                 };
 
-                // Tính completion trend theo khoảng thời gian filter (startDate -> endDate)
                 var startDate = request.StartDate ?? now.AddDays(-29);
                 var endDate = request.EndDate ?? now;
                 var dayCount = (endDate.Date - startDate.Date).Days + 1;
@@ -118,7 +116,7 @@ namespace Todo.Services.Implementations
                         t.CreatedOn.HasValue && t.CreatedOn.Value.Date == date)
                 }).ToList();
 
-                var report = new TaskReportResponse
+                var report = new TodoItemReportResponse
                 {
                     TotalTasks = totalTasks,
                     CompletedTasks = completedTasks,

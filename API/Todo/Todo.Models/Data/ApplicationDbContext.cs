@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Todo.Models.Entities;
-using Task = Todo.Models.Entities.Task;
+using TodoItem = Todo.Models.Entities.TodoItem;
 
 namespace Todo.Models.Data
 {
@@ -16,8 +16,8 @@ namespace Todo.Models.Data
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        public DbSet<Task> Tasks { get; set; }
-        public DbSet<TaskProgressReport> TaskProgressReports { get; set; }
+        public DbSet<TodoItem> TodoItems { get; set; }
+        public DbSet<TodoItemProgressReport> TaskProgressReports { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

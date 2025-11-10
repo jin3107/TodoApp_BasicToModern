@@ -10,12 +10,12 @@ using Todo.DTOs.Responses;
 
 namespace Todo.Services.Interfaces
 {
-    public interface ITaskService
+    public interface ITodoItemService
     {
-        Task<AppResponse<TaskResponse>> GetByIdAsync(Guid id);
-        Task<AppResponse<TaskResponse>> CreateAsync(TaskRequest request);
-        Task<AppResponse<TaskResponse>> UpdateAsync(TaskRequest request);
+        Task<AppResponse<TodoItemResponse>> GetByIdAsync(Guid id);
+        Task<AppResponse<TodoItemResponse>> CreateAsync(TodoItemRequest request);
+        Task<AppResponse<TodoItemResponse>> UpdateAsync(TodoItemRequest request);
         Task<AppResponse<string>> DeleteAsync(Guid id);
-        Task<AppResponse<SearchResponse<TaskResponse>>> SearchAsync(SearchRequest request);
+        Task<AppResponse<SearchResponse<TodoItemResponse>>> SearchAsync(SearchRequest request);
     }
 }

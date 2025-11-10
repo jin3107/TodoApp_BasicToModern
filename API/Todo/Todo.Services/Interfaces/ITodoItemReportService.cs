@@ -9,9 +9,9 @@ using Todo.DTOs.Responses;
 
 namespace Todo.Services.Interfaces
 {
-    public interface ITasksReportService
+    public interface ITodoItemReportService
     {
-        Task<AppResponse<TaskReportResponse>> GetProgressReportAsync(TaskReportRequest request); 
+        Task<AppResponse<TodoItemReportResponse>> GetProgressReportAsync(TodoItemReportRequest request); 
         Task<AppResponse<Guid>> CreateDailySnapshotAsync();
     }
 }

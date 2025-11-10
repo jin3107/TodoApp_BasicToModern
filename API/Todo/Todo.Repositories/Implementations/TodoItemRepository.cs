@@ -7,13 +7,12 @@ using System.Threading.Tasks;
 using Todo.Models.Data;
 using Todo.Models.Entities;
 using Todo.Repositories.Interfaces;
-using Task = Todo.Models.Entities.Task;
 
 namespace Todo.Repositories.Implementations
 {
-    public class TaskRepository : GenericRepository<Task, ApplicationDbContext, ApplicationUser>, ITaskRepository
+    public class TodoItemRepository : GenericRepository<TodoItem, ApplicationDbContext, ApplicationUser>, ITodoItemRepository
     {
-        public TaskRepository(ApplicationDbContext unitOfWork) : base(unitOfWork)
+        public TodoItemRepository(ApplicationDbContext unitOfWork) : base(unitOfWork)
         {
         }
     }

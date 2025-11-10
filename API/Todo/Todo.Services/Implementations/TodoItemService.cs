@@ -12,29 +12,29 @@ using System.Text;
 using System.Threading.Tasks;
 using Todo.DTOs.Requests;
 using Todo.DTOs.Responses;
+using Todo.Models.Entities;
 using Todo.Repositories.Interfaces;
 using Todo.Services.Interfaces;
 using Todo.Services.Mapping;
-using Task = Todo.Models.Entities.Task;
 using static MayNghien.Infrastructures.Helpers.SearchHelper;
 
 namespace Todo.Services.Implementations
 {
-    public class TaskService : ITaskService
+    public class TodoItemService : ITodoItemService
     {
-        private readonly ITaskRepository _taskRepository;
+        private readonly ITodoItemRepository _taskRepository;
 
-        public TaskService(ITaskRepository taskRepository)
+        public TodoItemService(ITodoItemRepository taskRepository)
         {
             _taskRepository = taskRepository;
         }
 
-        public async Task<AppResponse<TaskResponse>> CreateAsync(TaskRequest request)
+        public async Task<AppResponse<TodoItemResponse>> CreateAsync(TodoItemRequest request)
         {
-            var result = new AppResponse<TaskResponse>();
+            var result = new AppResponse<TodoItemResponse>();
             try
             {
-                var newTask = TaskMapper.ToEntity(request);
+                var newTask = TodoItemMapper.ToEntity(request);
                 newTask.Id = Guid.NewGuid();
                 newTask.Title = request.Title;
                 newTask.Description = request.Description;
@@ -45,7 +45,7 @@ namespace Todo.Services.Implementations
                 newTask.CompletedOn = null;
                 await _taskRepository.AddAsync(newTask);
 
-                var response = TaskMapper.ToResponse(newTask);
+                var response = TodoItemMapper.ToResponse(newTask);
                 result.BuildResult(response, "Task created successfully.");
             }
             catch (Exception ex)
@@ -74,16 +74,16 @@ namespace Todo.Services.Implementations
             return result;
         }
 
-        public async Task<AppResponse<TaskResponse>> GetByIdAsync(Guid id)
+        public async Task<AppResponse<TodoItemResponse>> GetByIdAsync(Guid id)
         {
-            var result = new AppResponse<TaskResponse>();
+            var result = new AppResponse<TodoItemResponse>();
             try
             {
                 var task = await _taskRepository.FindByAsync(p => p.Id == id).FirstOrDefaultAsync();
                 if (task == null || task.IsDeleted == true)
                     return result.BuildError("Task not found or deleted.");
 
-                var response = TaskMapper.ToResponse(task);
+                var response = TodoItemMapper.ToResponse(task);
                 result.BuildResult(response);
             }
             catch (Exception ex)
@@ -93,9 +93,9 @@ namespace Todo.Services.Implementations
             return result;
         }
 
-        public async Task<AppResponse<SearchResponse<TaskResponse>>> SearchAsync(SearchRequest request)
+        public async Task<AppResponse<SearchResponse<TodoItemResponse>>> SearchAsync(SearchRequest request)
         {
-            var result = new AppResponse<SearchResponse<TaskResponse>>();
+            var result = new AppResponse<SearchResponse<TodoItemResponse>>();
             try
             {
                 var query = BuildFilterExpression(request.Filters!);
@@ -111,8 +111,8 @@ namespace Todo.Services.Implementations
                 int pageSize = request.PageSize ?? 10;
                 int startIndex = (pageIndex - 1) * pageSize;
                 var classList = await tasks.Skip(startIndex).Take(pageSize).ToListAsync();
-                var dtoList = classList.Select(TaskMapper.ToResponse).ToList();
-                var searchResponse = new SearchResponse<TaskResponse>
+                var dtoList = classList.Select(TodoItemMapper.ToResponse).ToList();
+                var searchResponse = new SearchResponse<TodoItemResponse>
                 {
                     TotalPages = CalculateNumOfPages(numOfRecords, pageSize),
                     TotalRows = numOfRecords,
@@ -130,11 +130,11 @@ namespace Todo.Services.Implementations
             return result;
         }
 
-        private ExpressionStarter<Task> BuildFilterExpression(List<Filter> filters)
+        private ExpressionStarter<TodoItem> BuildFilterExpression(List<Filter> filters)
         {
             try
             {
-                var predicate = PredicateBuilder.New<Task>(true);
+                var predicate = PredicateBuilder.New<TodoItem>(true);
                 if (filters != null)
                 {
                     foreach (var filter in filters)
@@ -160,9 +160,9 @@ namespace Todo.Services.Implementations
             }
         }
 
-        public async Task<AppResponse<TaskResponse>> UpdateAsync(TaskRequest request)
+        public async Task<AppResponse<TodoItemResponse>> UpdateAsync(TodoItemRequest request)
         {
-            var result = new AppResponse<TaskResponse>();
+            var result = new AppResponse<TodoItemResponse>();
             try
             {
                 var task = await _taskRepository.GetAsync(request.Id);
@@ -177,7 +177,7 @@ namespace Todo.Services.Implementations
                 task.Priority = request.Priority;
                 task.CompletedOn = request.IsCompleted ? request.CompletedOn ?? DateTime.UtcNow : null;
                 await _taskRepository.EditAsync(task);
-                var response = TaskMapper.ToResponse(task);
+                var response = TodoItemMapper.ToResponse(task);
                 result.BuildResult(response, "Task updated successfully.");
             }
             catch (Exception ex)

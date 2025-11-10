@@ -6,13 +6,13 @@ using Todo.Services.Interfaces;
 
 namespace Todo.API.Controllers
 {
-    [Route("tasks")]
+    [Route("todo-item")]
     [ApiController]
-    public class TasksController : ControllerBase
+    public class TodoItemsController : ControllerBase
     {
-        private readonly ITaskService _taskService;
+        private readonly ITodoItemService _taskService;
 
-        public TasksController(ITaskService taskService)
+        public TodoItemsController(ITodoItemService taskService)
         {
             _taskService = taskService;
         }
@@ -26,14 +26,14 @@ namespace Todo.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] TaskRequest request)
+        public async Task<IActionResult> CreateAsync([FromBody] TodoItemRequest request)
         {
             var result = await _taskService.CreateAsync(request);
             return Ok(result);
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateAsync([FromBody] TaskRequest request)
+        public async Task<IActionResult> UpdateAsync([FromBody] TodoItemRequest request)
         {
             var result = await _taskService.UpdateAsync(request);
             return Ok(result);

@@ -7,18 +7,18 @@ namespace Todo.API.Controllers
 {
     [Route("reports")]
     [ApiController]
-    public class TaskReportsController : ControllerBase
+    public class TodoItemReportsController : ControllerBase
     {
-        private readonly ITasksReportService _taskReportsService;
+        private readonly ITodoItemReportService _taskReportsService;
 
-        public TaskReportsController(ITasksReportService taskReportsService)
+        public TodoItemReportsController(ITodoItemReportService taskReportsService)
         {
             _taskReportsService = taskReportsService;
         }
 
         [HttpPost]
         [Route("progress")]
-        public async Task<IActionResult> GetProgressReport([FromBody] TaskReportRequest request)
+        public async Task<IActionResult> GetProgressReport([FromBody] TodoItemReportRequest request)
         {
             var result = await _taskReportsService.GetProgressReportAsync(request);
             return Ok(result);

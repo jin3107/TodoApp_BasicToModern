@@ -16,11 +16,11 @@ namespace Todo.Services.Implementations
 {
     public class EmailService : IEmailService
     {
-        private readonly ITasksReportService _taskReportService;
+        private readonly ITodoItemReportService _taskReportService;
         private readonly ILogger<EmailService> _logger;
         private readonly IConfiguration _configuration;
 
-        public EmailService(ITasksReportService taskReportService, ILogger<EmailService> logger, IConfiguration configuration)
+        public EmailService(ITodoItemReportService taskReportService, ILogger<EmailService> logger, IConfiguration configuration)
         {
             _taskReportService = taskReportService;
             _logger = logger;
@@ -35,13 +35,13 @@ namespace Todo.Services.Implementations
         private string FromName => _configuration["EmailSettings:FromName"]!;
         private string RecipientEmail => _configuration["EmailSettings:RecipientEmail"]!;
 
-        public async Task SendDailyTaskReportAsync()
+        public async Task SendDailyTodoItemReportAsync()
         {
             try
             {
-                _logger.LogInformation("Sending daily task report at {DateTime.Now}", DateTime.Now);
+                _logger.LogInformation("Sending daily todo item report at {DateTime.Now}", DateTime.Now);
 
-                var request = new TaskReportRequest();
+                var request = new TodoItemReportRequest();
                 var reportResponse = await _taskReportService.GetProgressReportAsync(request);
                 var emailBody = BuildDailyReportEmail(reportResponse.Data);
                 await SendEmailAsync(
@@ -50,23 +50,23 @@ namespace Todo.Services.Implementations
                     body: emailBody
                 );
 
-                _logger.LogInformation("Daily task report sent successfully");
+                _logger.LogInformation("Daily todo item report sent successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send daily task report");
+                _logger.LogError(ex, "Failed to send daily todo item report");
                 throw;
             }
         }
 
-        private string BuildDailyReportEmail(TaskReportResponse report)
+        private string BuildDailyReportEmail(TodoItemReportResponse report)
         {
             return $"""
-                Daily Task Report - {DateTime.Now:dd-MM-yyyy}
+                Daily todo item Report - {DateTime.Now:dd-MM-yyyy}
                 
-                Tasks Completed Today: {report.CompletedTasks}
-                Tasks In Progress: {report.InProgressTasks}
-                Total Tasks: {report.TotalTasks}
+                Todo Items Completed Today: {report.CompletedTasks}
+                Todo Items In Progress: {report.InProgressTasks}
+                Todo Items Tasks: {report.TotalTasks}
                 """;
         }
 
@@ -99,17 +99,17 @@ namespace Todo.Services.Implementations
             }
         }
 
-        public async Task SendTaskReminderAsync()
+        public async Task SendTodoItemReminderAsync()
         {
             try
             {
-                _logger.LogInformation("Sending task reminder report at {Time}", DateTime.Now);
+                _logger.LogInformation("Sending todo item reminder report at {Time}", DateTime.Now);
 
-                var request = new TaskReportRequest();
+                var request = new TodoItemReportRequest();
                 var reportResponse = await _taskReportService.GetProgressReportAsync(request);
                 if (reportResponse?.Data == null)
                 {
-                    _logger.LogWarning("Cannot get task report data");
+                    _logger.LogWarning("Cannot get todo item report data");
                     return;
                 }
 
@@ -118,31 +118,31 @@ namespace Todo.Services.Implementations
                 var hasOverdueTaskList = report.MostOverdueTasks?.Any() ?? false;
                 if (!hasOverdueTaskList && !hasOverdueTasks)
                 {
-                    _logger.LogWarning("No overdue tasks. Skip sending reminder email");
+                    _logger.LogWarning("No overdue item. Skip sending reminder email");
                     return;
                 }
-                var emailBody = BuildTaskReminderEmail(report);
+                var emailBody = BuildTodoItemReminderEmail(report);
                 await SendEmailAsync(
                     to: RecipientEmail,
-                    subject: $"Task Reminder - {report.OverdueTasks} Overdue Tasks",
+                    subject: $"Todo Item Reminder - {report.OverdueTasks} Overdue item",
                     body: emailBody
                 ); 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send task reminder");
+                _logger.LogError(ex, "Failed to send todo item reminder");
                 throw;
             }
         }
 
-        private string BuildTaskReminderEmail(TaskReportResponse report)
+        private string BuildTodoItemReminderEmail(TodoItemReportResponse report)
         {
             var overdueCount = report.OverdueTasks;
             var overdueTasks = report.MostOverdueTasks;
             var taskList = "";
             if (overdueTasks.Any())
             {
-                taskList = "\nMost Overdue Tasks:\n";
+                taskList = "\nMost Overdue Todo Items:\n";
                 var count = 1;
                 foreach (var task in overdueTasks.Take(5))
                 {
@@ -170,47 +170,47 @@ namespace Todo.Services.Implementations
             }
 
             return $"""
-                Task Reminder - {DateTime.Now:dd-MM-yyyy}
+                Todo Item Reminder - {DateTime.Now:dd-MM-yyyy}
                 
-                You have {overdueCount} overdue task(s) that need attention!
+                You have {overdueCount} overdue item(s) that need attention!
                 {taskList}
                 Current Status:
-                Completed: {report.CompletedTasks} tasks
-                In Progress: {report.InProgressTasks} tasks
-                Overdue: {overdueCount} tasks
+                Completed: {report.CompletedTasks} items
+                In Progress: {report.InProgressTasks} items
+                Overdue: {overdueCount} items
                 """;
         }
 
-        public async Task SendWeeklyTaskSummaryAsync()
+        public async Task SendWeeklyTodoItemSummaryAsync()
         {
             try
             {
-                _logger.LogInformation("Seding weekly task summary at {Time}", DateTime.Now);
-                var request = new TaskReportRequest();
+                _logger.LogInformation("Seding weekly todo item summary at {Time}", DateTime.Now);
+                var request = new TodoItemReportRequest();
                 var reportResponse = await _taskReportService.GetProgressReportAsync(request);
                 var emailBody = BuildWeeklyReportEmail(reportResponse.Data);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send weekly task summary");
+                _logger.LogError(ex, "Failed to send weekly todo item summary");
             }
         }
 
-        private string BuildWeeklyReportEmail(TaskReportResponse report)
+        private string BuildWeeklyReportEmail(TodoItemReportResponse report)
         {
             return $"""
-                Weekly Task Summary - Week of {DateTime.Now:dd-MM-yyyy}
+                Weekly Todo Item Summary - Week of {DateTime.Now:dd-MM-yyyy}
 
                 This Week's Achievements:
-                Completed: {report.CompletedTasks} tasks
-                In Progress: {report.InProgressTasks} tasks
-                Total: {report.TotalTasks} tasks
+                Completed: {report.CompletedTasks} items
+                In Progress: {report.InProgressTasks} items
+                Total: {report.TotalTasks} items
 
                 Productivity Score: {CalculateProductivityScore(report)}%
                 """;
         }
 
-        private int CalculateProductivityScore(TaskReportResponse report)
+        private int CalculateProductivityScore(TodoItemReportResponse report)
         {
             if (report == null) return 0;
             var total = report.TotalTasks;

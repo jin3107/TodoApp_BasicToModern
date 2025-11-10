@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Todo.DTOs.Responses
 {
-    public class TaskReportResponse
+    public class TodoItemReportResponse
     {
         public int TotalTasks { get; set; }
         public int CompletedTasks { get; set; }
@@ -21,7 +21,7 @@ namespace Todo.DTOs.Responses
         public int TasksCompletedThisWeek { get; set; }
         public int TasksCompletedThisMonth { get; set; }
 
-        public List<TaskResponse> MostOverdueTasks { get; set; }
+        public List<TodoItemResponse> MostOverdueTasks { get; set; }
         public PriorityDistribution PriorityDistribution { get; set; }
         public List<DailyCompletionTrend> CompletionTrend { get; set; }
     }

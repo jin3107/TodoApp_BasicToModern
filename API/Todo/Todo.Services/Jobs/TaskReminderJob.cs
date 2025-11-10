@@ -24,15 +24,15 @@ namespace Todo.Services.Jobs
         public async Task Execute(IJobExecutionContext context)
         {
             var jobKey = context.JobDetail.Key;
-            _logger.LogInformation("Starting Task Reminder Job: {JoKey} at {Time}", jobKey, DateTime.Now);
+            _logger.LogInformation("Starting Todo Item Reminder Job: {JoKey} at {Time}", jobKey, DateTime.Now);
             try
             {
-                await _emailService.SendTaskReminderAsync();
-                _logger.LogInformation("Task Reminder Job completed successfully!");
+                await _emailService.SendTodoItemReminderAsync();
+                _logger.LogInformation("Todo Item Reminder Job completed successfully!");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Task Reminder Job failed!");
+                _logger.LogError(ex, "Todo Item Reminder Job failed!");
                 throw new JobExecutionException(ex, refireImmediately: false);
             }
         }

@@ -9,15 +9,15 @@ namespace Todo.API.Extensions
     {
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
-            services.AddScoped<ITaskRepository, TaskRepository>();
-            services.AddScoped<ITaskProgressReportReporitory, TaskProgressReportRepository>();
+            services.AddScoped<ITodoItemRepository, TodoItemRepository>();
+            services.AddScoped<ITodoItemProgressReportReporitory, TodoItemProgressReportRepository>();
             return services;
         }
 
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            services.AddScoped<ITaskService, TaskService>();
-            services.AddScoped<ITasksReportService, TaskReportService>();
+            services.AddScoped<ITodoItemService, TodoItemService>();
+            services.AddScoped<ITodoItemReportService, TodoItemReportService>();
             services.AddScoped<IEmailService, EmailService>();
             return services;
         }

@@ -10,9 +10,9 @@ using Todo.Repositories.Interfaces;
 
 namespace Todo.Repositories.Implementations
 {
-    public class TaskProgressReportRepository : GenericRepository<TaskProgressReport, ApplicationDbContext, ApplicationUser>, ITaskProgressReportReporitory
+    public class TodoItemProgressReportRepository : GenericRepository<TodoItemProgressReport, ApplicationDbContext, ApplicationUser>, ITodoItemProgressReportReporitory
     {
-        public TaskProgressReportRepository(ApplicationDbContext unitOfWork) : base(unitOfWork)
+        public TodoItemProgressReportRepository(ApplicationDbContext unitOfWork) : base(unitOfWork)
         {
         }
     }

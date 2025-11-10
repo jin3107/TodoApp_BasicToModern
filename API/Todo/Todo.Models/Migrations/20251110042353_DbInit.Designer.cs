@@ -12,8 +12,8 @@ using Todo.Models.Data;
 namespace Todo.Models.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251030153046_AddTable_TaskProgressReport")]
-    partial class AddTable_TaskProgressReport
+    [Migration("20251110042353_DbInit")]
+    partial class DbInit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -221,7 +221,7 @@ namespace Todo.Models.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Todo.Models.Entities.Task", b =>
+            modelBuilder.Entity("Todo.Models.Entities.TodoItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -264,10 +264,10 @@ namespace Todo.Models.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tasks");
+                    b.ToTable("TodoItems");
                 });
 
-            modelBuilder.Entity("Todo.Models.Entities.TaskProgressReport", b =>
+            modelBuilder.Entity("Todo.Models.Entities.TodoItemProgressReport", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()

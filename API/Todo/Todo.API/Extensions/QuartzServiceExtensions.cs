@@ -18,7 +18,7 @@ namespace Todo.API.Extensions
 
                 var dailyReportJobKey = new JobKey("DailyTaskReportJob", "EmailJobs");
                 var dailyReportTrigger = new TriggerKey("DailyReportTrigger", "EmailJobs");
-                q.AddJob<DailyTaskReportJob>(opts => opts
+                q.AddJob<DailyTodoItemReportJob>(opts => opts
                     .WithIdentity(dailyReportJobKey)
                     .WithDescription("Send daily task report email at 6:00 PM"));
 

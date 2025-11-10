@@ -3,13 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Todo.Models.Data;
 using Todo.Models.Entities;
 
 namespace Todo.Repositories.Interfaces
 {
-    public interface ITaskProgressReportReporitory : IGenericRepository<TaskProgressReport, ApplicationDbContext, ApplicationUser>
+    public interface ITodoItemRepository : IGenericRepository<TodoItem, ApplicationDbContext, ApplicationUser>
     {
     }
 }

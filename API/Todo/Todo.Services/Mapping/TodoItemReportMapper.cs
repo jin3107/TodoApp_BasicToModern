@@ -8,11 +8,11 @@ using Todo.Models.Entities;
 
 namespace Todo.Services.Mapping
 {
-    public static class TaskReportMapper
+    public static class TodoItemReportMapper
     {
-        public static TaskProgressReport ToEntity(TaskReportResponse response, DateTime reportDate, string notes = "")
+        public static TodoItemProgressReport ToEntity(TodoItemReportResponse response, DateTime reportDate, string notes = "")
         {
-            return new TaskProgressReport
+            return new TodoItemProgressReport
             {
                 Id = Guid.NewGuid(),
                 ReportDate = reportDate,
@@ -30,9 +30,9 @@ namespace Todo.Services.Mapping
             };
         }
 
-        public static TaskReportResponse ToResponse(TaskProgressReport entity)
+        public static TodoItemReportResponse ToResponse(TodoItemProgressReport entity)
         {
-            return new TaskReportResponse
+            return new TodoItemReportResponse
             {
                 TotalTasks = entity.TotalTasks,
                 CompletedTasks = entity.CompletedTasks,
@@ -42,28 +42,6 @@ namespace Todo.Services.Mapping
                 CompletionRate = entity.CompletionRate,
                 AverageCompletionTimeHours = entity.AverageCompletionTimeHours,
                 TasksCompletedThisToday = entity.TasksCompletedToday
-            };
-        }
-
-        //public static DailyCompletionTrend CreateDailyTrend(DateTime date, List<Models.Entities.Task> allTasks)
-        //{
-        //    return new DailyCompletionTrend
-        //    {
-        //        Date = date,
-        //        CompletedCount = allTasks.Count(t =>
-        //            t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value.Date == date),
-        //        CreatedCount = allTasks.Count(t =>
-        //            t.CreatedOn.HasValue && t.CreatedOn.Value.Date == date)
-        //    };
-        //}
-
-        public static PriorityDistribution CreatePriorityDistribution(List<Models.Entities.Task> allTasks)
-        {
-            return new PriorityDistribution
-            {
-                HighPriority = allTasks.Count(t => t.Priority == Commons.Enums.Tier.High),
-                MediumPriority = allTasks.Count(t => t.Priority == Commons.Enums.Tier.Medium),
-                LowPriority = allTasks.Count(t => t.Priority == Commons.Enums.Tier.Low)
             };
         }
     }

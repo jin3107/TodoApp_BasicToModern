@@ -218,7 +218,7 @@ namespace Todo.Models.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Todo.Models.Entities.Task", b =>
+            modelBuilder.Entity("Todo.Models.Entities.TodoItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -261,10 +261,10 @@ namespace Todo.Models.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tasks");
+                    b.ToTable("TodoItems");
                 });
 
-            modelBuilder.Entity("Todo.Models.Entities.TaskProgressReport", b =>
+            modelBuilder.Entity("Todo.Models.Entities.TodoItemProgressReport", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()

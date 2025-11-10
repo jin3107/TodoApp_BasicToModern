@@ -2,31 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Task = Todo.Models.Entities.Task;
 using Todo.DTOs.Requests;
 using Todo.DTOs.Responses;
+using Todo.Models.Entities;
 
 namespace Todo.Services.Mapping
 {
-    public static class TaskMapper
+    public static class TodoItemMapper
     {
-        public static TaskRequest ToRequest(Task entity)
+        public static TodoItem ToEntity(TodoItemRequest request)
         {
-            return new TaskRequest
-            {
-                Id = entity.Id,
-                Title = entity.Title,
-                Description = entity.Description,
-                DueDate = entity.DueDate,
-                IsCompleted = entity.IsCompleted,
-                Priority = entity.Priority,
-                CompletedOn = entity.CompletedOn,
-            };
-        }
-
-        public static Task ToEntity(TaskRequest request)
-        {
-            return new Task
+            return new TodoItem
             {
                 Title = request.Title,
                 Description = request.Description,
@@ -37,9 +23,9 @@ namespace Todo.Services.Mapping
             };
         }
 
-        public static TaskResponse ToResponse(Task entity)
+        public static TodoItemResponse ToResponse(TodoItem entity)
         {
-            return new TaskResponse
+            return new TodoItemResponse
             {
                 Id = entity.Id,
                 Title = entity.Title,

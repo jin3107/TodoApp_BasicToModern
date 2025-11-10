@@ -26,18 +26,18 @@ namespace Todo.Services.Jobs
         public async Task Execute(IJobExecutionContext context)
         {
             var jobKey = context.JobDetail.Key;
-            _logger.LogInformation("Starting Weekly Task Summary Job: {JobKey} at {Time}",
+            _logger.LogInformation("Starting Weekly Todo Item Summary Job: {JobKey} at {Time}",
                 jobKey, DateTime.Now);
 
             try
             {
-                await _emailService.SendWeeklyTaskSummaryAsync();
+                await _emailService.SendWeeklyTodoItemSummaryAsync();
 
-                _logger.LogInformation("Weekly Task Summary Job completed successfully!");
+                _logger.LogInformation("Weekly Todo Item Summary Job completed successfully!");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Weekly Task Summary Job failed!");
+                _logger.LogError(ex, "Weekly Todo Item Summary Job failed!");
                 throw new JobExecutionException(ex, refireImmediately: false);
             }
         }

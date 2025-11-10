@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Todo.Models.Entities
 {
-    public class TaskProgressReport : BaseEntity
+    public class TodoItemProgressReport : BaseEntity
     {
         public DateTime ReportDate { get; set; }
         public int TotalTasks { get; set; }

@@ -9,11 +9,11 @@ namespace Todo.API
     {
         public void Mapping(WebApplicationBuilder builder)
         {
-            builder.Services.AddScoped<ITaskRepository, TaskRepository>();
-            builder.Services.AddScoped<ITaskProgressReportReporitory, TaskProgressReportRepository>();
+            builder.Services.AddScoped<ITodoItemRepository, TodoItemRepository>();
+            builder.Services.AddScoped<ITodoItemProgressReportReporitory, TodoItemProgressReportRepository>();
 
-            builder.Services.AddScoped<ITaskService, TaskService>();
-            builder.Services.AddScoped<ITasksReportService, TaskReportService>();
+            builder.Services.AddScoped<ITodoItemService, TodoItemService>();
+            builder.Services.AddScoped<ITodoItemReportService, TodoItemReportService>();
         }
     }
 }

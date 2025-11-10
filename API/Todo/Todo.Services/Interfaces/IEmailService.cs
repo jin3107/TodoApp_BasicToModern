@@ -8,9 +8,9 @@ namespace Todo.Services.Interfaces
 {
     public interface IEmailService
     {
-        Task SendDailyTaskReportAsync();
-        Task SendWeeklyTaskSummaryAsync();
-        Task SendTaskReminderAsync();
+        Task SendDailyTodoItemReportAsync();
+        Task SendWeeklyTodoItemSummaryAsync();
+        Task SendTodoItemReminderAsync();
         Task SendEmailAsync(string to, string subject, string body);
     }
 }
