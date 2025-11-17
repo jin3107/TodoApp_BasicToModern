@@ -10,23 +10,16 @@
 
   .tasks-header {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
-    position: relative;
 
     h1, h2 {
       font-size: 28px;
       font-weight: 600;
       color: #262626;
       margin: 0;
-      text-align: center;
       @include fonts.inter(600);
-    }
-
-    .ant-btn {
-      position: absolute;
-      right: 0;
     }
   }
 
@@ -39,12 +32,14 @@
       display: flex;
       gap: 12px;
       align-items: center;
+      flex-wrap: wrap;
     }
   }
 
   .ant-table-wrapper {
     background: white;
     border-radius: 8px;
+    overflow: hidden;
   }
 
   .ant-card {
@@ -69,6 +64,7 @@
       background-color: #fafafa;
       font-weight: 600;
       color: #262626;
+      white-space: nowrap;
     }
 
     .ant-table-tbody > tr > td {
@@ -85,42 +81,177 @@
     user-select: none;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 7px;
+    white-space: nowrap;
 
     &:hover {
       color: #1890ff;
     }
   }
 
-  .action-buttons {
-    display: flex;
-    gap: 8px;
-    white-space: nowrap;
+  // Dropdown menu styles
+  .ant-dropdown-menu {
+    min-width: 140px;
+
+    .ant-dropdown-menu-item {
+      padding: 8px 12px;
+      
+      .anticon {
+        margin-right: 8px;
+      }
+    }
   }
 
-  // Responsive
+  // Tablet
   @media (max-width: 768px) {
     padding: 16px;
 
     .tasks-header {
       flex-direction: column;
-      gap: 12px;
-
-      .ant-btn {
-        position: static;
-        width: 100%;
-      }
+      gap: 16px;
+      align-items: stretch;
 
       h1, h2 {
-        font-size: 22px;
+        font-size: 24px;
+        text-align: center;
+      }
+
+      .ant-btn {
+        width: 100%;
+      }
+    }
+
+    .tasks-search {
+      .search-container {
+        width: 100%;
+        gap: 8px;
+
+        .ant-select {
+          width: 150px !important;
+        }
+
+        .ant-input {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .ant-btn {
+          width: auto;
+          padding: 0 20px;
+        }
+      }
+    }
+
+    // Responsive table scroll
+    .ant-card {
+      position: relative;
+      overflow: hidden;
+
+      &::before,
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 20px;
+        z-index: 2;
+        pointer-events: none;
+        transition: opacity 0.3s;
+      }
+
+      &::before {
+        left: 0;
+        background: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0));
+      }
+
+      &::after {
+        right: 0;
+        background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0));
+      }
+    }
+
+    .ant-table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      
+      &::-webkit-scrollbar {
+        height: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
+        
+        &:hover {
+          background: #555;
+        }
+      }
+    }
+
+    .ant-table {
+      min-width: 900px;
+      font-size: 13px;
+
+      .ant-table-thead > tr > th,
+      .ant-table-tbody > tr > td {
+        padding: 12px 10px;
+      }
+
+    }
+  }
+
+  // Mobile
+  @media (max-width: 576px) {
+    padding: 12px;
+
+    .tasks-header {
+      gap: 12px;
+
+      h1, h2 {
+        font-size: 20px;
+      }
+    }
+
+    // Compact statistics cards
+    .ant-row {
+      margin: 0 -6px !important;
+
+      .ant-col {
+        padding: 0 6px !important;
+        margin-bottom: 12px;
+      }
+    }
+
+    .ant-card {
+      margin-bottom: 12px;
+
+      .ant-card-body {
+        padding: 16px 12px;
+      }
+
+      .ant-statistic-title {
+        font-size: 11px;
+        margin-bottom: 4px;
+      }
+
+      .ant-statistic-content {
+        font-size: 20px;
+      }
+
+      .ant-statistic-content-prefix {
+        font-size: 16px;
+        margin-right: 4px;
       }
     }
 
     .tasks-search {
       .search-container {
         flex-direction: column;
-        width: 100%;
-        gap: 8px;
 
         .ant-select,
         .ant-input,
@@ -130,129 +261,89 @@
       }
     }
 
-    // Table wrapper scroll horizontal
-    .ant-card {
-      overflow-x: auto;
-    }
-
-    .ant-table-wrapper {
-      overflow-x: auto;
-    }
-
+    // Compact table for mobile
     .ant-table {
-      min-width: 700px; // Đảm bảo table có width tối thiểu
-      font-size: 13px;
-
-      .ant-table-thead > tr > th,
-      .ant-table-tbody > tr > td {
-        padding: 12px 8px;
-        white-space: nowrap;
-      }
-
-      // Giữ action buttons gọn
-      .ant-table-cell:last-child {
-        min-width: 100px;
-      }
-    }
-
-    .action-buttons {
-      gap: 4px;
-
-      .ant-btn-link {
-        padding: 4px 8px;
-        font-size: 12px;
-      }
-    }
-  }
-
-  @media (max-width: 576px) {
-    padding: 12px;
-
-    .tasks-header {
-      h1, h2 {
-        font-size: 20px;
-      }
-    }
-
-    .ant-row {
-      margin: 0 -4px !important;
-
-      .ant-col {
-        padding: 0 4px !important;
-        margin-bottom: 8px;
-      }
-    }
-
-    .ant-card {
-      margin-bottom: 12px;
-
-      .ant-statistic-title {
-        font-size: 12px;
-      }
-
-      .ant-statistic-content {
-        font-size: 18px;
-      }
-
-      .ant-statistic-content-prefix {
-        font-size: 16px;
-      }
-    }
-
-    .ant-table {
-      min-width: 650px;
+      min-width: 800px;
       font-size: 12px;
 
       .ant-table-thead > tr > th,
       .ant-table-tbody > tr > td {
-        padding: 10px 6px;
+        padding: 10px 8px;
       }
 
-      // Thu gọn các cột
-      .ant-table-cell:nth-child(1) { // Tiêu đề
-        min-width: 120px;
+      // Tiêu đề
+      .ant-table-cell:nth-child(1) {
+        min-width: 140px;
+        max-width: 160px;
       }
 
-      .ant-table-cell:nth-child(2) { // Mô tả
-        min-width: 150px;
-        max-width: 200px;
+      // Mô tả
+      .ant-table-cell:nth-child(2) {
+        min-width: 180px;
+        max-width: 220px;
       }
 
-      .ant-table-cell:nth-child(3), // Priority
-      .ant-table-cell:nth-child(4) { // Status
+      // Độ ưu tiên
+      .ant-table-cell:nth-child(3) { 
         min-width: 100px;
       }
 
-      .ant-table-cell:nth-child(5), // Due date
-      .ant-table-cell:nth-child(6) { // Completed date
-        min-width: 90px;
+      // Trạng thái
+      .ant-table-cell:nth-child(4) { 
+        min-width: 130px;
       }
-    }
 
-    .action-buttons {
-      .ant-btn-link {
-        padding: 2px 6px;
+      // Hạn hoàn thành
+      .ant-table-cell:nth-child(5) {
+        min-width: 110px;
+      }
+
+      // Ngày hoàn thành
+      .ant-table-cell:nth-child(6) { 
+        min-width: 110px;
+      }
+
+      // Thao tác
+      .ant-table-cell:last-child {
+        min-width: 80px;
+        width: 80px;
+      }
+
+      .ant-tag {
         font-size: 11px;
+        padding: 2px 6px;
       }
     }
 
-    // Scroll hint shadow
-    .ant-card {
-      position: relative;
+    // Scroll hint for mobile
+    .ant-card .ant-table-wrapper::after {
+      content: '← Vuốt để xem thêm →';
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      white-space: nowrap;
+      z-index: 10;
+      animation: fadeOut 3s forwards;
+      pointer-events: none;
+    }
 
-      &::after {
-        content: '';
-        position: absolute;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        width: 30px;
-        background: linear-gradient(to left, rgba(255,255,255,0.9), transparent);
-        pointer-events: none;
+    @keyframes fadeOut {
+      0%, 70% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
       }
     }
   }
 
+  // Tablet landscape
   @media (min-width: 769px) and (max-width: 1024px) {
     padding: 20px;
 
@@ -261,6 +352,21 @@
         font-size: 26px;
       }
     }
+
+    .ant-table {
+      font-size: 14px;
+
+      .ant-table-thead > tr > th,
+      .ant-table-tbody > tr > td {
+        padding: 14px 12px;
+      }
+    }
+  }
+
+  // Large desktop
+  @media (min-width: 1400px) {
+    max-width: 1400px;
+    margin: 0 auto;
   }
 }
 

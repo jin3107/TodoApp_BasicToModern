@@ -7,7 +7,6 @@ import {
   Select,
   Modal,
   Form,
-  Popconfirm,
   Descriptions,
   Spin,
   Typography,
@@ -19,7 +18,9 @@ import {
   Statistic,
   DatePicker,
   Switch,
+  Dropdown,
 } from "antd";
+import type { MenuProps } from "antd";
 import {
   PlusOutlined,
   CheckCircleOutlined,
@@ -28,6 +29,10 @@ import {
   SearchOutlined,
   SortAscendingOutlined,
   SortDescendingOutlined,
+  MoreOutlined,
+  EyeOutlined,
+  EditOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import { Tier } from "../../commons";
@@ -314,11 +319,15 @@ const Tasks = () => {
       ),
       dataIndex: 'title',
       key: 'title',
-      width: '10%',
+      ellipsis: {
+        showTitle: false,
+      },
       render: (text: string, r: TodoItemData) => (
         <Space>
           {r.priority === Tier.High && <ExclamationCircleOutlined style={{ color: 'red' }} />}
-          <Text strong ellipsis={{ tooltip: text }}>{text}</Text>
+          <Text strong ellipsis={{ tooltip: text }} style={{ maxWidth: 150 }}>
+            {text}
+          </Text>
         </Space>
       ),
     },
@@ -326,10 +335,13 @@ const Tasks = () => {
       title: 'Mô tả',
       dataIndex: 'description',
       key: 'description',
-      width: '20%',
-      ellipsis: true,
+      ellipsis: {
+        showTitle: false,
+      },
       render: (text: string) => (
-        <Text ellipsis={{ tooltip: text }}>{text || "-"}</Text>
+        <Text ellipsis={{ tooltip: text }} style={{ maxWidth: 200 }}>
+          {text || "-"}
+        </Text>
       ),
     },
     {
@@ -340,14 +352,12 @@ const Tasks = () => {
       ),
       dataIndex: 'priority',
       key: 'priority',
-      width: '10%',
       render: (priority: Tier) => getPriorityTag(priority),
     },
     {
       title: 'Trạng thái',
       dataIndex: 'isCompleted',
       key: 'isCompleted',
-      width: '12%',
       render: (isCompleted: boolean) => getStatusTag(isCompleted),
     },
     {
@@ -358,44 +368,63 @@ const Tasks = () => {
       ),
       dataIndex: 'dueDate',
       key: 'dueDate',
-      width: '13%',
       render: (date: string) => fmtDate(date, false),
     },
     {
       title: 'Ngày hoàn thành',
       dataIndex: 'completedOn',
       key: 'completedOn',
-      width: '13%',
       render: (date?: string) => fmtDate(date, false),
     },
     {
       title: 'Thao tác',
       key: 'action',
-      fixed: 'right' as const,
-      width: 150,
-      render: (_: unknown, record: TodoItemData) => (
-        <div className="action-buttons" style={{ whiteSpace: "nowrap" }}>
-          <Button type="link" onClick={() => openDetail(record.id)}>
-            Chi tiết
-          </Button>
-          <Button type="link" onClick={() => openUpdate(record.id)}>
-            Sửa
-          </Button>
-          <Popconfirm
-            title="Xóa task này?"
-            okText="Xóa"
-            cancelText="Hủy"
-            onConfirm={async () => {
-              if (!record.id) return;
-              await handleDelete(record.id);
-            }}
-          >
-            <Button type="link" danger>
-              Xóa
-            </Button>
-          </Popconfirm>
-        </div>
-      ),
+      width: 80,
+      align: 'center' as const,
+      render: (_: unknown, record: TodoItemData) => {
+        const menuItems: MenuProps['items'] = [
+          {
+            key: 'detail',
+            label: 'Chi tiết',
+            icon: <EyeOutlined />,
+            onClick: () => openDetail(record.id),
+          },
+          {
+            key: 'edit',
+            label: 'Chỉnh sửa',
+            icon: <EditOutlined />,
+            onClick: () => openUpdate(record.id),
+          },
+          {
+            type: 'divider',
+          },
+          {
+            key: 'delete',
+            label: 'Xóa',
+            icon: <DeleteOutlined />,
+            danger: true,
+            onClick: () => {
+              Modal.confirm({
+                title: 'Xác nhận xóa',
+                content: 'Bạn có chắc chắn muốn xóa công việc này?',
+                okText: 'Xóa',
+                okType: 'danger',
+                cancelText: 'Hủy',
+                onOk: async () => {
+                  if (!record.id) return;
+                  await handleDelete(record.id);
+                },
+              });
+            },
+          },
+        ];
+
+        return (
+          <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
+            <Button type="text" icon={<MoreOutlined />} size="small" />
+          </Dropdown>
+        );
+      },
     },
   ];
 
@@ -411,8 +440,8 @@ const Tasks = () => {
         </Button>
       </div>
 
-      <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={8}>
+      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+        <Col xs={24} sm={8}>
           <Card>
             <Statistic
               title="Tổng số công việc"
@@ -422,7 +451,7 @@ const Tasks = () => {
             />
           </Card>
         </Col>
-        <Col span={8}>
+        <Col xs={24} sm={8}>
           <Card>
             <Statistic
               title="Đã hoàn thành"
@@ -432,7 +461,7 @@ const Tasks = () => {
             />
           </Card>
         </Col>
-        <Col span={8}>
+        <Col xs={24} sm={8}>
           <Card>
             <Statistic
               title="Ưu tiên cao"
@@ -476,12 +505,16 @@ const Tasks = () => {
           dataSource={tasks}
           rowKey={(record) => record.id}
           loading={loading}
+          scroll={{ x: 900 }}
           pagination={{
             current: currentPage,
             pageSize,
             total,
             showSizeChanger: true,
             showTotal: (t) => `Tổng ${t} công việc`,
+            pageSizeOptions: ['10', '20', '50'],
+            responsive: true,
+            showQuickJumper: true,
           }}
         />
       </Card>
