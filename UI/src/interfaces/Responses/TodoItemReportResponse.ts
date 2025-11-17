@@ -1,7 +1,7 @@
 import type DailyCompletionTrendResponse from "./DailyCompletionTrendResponse";
-import type TaskResponse from "./TaskResponse";
+import type TodoItemResponse from "./TodoItemResponse";
 
-export default interface TaskReportResponse {
+export default interface TodoItemReportResponse {
   totalTasks: number;
   completedTasks: number;
   inProgressTasks: number;
@@ -14,7 +14,7 @@ export default interface TaskReportResponse {
   tasksCompletedThisToday: number;
   tasksCompletedThisWeek: number;
   tasksCompletedThisMonth: number;
-  mostOverdueTasks: TaskResponse[];
+  mostOverdueTasks: TodoItemResponse[];
   priorityDistribution: PriorityDistribution;
   completionTrend: DailyCompletionTrendResponse[];
 }

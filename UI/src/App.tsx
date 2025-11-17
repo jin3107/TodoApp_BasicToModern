@@ -6,7 +6,7 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import Dashboard from './pages/Dashboard';
-import Tasks from './pages/Tasks';
+import Tasks from './pages/TodoItems';
 import './App.css';
 
 const { Header, Content, Sider } = Layout;

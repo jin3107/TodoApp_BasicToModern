@@ -1,4 +1,4 @@
-export default interface TaskReportItemResponse {
+export default interface TodoItemReportItemResponse {
   id: string;
   title: string;
   description: string;

@@ -22,11 +22,11 @@ namespace Todo.Services.Implementations
 {
     public class TodoItemService : ITodoItemService
     {
-        private readonly ITodoItemRepository _taskRepository;
+        private readonly ITodoItemRepository _todoItemRepository;
 
-        public TodoItemService(ITodoItemRepository taskRepository)
+        public TodoItemService(ITodoItemRepository todoItemRepository)
         {
-            _taskRepository = taskRepository;
+            _todoItemRepository = todoItemRepository;
         }
 
         public async Task<AppResponse<TodoItemResponse>> CreateAsync(TodoItemRequest request)
@@ -43,10 +43,10 @@ namespace Todo.Services.Implementations
                 newTask.CreatedOn = DateTime.UtcNow;
                 newTask.IsCompleted = false;
                 newTask.CompletedOn = null;
-                await _taskRepository.AddAsync(newTask);
+                await _todoItemRepository.AddAsync(newTask);
 
                 var response = TodoItemMapper.ToResponse(newTask);
-                result.BuildResult(response, "Task created successfully.");
+                result.BuildResult(response, "Item created successfully.");
             }
             catch (Exception ex)
             {
@@ -60,12 +60,12 @@ namespace Todo.Services.Implementations
             var result = new AppResponse<string>();
             try
             {
-                var task = await _taskRepository.GetAsync(id);
+                var task = await _todoItemRepository.GetAsync(id);
                 if (task == null || task.IsDeleted == true)
-                    return result.BuildError("Task not found or deleted.");
+                    return result.BuildError("Item not found or deleted.");
                 task.IsDeleted = true;
-                await _taskRepository.EditAsync(task);
-                result.BuildResult("Task deleted successfully.");
+                await _todoItemRepository.EditAsync(task);
+                result.BuildResult("Item deleted successfully.");
             }
             catch (Exception ex)
             {
@@ -79,9 +79,9 @@ namespace Todo.Services.Implementations
             var result = new AppResponse<TodoItemResponse>();
             try
             {
-                var task = await _taskRepository.FindByAsync(p => p.Id == id).FirstOrDefaultAsync();
+                var task = await _todoItemRepository.FindByAsync(p => p.Id == id).FirstOrDefaultAsync();
                 if (task == null || task.IsDeleted == true)
-                    return result.BuildError("Task not found or deleted.");
+                    return result.BuildError("Item not found or deleted.");
 
                 var response = TodoItemMapper.ToResponse(task);
                 result.BuildResult(response);
@@ -99,11 +99,11 @@ namespace Todo.Services.Implementations
             try
             {
                 var query = BuildFilterExpression(request.Filters!);
-                var numOfRecords = await _taskRepository.CountRecordsAsync(query);
-                var tasks = _taskRepository.FindByPredicate(query).AsQueryable();
+                var numOfRecords = await _todoItemRepository.CountRecordsAsync(query);
+                var tasks = _todoItemRepository.FindByPredicate(query).AsQueryable();
 
                 if (request.SortBy != null)
-                    tasks = _taskRepository.AddSort(tasks, request.SortBy);
+                    tasks = _todoItemRepository.AddSort(tasks, request.SortBy);
                 else
                     tasks = tasks.OrderBy(x => x.Title);
 
@@ -165,9 +165,9 @@ namespace Todo.Services.Implementations
             var result = new AppResponse<TodoItemResponse>();
             try
             {
-                var task = await _taskRepository.GetAsync(request.Id);
+                var task = await _todoItemRepository.GetAsync(request.Id);
                 if (task == null || task.IsDeleted == true)
-                    return result.BuildError("Task not found or deleted.");
+                    return result.BuildError("Item not found or deleted.");
 
                 task.Title = request.Title;
                 task.Description = request.Description;
@@ -176,9 +176,9 @@ namespace Todo.Services.Implementations
                 task.IsCompleted = request.IsCompleted;
                 task.Priority = request.Priority;
                 task.CompletedOn = request.IsCompleted ? request.CompletedOn ?? DateTime.UtcNow : null;
-                await _taskRepository.EditAsync(task);
+                await _todoItemRepository.EditAsync(task);
                 var response = TodoItemMapper.ToResponse(task);
-                result.BuildResult(response, "Task updated successfully.");
+                result.BuildResult(response, "Item updated successfully.");
             }
             catch (Exception ex)
             {

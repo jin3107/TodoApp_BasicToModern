@@ -17,12 +17,12 @@ namespace Todo.Services.Implementations
 {
     public class TodoItemReportService : ITodoItemReportService
     {
-        private readonly ITodoItemRepository _taskRepository;
+        private readonly ITodoItemRepository _todoItemRepository;
         private readonly ITodoItemProgressReportReporitory _reportRepository;
 
-        public TodoItemReportService(ITodoItemRepository taskRepository, ITodoItemProgressReportReporitory reportRepository)
+        public TodoItemReportService(ITodoItemRepository todoItemRepository, ITodoItemProgressReportReporitory reportRepository)
         {
-            _taskRepository = taskRepository;
+            _todoItemRepository = todoItemRepository;
             _reportRepository = reportRepository;
         }
 
@@ -56,7 +56,7 @@ namespace Todo.Services.Implementations
             try
             {
                 var now = DateTime.UtcNow;
-                var allTasksQuery = _taskRepository.AsQueryable().Where(t => t.IsDeleted == false).AsNoTracking();
+                var allTasksQuery = _todoItemRepository.AsQueryable().Where(t => t.IsDeleted == false).AsNoTracking();
                 if (request.StartDate.HasValue)
                     allTasksQuery = allTasksQuery.Where(t => t.CreatedOn >= request.StartDate.Value);
 

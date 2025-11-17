@@ -27,32 +27,17 @@ import {
 import dayjs from 'dayjs';
 import { Line, Bar, Pie } from '@ant-design/charts';
 import './style.scss';
-import type { DailyCompletionTrendResponse, TaskReportItemResponse, TaskReportResponse } from '../../interfaces/Responses';
-import { getProgressReport } from '../../apis/taskReportAPI';
+import type { DailyCompletionTrendResponse, TodoItemReportItemResponse, TodoItemReportResponse } from '../../interfaces/Responses';
+import { getProgressReport } from '../../apis/todoItemReportAPI';
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
 
-/**
- * Component TasksReports - Hiển thị báo cáo và thống kê tiến độ công việc
- * 
- * Business Logic tổng quan:
- * 1. Hiển thị các metrics chính: tổng task, completion rate, overdue, priority distribution
- * 2. Biểu đồ xu hướng hoàn thành theo thời gian (7 ngày gần nhất)
- * 3. Danh sách tasks cần ưu tiên: sắp đến hạn, quá hạn lâu nhất
- * 4. Thống kê theo độ ưu tiên (Pie chart)
- * 5. Cho phép filter báo cáo theo khoảng thời gian
- */
-
 const TasksReports = () => {
   const [loading, setLoading] = useState(false);
-  const [reportData, setReportData] = useState<TaskReportResponse | null>(null);
+  const [reportData, setReportData] = useState<TodoItemReportResponse | null>(null);
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
 
-  /**
-   * Fetch báo cáo từ API
-   * Business Logic: Gọi API với filter theo dateRange nếu có
-   */
   const fetchReport = async () => {
     try {
       setLoading(true);
@@ -80,12 +65,8 @@ const TasksReports = () => {
 
   useEffect(() => {
     fetchReport();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * Render tag độ ưu tiên
-   */
   const getPriorityTag = (priority: number) => {
     switch (priority) {
       case 2:
@@ -99,33 +80,23 @@ const TasksReports = () => {
     }
   };
 
-  /**
-   * Format ngày tháng
-   */
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return '-';
     return dayjs(dateStr).format('DD/MM/YYYY');
   };
 
-  /**
-   * Tính số ngày quá hạn
-   * Business Logic: Hiển thị task quá hạn bao nhiêu ngày
-   */
   const getDaysOverdue = (dueDate: string) => {
     const days = dayjs().diff(dayjs(dueDate), 'day');
     return days > 0 ? days : 0;
   };
 
-  // Columns cho table "Tasks sắp đến hạn"
-
-  // Columns cho table "Tasks sắp đến hạn"
   const upcomingColumns = [
     {
       title: 'Tiêu đề',
       dataIndex: 'title',
       key: 'title',
       width: '40%',
-      render: (text: string, record: TaskReportItemResponse) => (
+      render: (text: string, record: TodoItemReportItemResponse) => (
         <Space>
           {record.priority === 2 && <ExclamationCircleOutlined style={{ color: 'red' }} />}
           <Text strong>{text}</Text>
@@ -150,7 +121,7 @@ const TasksReports = () => {
       title: 'Còn lại',
       key: 'remaining',
       width: '20%',
-      render: (_: unknown, record: TaskReportItemResponse) => {
+      render: (_: unknown, record: TodoItemReportItemResponse) => {
         const days = dayjs(record.dueDate).diff(dayjs(), 'day');
         const color = days <= 1 ? 'red' : days <= 3 ? 'orange' : 'green';
         return <Tag color={color}>{days} ngày</Tag>;
@@ -158,9 +129,6 @@ const TasksReports = () => {
     },
   ];
 
-  // Columns cho table "Tasks quá hạn"
-
-  // Columns cho table "Tasks quá hạn"
   const overdueColumns = [
     {
       title: 'Tiêu đề',
@@ -192,7 +160,7 @@ const TasksReports = () => {
       title: 'Quá hạn',
       key: 'overdue',
       width: '20%',
-      render: (_: unknown, record: TaskReportItemResponse) => (
+      render: (_: unknown, record: TodoItemReportItemResponse) => (
         <Tag color="red">{getDaysOverdue(record.dueDate)} ngày</Tag>
       ),
     },
@@ -206,10 +174,6 @@ const TasksReports = () => {
     );
   }
 
-  /**
-   * Cấu hình biểu đồ Line Chart - Xu hướng hoàn thành
-   * Business Logic: Hiển thị số task completed theo ngày (7 ngày gần nhất)
-   */
   const lineChartData = reportData.completionTrend.map((item: DailyCompletionTrendResponse) => ({
     date: dayjs(item.date).format('DD/MM'),
     value: item.completedCount,
@@ -233,15 +197,11 @@ const TasksReports = () => {
     },
   };
 
-  /**
-   * Cấu hình Pie Chart - Phân bổ theo độ ưu tiên
-   * Business Logic: Hiển thị % tasks theo mức độ ưu tiên
-   */
-  const pieChartData = reportData.priorityDistribution.length > 0
+  const pieChartData = reportData.priorityDistribution
     ? [
-        { type: 'Cao', value: reportData.priorityDistribution[0].highPriority },
-        { type: 'Trung bình', value: reportData.priorityDistribution[1].mediumPriority },
-        { type: 'Thấp', value: reportData.priorityDistribution[2].lowPriority },
+        { type: 'Cao', value: reportData.priorityDistribution.highPriority },
+        { type: 'Trung bình', value: reportData.priorityDistribution.mediumPriority },
+        { type: 'Thấp', value: reportData.priorityDistribution.lowPriority },
       ]
     : [];
 
@@ -266,10 +226,6 @@ const TasksReports = () => {
     ],
   };
 
-  /**
-   * Cấu hình Bar Chart - So sánh hoàn thành theo thời gian
-   * Business Logic: Hiển thị productivity (số task hoàn thành) theo ngày/tuần/tháng
-   */
   const barChartData = [
     { period: 'Hôm nay', count: reportData.tasksCompletedThisToday },
     { period: 'Tuần này', count: reportData.tasksCompletedThisWeek },
@@ -315,7 +271,6 @@ const TasksReports = () => {
       </div>
 
       <Spin spinning={loading}>
-        {/* Business Logic 1: Các chỉ số tổng quan chính */}
         <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
           <Col xs={24} sm={12} md={6}>
             <Card>
@@ -365,7 +320,6 @@ const TasksReports = () => {
           </Col>
         </Row>
 
-        {/* Business Logic 2: Thống kê theo độ ưu tiên */}
         <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
           <Col xs={24} sm={8}>
             <Card>
@@ -399,7 +353,6 @@ const TasksReports = () => {
           </Col>
         </Row>
 
-        {/* Business Logic 3: Metrics về thời gian và productivity */}
         <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
           <Col xs={24} sm={12}>
             <Card title="Thời gian hoàn thành trung bình">
@@ -468,7 +421,7 @@ const TasksReports = () => {
               }
             >
               <Table
-                dataSource={reportData.upcomingTasks}
+                dataSource={[]}
                 columns={upcomingColumns}
                 rowKey="id"
                 pagination={false}
@@ -487,7 +440,15 @@ const TasksReports = () => {
               }
             >
               <Table
-                dataSource={reportData.mostOverdueTasks}
+                dataSource={reportData.mostOverdueTasks.map(task => ({
+                  id: task.id || '',
+                  title: task.title,
+                  description: task.description,
+                  dueDate: typeof task.dueDate === 'string' ? task.dueDate : task.dueDate.toISOString(),
+                  isCompleted: task.isCompleted,
+                  priority: task.priority,
+                  completedOn: task.completedOn ? (typeof task.completedOn === 'string' ? task.completedOn : task.completedOn.toISOString()) : undefined,
+                }))}
                 columns={overdueColumns}
                 rowKey="id"
                 pagination={false}

@@ -31,8 +31,8 @@ import {
 } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import { Tier } from "../../commons";
-import type { Filter, SearchRequest, SearchResponse, TaskRequest, TaskResponse } from "../../interfaces";
-import { createTask, deleteTask, getTaskById, searchTasks, updateTask } from "../../apis/taskAPI";
+import type { Filter, SearchRequest, SearchResponse, TodoItemRequest, TodoItemResponse } from "../../interfaces";
+import { createTodoItem, deleteTodoItem, getTodoItemById, searchTodoItems, updateTodoItem } from "../../apis/todoItemAPI";
 import "./style.scss";
 
 const { TextArea } = Input;
@@ -41,7 +41,7 @@ const { Text } = Typography;
 
 type Mode = "create" | "detail" | "update";
 
-interface TaskData {
+interface TodoItemData {
   id: string;
   title: string;
   description: string;
@@ -53,7 +53,7 @@ interface TaskData {
 
 const Tasks = () => {
   const [loading, setLoading] = useState(false);
-  const [tasks, setTasks] = useState<TaskData[]>([]);
+  const [tasks, setTasks] = useState<TodoItemData[]>([]);
   const [searchText, setSearchText] = useState("");
   const [searchField, setSearchField] = useState("Title");
   const [sortField, setSortField] = useState<string | undefined>(undefined);
@@ -67,8 +67,8 @@ const Tasks = () => {
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [submitting, setSubmitting] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
-  const [form] = Form.useForm<TaskResponse>();
-  const [detailData, setDetailData] = useState<TaskResponse | null>(null);
+  const [form] = Form.useForm<TodoItemResponse>();
+  const [detailData, setDetailData] = useState<TodoItemResponse | null>(null);
 
   const toDayjs = (v: string | Dayjs | undefined): Dayjs | undefined => {
     if (!v) return undefined;
@@ -124,7 +124,7 @@ const Tasks = () => {
 
   const loadDetail = async (id: string) => {
     setDetailLoading(true);
-    const response = await getTaskById(id);
+    const response = await getTodoItemById(id);
     setDetailLoading(false);
 
     if (!response.isSuccess) {
@@ -132,8 +132,8 @@ const Tasks = () => {
       return;
     }
 
-    const raw = response.data as TaskResponse;
-    const mapped: TaskResponse = {
+    const raw = response.data as TodoItemResponse;
+    const mapped: TodoItemResponse = {
       ...raw,
       dueDate: toDayjs(raw.dueDate) as dayjs.Dayjs,
       completedOn: toDayjs(raw.completedOn) as dayjs.Dayjs,
@@ -150,11 +150,11 @@ const Tasks = () => {
         priority: mapped.priority,
         isCompleted: mapped.isCompleted,
         completedOn: mapped.completedOn,
-      } as Partial<TaskResponse>);
+      } as Partial<TodoItemResponse>);
     }
   };
 
-  const onFinish = async (values: TaskResponse) => {
+  const onFinish = async (values: TodoItemResponse) => {
     try {
       setSubmitting(true);
 
@@ -174,31 +174,31 @@ const Tasks = () => {
       };
 
       if (mode === "create") {
-        const payloadCreate: TaskRequest = {
+        const payloadCreate: TodoItemRequest = {
           ...common,
-        } as unknown as TaskRequest;
+        } as unknown as TodoItemRequest;
 
-        const response = await createTask(payloadCreate);
+        const response = await createTodoItem(payloadCreate);
         if (!response.isSuccess) {
-          message.error(response.message || 'Tạo task thất bại');
+          message.error(response.message || 'Tạo item thất bại');
         } else {
-          message.success(response.message || 'Tạo task thành công');
+          message.success(response.message || 'Tạo item thành công');
           setOpen(false);
           fetchTasks(currentPage, pageSize, searchText);
         }
       } else if (mode === "update") {
-        if (!selectedId) return message.error('Thiếu ID task');
+        if (!selectedId) return message.error('Thiếu ID item');
 
         const payloadUpdate = {
           ...common,
           id: selectedId,
-        } as unknown as TaskRequest;
+        } as unknown as TodoItemRequest;
 
-        const response = await updateTask(payloadUpdate);
+        const response = await updateTodoItem(payloadUpdate);
         if (!response.isSuccess) {
-          message.error(response.message || 'Cập nhật task thất bại');
+          message.error(response.message || 'Cập nhật item thất bại');
         } else {
-          message.success(response.message || 'Cập nhật task thành công');
+          message.success(response.message || 'Cập nhật item thành công');
           setOpen(false);
           fetchTasks(currentPage, pageSize, searchText);
         }
@@ -236,12 +236,12 @@ const Tasks = () => {
           pageSize: pageSizeArg,
         };
 
-        const response = await searchTasks(searchRequest);
+        const response = await searchTodoItems(searchRequest);
         if (response.isSuccess) {
-          const searchResponse = response as unknown as SearchResponse<TaskData>;
-          let taskData: TaskData[] = [];
+          const searchResponse = response as unknown as SearchResponse<TodoItemData>;
+          let taskData: TodoItemData[] = [];
           if (searchResponse.data && searchResponse.data.data) {
-            taskData = searchResponse.data.data.map((item: TaskData | { data: TaskData }) =>
+            taskData = searchResponse.data.data.map((item: TodoItemData | { data: TodoItemData }) =>
               "data" in item ? item.data : item
             );
           }
@@ -251,11 +251,11 @@ const Tasks = () => {
           setPageSize(searchResponse.data.rowsPerPage);
           setTotal(searchResponse.data.totalRows);
         } else {
-          message.error(response.message || "Không thể tải danh sách tasks");
+          message.error(response.message || "Không thể tải danh sách items");
         }
       } catch (error) {
         console.error("Exception error:", error);
-        message.error("Không thể tải danh sách tasks");
+        message.error("Không thể tải danh sách items");
       } finally {
         setLoading(false);
       }
@@ -269,15 +269,15 @@ const Tasks = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await deleteTask(id);
+      const response = await deleteTodoItem(id);
       if (response.isSuccess) {
-        message.success(response.message || 'Xóa task thành công');
+        message.success(response.message || 'Xóa item thành công');
         fetchTasks(currentPage, pageSize, searchText);
       } else {
-        message.error(response.message || 'Xóa task thất bại');
+        message.error(response.message || 'Xóa item thất bại');
       }
     } catch (error) {
-      message.error('Có lỗi xảy ra khi xóa task');
+      message.error('Có lỗi xảy ra khi xóa item');
       console.error(error);
     }
   };
@@ -315,7 +315,7 @@ const Tasks = () => {
       dataIndex: 'title',
       key: 'title',
       width: '10%',
-      render: (text: string, r: TaskData) => (
+      render: (text: string, r: TodoItemData) => (
         <Space>
           {r.priority === Tier.High && <ExclamationCircleOutlined style={{ color: 'red' }} />}
           <Text strong ellipsis={{ tooltip: text }}>{text}</Text>
@@ -372,8 +372,8 @@ const Tasks = () => {
       title: 'Thao tác',
       key: 'action',
       fixed: 'right' as const,
-      width: 200,
-      render: (_: unknown, record: TaskData) => (
+      width: 150,
+      render: (_: unknown, record: TodoItemData) => (
         <div className="action-buttons" style={{ whiteSpace: "nowrap" }}>
           <Button type="link" onClick={() => openDetail(record.id)}>
             Chi tiết

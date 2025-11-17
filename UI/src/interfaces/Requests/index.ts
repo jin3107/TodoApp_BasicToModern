@@ -1,2 +1,2 @@
-export type { default as TaskRequest } from './TaskRequest'
-export type { default as TaskReportRequest } from './TaskReportRequest'
+export type { default as TodoItemRequest } from './TodoItemRequest'
+export type { default as TodoItemReportRequest } from './TodoItemReportRequest'

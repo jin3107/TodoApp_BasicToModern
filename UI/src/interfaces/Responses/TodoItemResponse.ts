@@ -1,11 +1,16 @@
-import type dayjs from "dayjs";
+import dayjs from "dayjs";
 import type { Tier } from "../../commons";
 
-export default interface TaskRequest {
+export default interface TodoItemResponse {
+  id?: string,
   title: string;
   description: string;
   dueDate: dayjs.Dayjs;
   isCompleted: boolean;
   priority: Tier;
   completedOn: dayjs.Dayjs;
+
+  createdOn?: dayjs.Dayjs;
+  // createdBy?: string;
+  modifiedOn?: dayjs.Dayjs;
 }

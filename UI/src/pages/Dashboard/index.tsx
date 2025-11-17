@@ -31,7 +31,7 @@ import { Line } from '@ant-design/charts';
 import dayjs, { Dayjs } from 'dayjs';
 import './style.scss';
 import type { TaskReportResponse } from '../../interfaces/Responses';
-import { getProgressReport } from '../../apis/taskReportAPI';
+import { getProgressReport } from '../../apis/todoItemReportAPI';
 
 const { Title, Text, Paragraph } = Typography;
 const { RangePicker } = DatePicker;
