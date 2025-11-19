@@ -16,10 +16,14 @@ namespace Todo.API.Extensions
 
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
+            // Register base services first (for dependency injection into cached versions)
             services.AddScoped<TodoItemService>();
-            services.AddScoped<ITodoItemService, CacheTodoItemService>();
+            services.AddScoped<TodoItemReportService>();
             
-            services.AddScoped<ITodoItemReportService, TodoItemReportService>();
+            // Register cached versions as interface implementations
+            services.AddScoped<ITodoItemService, CacheTodoItemService>();
+            services.AddScoped<ITodoItemReportService, CachedTodoItemReportService>();
+            
             services.AddScoped<IEmailService, EmailService>();
             return services;
         }

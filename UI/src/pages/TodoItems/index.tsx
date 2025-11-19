@@ -3,7 +3,6 @@ import {
   Button,
   Input,
   Table,
-  message,
   Select,
   Modal,
   Form,
@@ -19,6 +18,7 @@ import {
   DatePicker,
   Switch,
   Dropdown,
+  App,
 } from "antd";
 import type { MenuProps } from "antd";
 import {
@@ -56,7 +56,8 @@ interface TodoItemData {
   completedOn?: string;
 }
 
-const Tasks = () => {
+const TodoItems = () => {
+  const { modal, message: messageApi } = App.useApp();
   const [loading, setLoading] = useState(false);
   const [tasks, setTasks] = useState<TodoItemData[]>([]);
   const [searchText, setSearchText] = useState("");
@@ -133,7 +134,7 @@ const Tasks = () => {
     setDetailLoading(false);
 
     if (!response.isSuccess) {
-      message.error(response.message || "Failed to load task");
+      messageApi.error(response.message || "Failed to load task");
       return;
     }
 
@@ -185,14 +186,24 @@ const Tasks = () => {
 
         const response = await createTodoItem(payloadCreate);
         if (!response.isSuccess) {
-          message.error(response.message || 'Tạo item thất bại');
+          messageApi.error(response.message || 'Tạo item thất bại');
         } else {
-          message.success(response.message || 'Tạo item thành công');
+          messageApi.success(response.message || 'Tạo item thành công');
           setOpen(false);
-          fetchTasks(currentPage, pageSize, searchText);
+          form.resetFields();
+          
+          // Reset về trang 1 và clear search để hiển thị tất cả items mới
+          setSearchText('');
+          if (currentPage === 1 && searchText === '') {
+            // Nếu đã ở trang 1 và không có search, force reload
+            await fetchTasks(1, pageSize, '');
+          } else {
+            // Chuyển về trang 1 sẽ tự động trigger useEffect
+            setCurrentPage(1);
+          }
         }
       } else if (mode === "update") {
-        if (!selectedId) return message.error('Thiếu ID item');
+        if (!selectedId) return messageApi.error('Thiếu ID item');
 
         const payloadUpdate = {
           ...common,
@@ -201,23 +212,25 @@ const Tasks = () => {
 
         const response = await updateTodoItem(payloadUpdate);
         if (!response.isSuccess) {
-          message.error(response.message || 'Cập nhật item thất bại');
+          messageApi.error(response.message || 'Cập nhật item thất bại');
         } else {
-          message.success(response.message || 'Cập nhật item thành công');
+          messageApi.success(response.message || 'Cập nhật item thành công');
           setOpen(false);
-          fetchTasks(currentPage, pageSize, searchText);
+          form.resetFields();
+          // Reload trang hiện tại để cập nhật dữ liệu từ cache mới
+          await fetchTasks(currentPage, pageSize, searchText);
         }
       }
     } catch (err) {
       console.log(err);
-      message.error('Có lỗi xảy ra');
+      messageApi.error('Có lỗi xảy ra');
     } finally {
       setSubmitting(false);
     }
   };
 
   const fetchTasks = useCallback(
-    async (page = 1, pageSizeArg = 10, searchValue = "") => {
+    async (page: number, pageSizeArg: number, searchValue: string) => {
       try {
         setLoading(true);
         const filters: Filter[] = [];
@@ -252,15 +265,13 @@ const Tasks = () => {
           }
 
           setTasks(taskData);
-          setCurrentPage(searchResponse.data.currentPage);
-          setPageSize(searchResponse.data.rowsPerPage);
           setTotal(searchResponse.data.totalRows);
         } else {
-          message.error(response.message || "Không thể tải danh sách items");
+          messageApi.error(response.message || "Không thể tải danh sách items");
         }
       } catch (error) {
         console.error("Exception error:", error);
-        message.error("Không thể tải danh sách items");
+        messageApi.error("Không thể tải danh sách items");
       } finally {
         setLoading(false);
       }
@@ -270,25 +281,41 @@ const Tasks = () => {
 
   useEffect(() => {
     fetchTasks(currentPage, pageSize, searchText);
-  }, [fetchTasks, currentPage, pageSize, searchText]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchField, sortField, sortDirection, currentPage, pageSize, searchText]);
 
   const handleDelete = async (id: string) => {
     try {
+      console.log('Deleting item with ID:', id);
       const response = await deleteTodoItem(id);
+      console.log('Delete response:', response);
+      
       if (response.isSuccess) {
-        message.success(response.message || 'Xóa item thành công');
-        fetchTasks(currentPage, pageSize, searchText);
+        messageApi.success(response.message || 'Xóa item thành công');
+        
+        // Nếu xóa item cuối cùng của trang, quay về trang trước
+        const newTotal = total - 1;
+        const maxPage = Math.ceil(newTotal / pageSize);
+        const targetPage = currentPage > maxPage ? Math.max(1, maxPage) : currentPage;
+        
+        if (targetPage !== currentPage) {
+          setCurrentPage(targetPage);  // useEffect sẽ trigger
+        } else {
+          // Force re-fetch nếu vẫn ở cùng trang
+          fetchTasks(targetPage, pageSize, searchText);
+        }
       } else {
-        message.error(response.message || 'Xóa item thất bại');
+        console.error('Delete failed:', response);
+        messageApi.error(response.message || 'Xóa item thất bại');
       }
     } catch (error) {
-      message.error('Có lỗi xảy ra khi xóa item');
-      console.error(error);
+      console.error('Delete error:', error);
+      messageApi.error('Có lỗi xảy ra khi xóa item');
     }
   };
 
   const handleSearch = () => {
-    fetchTasks(1, pageSize, searchText);
+    setCurrentPage(1);  // useEffect sẽ tự động trigger với searchText mới
   };
 
   const handleSortChange = (field: string) => {
@@ -298,7 +325,6 @@ const Tasks = () => {
       setSortField(field);
       setSortDirection(true);
     }
-    fetchTasks(currentPage, pageSize, searchText);
   };
 
   const renderSortIcon = (field: string) =>
@@ -404,7 +430,7 @@ const Tasks = () => {
             icon: <DeleteOutlined />,
             danger: true,
             onClick: () => {
-              Modal.confirm({
+              modal.confirm({
                 title: 'Xác nhận xóa',
                 content: 'Bạn có chắc chắn muốn xóa công việc này?',
                 okText: 'Xóa',
@@ -445,7 +471,7 @@ const Tasks = () => {
           <Card>
             <Statistic
               title="Tổng số công việc"
-              value={tasks.length}
+              value={total}
               prefix={<CheckCircleOutlined />}
               valueStyle={{ color: '#1890ff' }}
             />
@@ -454,8 +480,9 @@ const Tasks = () => {
         <Col xs={24} sm={8}>
           <Card>
             <Statistic
-              title="Đã hoàn thành"
+              title="Đã hoàn thành (trang này)"
               value={completedTasks}
+              suffix={`/ ${tasks.length}`}
               prefix={<CheckCircleOutlined />}
               valueStyle={{ color: '#52c41a' }}
             />
@@ -464,8 +491,9 @@ const Tasks = () => {
         <Col xs={24} sm={8}>
           <Card>
             <Statistic
-              title="Ưu tiên cao"
+              title="Ưu tiên cao (trang này)"
               value={highPriorityTasks}
+              suffix={`/ ${tasks.length}`}
               prefix={<ExclamationCircleOutlined />}
               valueStyle={{ color: '#ff4d4f' }}
             />
@@ -514,7 +542,10 @@ const Tasks = () => {
             showTotal: (t) => `Tổng ${t} công việc`,
             pageSizeOptions: ['10', '20', '50'],
             responsive: true,
-            showQuickJumper: true,
+            onChange: (page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            },
           }}
         />
       </Card>
@@ -671,4 +702,4 @@ const Tasks = () => {
   );
 };
 
-export default Tasks;
+export default TodoItems;

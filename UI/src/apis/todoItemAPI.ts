@@ -18,7 +18,7 @@ export const getTodoItemById= async (id: string) : Promise<AppResponse<TodoItemR
 }
 
 export const deleteTodoItem = async (id: string) : Promise<AppResponse<string>> => {
-  const response = await axios.delete<AppResponse<string>>(`todo-items/${id}`);
+  const response = await axios.delete<AppResponse<string>>(`/todo-items/${id}`);
   return response.data;
 }
 

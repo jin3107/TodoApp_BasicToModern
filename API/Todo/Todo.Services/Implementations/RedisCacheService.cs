@@ -81,12 +81,17 @@ namespace Todo.Services.Implementations
             try
             {
                 var server = _connectionMultiplexer.GetServer(_connectionMultiplexer.GetEndPoints().First());
-                var keys = server.Keys(pattern: pattern).ToArray
-                    ();
+                // Pattern cần bao gồm cả InstanceName prefix (TodoApp:)
+                var fullPattern = $"TodoApp:{pattern}";
+                var keys = server.Keys(pattern: fullPattern).ToArray();
+                
+                _logger.LogInformation("RemoveByPattern: Found {Count} keys matching pattern: {Pattern}", keys.Length, fullPattern);
+                
                 if (keys.Length > 0)
                 {
                     var database = _connectionMultiplexer.GetDatabase();
                     await database.KeyDeleteAsync(keys);
+                    _logger.LogInformation("Successfully deleted {Count} keys", keys.Length);
                 }
             }
             catch (Exception ex)

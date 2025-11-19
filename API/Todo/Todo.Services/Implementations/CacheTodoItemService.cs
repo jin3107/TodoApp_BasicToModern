@@ -38,7 +38,7 @@ namespace Todo.Services.Implementations
                 if (result.IsSuccess)
                 {
                     await _cacheService.RemoveByPatternAsync($"{TODOITEM_SEARCH_CACHE_KEY_PREFIX}*");
-                    _logger.LogInformation("Created Todo-item successfully and cleared search cache");
+                    _logger.LogInformation("Created Todo-item {Id} successfully and cleared search cache", result.Data?.Id);
                 }
             }
             catch (Exception ex)
@@ -78,19 +78,18 @@ namespace Todo.Services.Implementations
             try
             {
                 var cacheKey = $"{TODOITEM_CACHE_KEY_PREFIX}{id}";
-                //var cachedTask = await _cacheService.GetAsync<AppResponse<TodoItemResponse>>(cacheKey);
-                var cachedData = await _cacheService.GetAsync<TodoItemResponse>(cacheKey);
-                if (cachedData != null)
+                var cachedItem = await _cacheService.GetAsync<AppResponse<TodoItemResponse>>(cacheKey);
+                if (cachedItem != null)
                 {
                     _logger.LogInformation("Cache HIT: Todo-item {id} (Source: {CacheType})", id, _cacheService.GetType().Name);
-                    return result.BuildResult(cachedData);
+                    return cachedItem;
                 }
 
                 _logger.LogWarning("Cache MISS: Todo-item {id} - Querying database...", id);
                 result = await _todoItemService.GetByIdAsync(id);
                 if (result.IsSuccess && result.Data != null)
                 {
-                    await _cacheService.SetAsync(cacheKey, result.Data, _cacheExpiration);
+                    await _cacheService.SetAsync(cacheKey, result, _cacheExpiration);
                     _logger.LogInformation("Cached Todo-item {id} for {ExpirationMinutes} minutes", id, _cacheExpiration.TotalMinutes);
                 }
             }
@@ -109,19 +108,18 @@ namespace Todo.Services.Implementations
             try
             {
                 var cacheKey = GenerateSearchCacheKey(request);
-                //var cachedResult = await _cacheService.GetAsync<AppResponse<SearchResponse<TodoItemResponse>>>(cacheKey);
-                var cachedData = await _cacheService.GetAsync<SearchResponse<TodoItemResponse>>(cacheKey);
-                if (cachedData != null)
+                var cachedItem = await _cacheService.GetAsync<AppResponse<SearchResponse<TodoItemResponse>>>(cacheKey);
+                if (cachedItem != null)
                 {
                     _logger.LogInformation("Cache hit: Search with key {cacheKey}", cacheKey);
-                    return result.BuildResult(cachedData);
+                    return cachedItem;
                 }
 
                 _logger.LogWarning("Cache miss: Search with key {cacheKey}", cacheKey);
                 result = await _todoItemService.SearchAsync(request);
                 if (result.IsSuccess && result != null)
                 {
-                    await _cacheService.SetAsync(cacheKey, result.Data, _cacheExpiration);
+                    await _cacheService.SetAsync(cacheKey, result, _cacheExpiration);
                     _logger.LogInformation("Cached search result for key {CacheKey}", cacheKey);
                 }
             }
