@@ -14,12 +14,12 @@ namespace Todo.Services.Implementations
     public class CachedTodoItemReportService : ITodoItemReportService
     {
         private readonly ILogger<CachedTodoItemReportService> _logger;
-        private readonly ITodoItemReportService _reportService;
+        private readonly TodoItemReportService _reportService;
         private readonly ICacheService _cacheService;
         private const string REPORT_CACHE_KEY_PREFIX = "report:progress:";
         private readonly TimeSpan _cacheExpiration = TimeSpan.FromMinutes(30);
 
-        public CachedTodoItemReportService(ITodoItemReportService reportService, ICacheService cacheService, ILogger<CachedTodoItemReportService> logger)
+        public CachedTodoItemReportService(TodoItemReportService reportService, ICacheService cacheService, ILogger<CachedTodoItemReportService> logger)
         {
             _reportService = reportService;
             _cacheService = cacheService;
