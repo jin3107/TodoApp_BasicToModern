@@ -56,34 +56,44 @@ namespace Todo.Services.Implementations
             try
             {
                 var now = DateTime.UtcNow;
-                var allTasksQuery = _todoItemRepository.AsQueryable().Where(t => t.IsDeleted == false).AsNoTracking();
-                if (request.StartDate.HasValue)
-                    allTasksQuery = allTasksQuery.Where(t => t.CreatedOn >= request.StartDate.Value);
-
-                if (request.EndDate.HasValue)
-                    allTasksQuery = allTasksQuery.Where(t => t.CreatedOn <= request.EndDate.Value);
+                
+                // Lấy TẤT CẢ tasks (không filter theo thời gian ở đây)
+                var allTasksQuery = _todoItemRepository.AsQueryable()
+                    .Where(t => t.IsDeleted == false)
+                    .AsNoTracking();
 
                 var allTasks = await allTasksQuery.ToListAsync();
+                
+                // Xác định khoảng thời gian để filter
+                var startDate = request.StartDate ?? now.AddDays(-29);
+                var endDate = request.EndDate ?? now;
 
-                var totalTasks = allTasks.Count;
-                var completedTasks = allTasks.Count(t => t.IsCompleted);
-                var inProgressTasks = allTasks.Count(t => !t.IsCompleted && t.DueDate >= now);
+                // Filter tasks trong khoảng thời gian (được tạo hoặc hoàn thành)
+                var filteredTasks = allTasks.Where(t =>
+                    (t.CreatedOn.HasValue && t.CreatedOn.Value.Date >= startDate.Date && t.CreatedOn.Value.Date <= endDate.Date) ||
+                    (t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value.Date >= startDate.Date && t.CompletedOn.Value.Date <= endDate.Date)
+                ).ToList();
 
-                var overdueTasks = allTasks.Count(t => !t.IsCompleted && t.DueDate < now);
+                var totalTasks = filteredTasks.Count;
+                var completedTasks = filteredTasks.Count(t => t.IsCompleted);
+                var inProgressTasks = filteredTasks.Count(t => !t.IsCompleted && t.DueDate.Date >= now.Date);
+                var overdueTasks = filteredTasks.Count(t => !t.IsCompleted && t.DueDate.Date < now.Date);
 
-                var highPriorityPending = allTasks.Count(t => !t.IsCompleted && t.Priority == Tier.High);
-                var mediumPriorityPending = allTasks.Count(t => !t.IsCompleted && t.Priority == Tier.Medium);
-                var lowPriorityPending = allTasks.Count(t => !t.IsCompleted && t.Priority == Tier.Low);
+                var highPriorityPending = filteredTasks.Count(t => !t.IsCompleted && t.Priority == Tier.High);
+                var mediumPriorityPending = filteredTasks.Count(t => !t.IsCompleted && t.Priority == Tier.Medium);
+                var lowPriorityPending = filteredTasks.Count(t => !t.IsCompleted && t.Priority == Tier.Low);
 
                 var completionRate = totalTasks > 0 ? Math.Round((decimal)completedTasks / totalTasks * 100, 2) : 0;
 
-                var tasksWithCompletionTime = allTasks.Where(t => t.IsCompleted && t.CompletedOn.HasValue && t.CreatedOn.HasValue).ToList();
+                var tasksWithCompletionTime = filteredTasks.Where(t => t.IsCompleted && t.CompletedOn.HasValue && t.CreatedOn.HasValue).ToList();
                 var avgCompletionTime = tasksWithCompletionTime.Any() ? (decimal)tasksWithCompletionTime
                     .Average(t => (t.CompletedOn!.Value - t.CreatedOn!.Value).TotalHours) : 0;
 
                 var today = now.Date;
                 var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
                 var startOfMonth = new DateTime(now.Year, now.Month, 1);
+                
+                // Stats "Hôm nay", "Tuần này", "Tháng này" vẫn dùng allTasks (không filter)
                 var tasksCompletedToday = allTasks.Count(t => t.IsCompleted && t.CompletedOn.HasValue
                     && t.CompletedOn.Value.Date == today);
                 var tasksCompletedThisWeek = allTasks.Count(t => t.IsCompleted && t.CompletedOn.HasValue
@@ -91,22 +101,21 @@ namespace Todo.Services.Implementations
                 var tasksCompletedThisMonth = allTasks.Count(t => t.IsCompleted && t.CompletedOn.HasValue
                     && t.CompletedOn.Value.Date >= startOfMonth);
 
-                var mostOverdueTasks = allTasks.Where(t => !t.IsCompleted && t.DueDate.Date < today)
-                    .OrderBy(t => t.DueDate) // task có duedate càng xa = quá hạn càng lâu
+                var mostOverdueTasks = filteredTasks.Where(t => !t.IsCompleted && t.DueDate.Date < today)
+                    .OrderBy(t => t.DueDate)
                     .Take(5).Select(TodoItemMapper.ToResponse).ToList();
 
                 var priorityDistribution = new PriorityDistribution
                 {
-                    HighPriority = allTasks.Count(t => t.Priority == Tier.High),
-                    MediumPriority = allTasks.Count(t => t.Priority == Tier.Medium),
-                    LowPriority = allTasks.Count(t => t.Priority == Tier.Low)
+                    HighPriority = filteredTasks.Count(t => t.Priority == Tier.High),
+                    MediumPriority = filteredTasks.Count(t => t.Priority == Tier.Medium),
+                    LowPriority = filteredTasks.Count(t => t.Priority == Tier.Low)
                 };
 
-                var startDate = request.StartDate ?? now.AddDays(-29);
-                var endDate = request.EndDate ?? now;
                 var dayCount = (endDate.Date - startDate.Date).Days + 1;
                 var dateRange = Enumerable.Range(0, dayCount).Select(i => startDate.Date.AddDays(i)).ToList();
                 
+                // CompletionTrend dùng allTasks nhưng filter theo date
                 var completionTrend = dateRange.Select(date => new DailyCompletionTrend
                 {
                     Date = date,

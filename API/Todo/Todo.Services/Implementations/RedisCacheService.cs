@@ -80,18 +80,32 @@ namespace Todo.Services.Implementations
         {
             try
             {
+                var database = _connectionMultiplexer.GetDatabase();
                 var server = _connectionMultiplexer.GetServer(_connectionMultiplexer.GetEndPoints().First());
+                
                 // Pattern cần bao gồm cả InstanceName prefix (TodoApp:)
                 var fullPattern = $"TodoApp:{pattern}";
-                var keys = server.Keys(pattern: fullPattern).ToArray();
                 
-                _logger.LogInformation("RemoveByPattern: Found {Count} keys matching pattern: {Pattern}", keys.Length, fullPattern);
-                
-                if (keys.Length > 0)
+                // Sử dụng SCAN thay vì KEYS để tránh block Redis
+                var keysToDelete = new List<RedisKey>();
+                await foreach (var key in server.KeysAsync(pattern: fullPattern, pageSize: 250))
                 {
-                    var database = _connectionMultiplexer.GetDatabase();
-                    await database.KeyDeleteAsync(keys);
-                    _logger.LogInformation("Successfully deleted {Count} keys", keys.Length);
+                    keysToDelete.Add(key);
+                    
+                    // Xóa theo batch để tránh memory spike
+                    if (keysToDelete.Count >= 100)
+                    {
+                        await database.KeyDeleteAsync(keysToDelete.ToArray());
+                        _logger.LogInformation("Deleted batch of {Count} keys", keysToDelete.Count);
+                        keysToDelete.Clear();
+                    }
+                }
+                
+                // Xóa batch cuối cùng
+                if (keysToDelete.Count > 0)
+                {
+                    await database.KeyDeleteAsync(keysToDelete.ToArray());
+                    _logger.LogInformation("Deleted final batch of {Count} keys for pattern: {Pattern}", keysToDelete.Count, fullPattern);
                 }
             }
             catch (Exception ex)

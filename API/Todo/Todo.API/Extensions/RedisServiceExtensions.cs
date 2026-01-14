@@ -14,9 +14,16 @@ namespace Todo.API.Extensions
             {
                 services.AddSingleton<IConnectionMultiplexer>(serviceProvider =>
                 {
-                    var configuration = ConfigurationOptions.Parse(redisConnection);
-                    configuration.AbortOnConnectFail = false;
-                    return ConnectionMultiplexer.Connect(configuration);
+                    var config = ConfigurationOptions.Parse(redisConnection);
+                    config.AbortOnConnectFail = false;
+                    config.ConnectTimeout = 5000;
+                    config.SyncTimeout = 5000;
+                    config.AsyncTimeout = 5000;
+                    config.ConnectRetry = 3;
+                    config.KeepAlive = 60;
+                    // Tăng connection pool để tránh timeout
+                    config.DefaultDatabase = 0;
+                    return ConnectionMultiplexer.Connect(config);
                 });
 
                 services.AddStackExchangeRedisCache(options =>

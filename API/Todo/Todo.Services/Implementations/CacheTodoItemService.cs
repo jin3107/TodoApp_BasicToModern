@@ -37,8 +37,11 @@ namespace Todo.Services.Implementations
                 result = await _todoItemService.CreateAsync(request);
                 if (result.IsSuccess)
                 {
-                    await _cacheService.RemoveByPatternAsync($"{TODOITEM_SEARCH_CACHE_KEY_PREFIX}*");
-                    _logger.LogInformation("Created Todo-item {Id} successfully and cleared search cache", result.Data?.Id);
+                    // Xóa search cache và report cache song song
+                    var removeSearchTask = _cacheService.RemoveByPatternAsync($"{TODOITEM_SEARCH_CACHE_KEY_PREFIX}*");
+                    var removeReportTask = _cacheService.RemoveByPatternAsync("report:*");
+                    await Task.WhenAll(removeSearchTask, removeReportTask);
+                    _logger.LogInformation("Created Todo-item {Id} successfully and cleared search/report cache", result.Data?.Id);
                 }
             }
             catch (Exception ex)
@@ -58,8 +61,12 @@ namespace Todo.Services.Implementations
                 result = await _todoItemService.DeleteAsync(id);
                 if (result.IsSuccess)
                 {
-                    await _cacheService.RemoveAsync($"{TODOITEM_CACHE_KEY_PREFIX}{id}");
-                    await _cacheService.RemoveByPatternAsync($"{TODOITEM_SEARCH_CACHE_KEY_PREFIX}*");
+                    // Xóa cache song song để tăng tốc độ
+                    var removeItemTask = _cacheService.RemoveAsync($"{TODOITEM_CACHE_KEY_PREFIX}{id}");
+                    var removeSearchTask = _cacheService.RemoveByPatternAsync($"{TODOITEM_SEARCH_CACHE_KEY_PREFIX}*");
+                    var removeReportTask = _cacheService.RemoveByPatternAsync("report:*");
+                    
+                    await Task.WhenAll(removeItemTask, removeSearchTask, removeReportTask);
                     _logger.LogInformation("Deleted Todo-item {id} and cleared related cache", id);
                 }
             }
@@ -162,9 +169,14 @@ namespace Todo.Services.Implementations
                 if (result.IsSuccess)
                 {
                     _logger.LogInformation("Updated Todo-item {id} successfully", request.Id);
-                    await _cacheService.RemoveAsync($"{TODOITEM_CACHE_KEY_PREFIX}{request.Id}");
-                    await _cacheService.RemoveByPatternAsync($"{TODOITEM_SEARCH_CACHE_KEY_PREFIX}*");
-                    _logger.LogInformation("Cache cleared for Todo-item {TaskId} and related search results", request.Id);
+                    
+                    // Xóa cache song song để tăng tốc độ (item, search, report)
+                    var removeItemTask = _cacheService.RemoveAsync($"{TODOITEM_CACHE_KEY_PREFIX}{request.Id}");
+                    var removeSearchTask = _cacheService.RemoveByPatternAsync($"{TODOITEM_SEARCH_CACHE_KEY_PREFIX}*");
+                    var removeReportTask = _cacheService.RemoveByPatternAsync("report:*");
+                    
+                    await Task.WhenAll(removeItemTask, removeSearchTask, removeReportTask);
+                    _logger.LogInformation("Cache cleared for Todo-item {TaskId} and related search/report results", request.Id);
                 }
                 else
                 {

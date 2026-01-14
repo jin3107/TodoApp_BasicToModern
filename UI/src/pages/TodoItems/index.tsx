@@ -584,7 +584,12 @@ const TodoItems = () => {
         destroyOnHidden
         width={600}
         afterOpenChange={async (visible) => {
-          if (!visible) return;
+          if (!visible) {
+            // Reset state khi đóng modal để tránh hiển thị data cũ
+            setDetailData(null);
+            form.resetFields();
+            return;
+          }
 
           if (mode !== "detail") {
             form.resetFields();
@@ -597,6 +602,8 @@ const TodoItems = () => {
           }
 
           if ((mode === "detail" || mode === "update") && selectedId) {
+            // Reset data cũ trước khi load mới
+            setDetailData(null);
             await loadDetail(selectedId);
           }
         }}
