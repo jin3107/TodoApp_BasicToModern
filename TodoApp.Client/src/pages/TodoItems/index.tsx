@@ -38,6 +38,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { Tier } from "../../commons";
 import type { Filter, SearchRequest, SearchResponse, TodoItemRequest, TodoItemResponse } from "../../interfaces";
 import { createTodoItem, deleteTodoItem, getTodoItemById, searchTodoItems, updateTodoItem } from "../../apis/todoItemAPI";
+import { PriorityTag, StatusTag, useDateFormatter } from "../../components";
 import "./style.scss";
 
 const { TextArea } = Input;
@@ -58,6 +59,7 @@ interface TodoItemData {
 
 const TodoItems = () => {
   const { modal, message: messageApi } = App.useApp();
+  const { formatDate } = useDateFormatter();
   const [loading, setLoading] = useState(false);
   const [tasks, setTasks] = useState<TodoItemData[]>([]);
   const [searchText, setSearchText] = useState("");
@@ -79,33 +81,6 @@ const TodoItems = () => {
   const toDayjs = (v: string | Dayjs | undefined): Dayjs | undefined => {
     if (!v) return undefined;
     return typeof v === "string" ? dayjs(v) : v;
-  };
-
-  const fmtDate = (v?: string | Dayjs, withTime = false) => {
-    if (!v) return "-";
-    const date = typeof v === "string" ? dayjs(v) : v;
-    return date ? date.format(withTime ? "DD/MM/YYYY HH:mm" : "DD/MM/YYYY") : "-";
-  };
-
-  const getPriorityTag = (priority: Tier) => {
-    switch (priority) {
-      case Tier.High:
-        return <Tag color="red">Cao</Tag>;
-      case Tier.Medium:
-        return <Tag color="orange">Trung bình</Tag>;
-      case Tier.Low:
-        return <Tag color="green">Thấp</Tag>;
-      default:
-        return <Tag>Không xác định</Tag>;
-    }
-  };
-
-  const getStatusTag = (isCompleted: boolean) => {
-    return isCompleted ? (
-      <Tag icon={<CheckCircleOutlined />} color="success">Hoàn thành</Tag>
-    ) : (
-      <Tag icon={<ClockCircleOutlined />} color="processing">Chưa hoàn thành</Tag>
-    );
   };
 
   const openCreate = () => {
@@ -378,13 +353,13 @@ const TodoItems = () => {
       ),
       dataIndex: 'priority',
       key: 'priority',
-      render: (priority: Tier) => getPriorityTag(priority),
+      render: (priority: Tier) => <PriorityTag priority={priority} />,
     },
     {
       title: 'Trạng thái',
       dataIndex: 'isCompleted',
       key: 'isCompleted',
-      render: (isCompleted: boolean) => getStatusTag(isCompleted),
+      render: (isCompleted: boolean) => <StatusTag isCompleted={isCompleted} />,
     },
     {
       title: (
@@ -394,13 +369,13 @@ const TodoItems = () => {
       ),
       dataIndex: 'dueDate',
       key: 'dueDate',
-      render: (date: string) => fmtDate(date, false),
+      render: (date: string) => formatDate(date),
     },
     {
       title: 'Ngày hoàn thành',
       dataIndex: 'completedOn',
       key: 'completedOn',
-      render: (date?: string) => fmtDate(date, false),
+      render: (date?: string) => formatDate(date),
     },
     {
       title: 'Thao tác',
@@ -614,22 +589,22 @@ const TodoItems = () => {
               <Descriptions.Item label="Tiêu đề">{detailData?.title ?? "-"}</Descriptions.Item>
               <Descriptions.Item label="Mô tả">{detailData?.description ?? "-"}</Descriptions.Item>
               <Descriptions.Item label="Độ ưu tiên">
-                {detailData?.priority !== undefined ? getPriorityTag(detailData.priority) : "-"}
+                {detailData?.priority !== undefined ? <PriorityTag priority={detailData.priority} /> : "-"}
               </Descriptions.Item>
               <Descriptions.Item label="Trạng thái">
-                {detailData?.isCompleted !== undefined ? getStatusTag(detailData.isCompleted) : "-"}
+                {detailData?.isCompleted !== undefined ? <StatusTag isCompleted={detailData.isCompleted} /> : "-"}
               </Descriptions.Item>
               <Descriptions.Item label="Hạn hoàn thành">
-                {fmtDate(detailData?.dueDate as Dayjs | string, false)}
+                {formatDate(detailData?.dueDate as Dayjs | string)}
               </Descriptions.Item>
               <Descriptions.Item label="Ngày hoàn thành">
-                {fmtDate(detailData?.completedOn as Dayjs | string, false)}
+                {formatDate(detailData?.completedOn as Dayjs | string)}
               </Descriptions.Item>
               <Descriptions.Item label="Ngày tạo">
-                {fmtDate(detailData?.createdOn as Dayjs | string, true)}
+                {formatDate(detailData?.createdOn as Dayjs | string, true)}
               </Descriptions.Item>
               <Descriptions.Item label="Ngày chỉnh sửa">
-                {fmtDate(detailData?.modifiedOn as Dayjs | string, true)}
+                {formatDate(detailData?.modifiedOn as Dayjs | string, true)}
               </Descriptions.Item>
               {/* <Descriptions.Item label="Người tạo">
                 {detailData?.createdBy ?? "-"}

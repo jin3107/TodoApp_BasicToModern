@@ -1,0 +1,63 @@
+@use '../scss/variables';
+@use '../scss/colors';
+
+.main-layout {
+  min-height: 100vh;
+
+  .header {
+    padding: 0 24px;
+    background: #001529;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    height: 50px;
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      flex: 1;
+
+      .brand {
+        margin-right: 48px;
+
+        .brand-icon {
+          font-size: 24px;
+          color: #1890ff;
+        }
+
+        .brand-text {
+          color: white;
+          font-size: 18px;
+          white-space: nowrap;
+        }
+      }
+
+      .main-menu {
+        flex: 1;
+        border: none;
+        background: transparent;
+        line-height: 50px;
+      }
+    }
+
+    .user-info {
+      .user-avatar {
+        background-color: #1890ff;
+      }
+
+      .user-name {
+        color: white;
+      }
+    }
+  }
+
+  .content {
+    margin: 24px;
+    background: #f0f2f5;
+    min-height: calc(100vh - 112px);
+  }
+}

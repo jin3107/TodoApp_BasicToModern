@@ -29,11 +29,13 @@ import { Line, Bar, Pie } from '@ant-design/charts';
 import './style.scss';
 import type { DailyCompletionTrendResponse, TodoItemReportItemResponse, TodoItemReportResponse } from '../../interfaces/Responses';
 import { getProgressReport } from '../../apis/todoItemReportAPI';
+import { StatsCard, PriorityTag, useDateFormatter } from '../../components';
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
 
 const TasksReports = () => {
+  const { formatDate } = useDateFormatter();
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState<TodoItemReportResponse | null>(null);
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
@@ -67,24 +69,6 @@ const TasksReports = () => {
     fetchReport();
   }, []);
 
-  const getPriorityTag = (priority: number) => {
-    switch (priority) {
-      case 2:
-        return <Tag color="red">Cao</Tag>;
-      case 1:
-        return <Tag color="orange">Trung bình</Tag>;
-      case 0:
-        return <Tag color="green">Thấp</Tag>;
-      default:
-        return <Tag>Không xác định</Tag>;
-    }
-  };
-
-  const formatDate = (dateStr?: string) => {
-    if (!dateStr) return '-';
-    return dayjs(dateStr).format('DD/MM/YYYY');
-  };
-
   const getDaysOverdue = (dueDate: string) => {
     const days = dayjs().diff(dayjs(dueDate), 'day');
     return days > 0 ? days : 0;
@@ -108,7 +92,7 @@ const TasksReports = () => {
       dataIndex: 'priority',
       key: 'priority',
       width: '20%',
-      render: (priority: number) => getPriorityTag(priority),
+      render: (priority: number) => <PriorityTag priority={priority} />,
     },
     {
       title: 'Hạn hoàn thành',
@@ -147,7 +131,7 @@ const TasksReports = () => {
       dataIndex: 'priority',
       key: 'priority',
       width: '20%',
-      render: (priority: number) => getPriorityTag(priority),
+      render: (priority: number) => <PriorityTag priority={priority} />,
     },
     {
       title: 'Hạn hoàn thành',
@@ -273,83 +257,64 @@ const TasksReports = () => {
       <Spin spinning={loading}>
         <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
           <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="Tổng số công việc"
-                value={reportData.totalTasks}
-                prefix={<TrophyOutlined />}
-                valueStyle={{ color: '#1890ff' }}
-              />
-            </Card>
+            <StatsCard
+              title="Tổng số công việc"
+              value={reportData.totalTasks}
+              prefix={<TrophyOutlined />}
+            />
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="Đã hoàn thành"
-                value={reportData.completedTasks}
-                prefix={<CheckCircleOutlined />}
-                valueStyle={{ color: '#52c41a' }}
-              />
-              <Progress
-                percent={completionRate}
-                size="small"
-                status="active"
-                format={(percent) => `${percent}%`}
-              />
-            </Card>
+            <StatsCard
+              title="Đã hoàn thành"
+              value={reportData.completedTasks}
+              prefix={<CheckCircleOutlined />}
+              valueStyle={{ color: '#52c41a' }}
+              showProgress
+              progressPercent={completionRate}
+            />
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="Đang thực hiện"
-                value={reportData.inProgressTasks}
-                prefix={<ClockCircleOutlined />}
-                valueStyle={{ color: '#faad14' }}
-              />
-            </Card>
+            <StatsCard
+              title="Đang thực hiện"
+              value={reportData.inProgressTasks}
+              prefix={<ClockCircleOutlined />}
+              valueStyle={{ color: '#faad14' }}
+            />
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="Quá hạn"
-                value={reportData.overdueTasks}
-                prefix={<WarningOutlined />}
-                valueStyle={{ color: '#ff4d4f' }}
-              />
-            </Card>
+            <StatsCard
+              title="Quá hạn"
+              value={reportData.overdueTasks}
+              prefix={<WarningOutlined />}
+              valueStyle={{ color: '#ff4d4f' }}
+            />
           </Col>
         </Row>
 
         <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
           <Col xs={24} sm={8}>
-            <Card>
-              <Statistic
-                title="Ưu tiên cao (chưa hoàn thành)"
-                value={reportData.highPriorityPendingTasks}
-                prefix={<ExclamationCircleOutlined />}
-                valueStyle={{ color: '#ff4d4f' }}
-              />
-            </Card>
+            <StatsCard
+              title="Ưu tiên cao (chưa hoàn thành)"
+              value={reportData.highPriorityPendingTasks}
+              prefix={<ExclamationCircleOutlined />}
+              valueStyle={{ color: '#ff4d4f' }}
+            />
           </Col>
           <Col xs={24} sm={8}>
-            <Card>
-              <Statistic
-                title="Ưu tiên trung bình"
-                value={reportData.mediumPriorityPendingTasks}
-                prefix={<RiseOutlined />}
-                valueStyle={{ color: '#faad14' }}
-              />
-            </Card>
+            <StatsCard
+              title="Ưu tiên trung bình"
+              value={reportData.mediumPriorityPendingTasks}
+              prefix={<RiseOutlined />}
+              valueStyle={{ color: '#faad14' }}
+            />
           </Col>
           <Col xs={24} sm={8}>
-            <Card>
-              <Statistic
-                title="Ưu tiên thấp"
-                value={reportData.lowPriorityPendingTasks}
-                prefix={<FallOutlined />}
-                valueStyle={{ color: '#52c41a' }}
-              />
-            </Card>
+            <StatsCard
+              title="Ưu tiên thấp"
+              value={reportData.lowPriorityPendingTasks}
+              prefix={<FallOutlined />}
+              valueStyle={{ color: '#52c41a' }}
+            />
           </Col>
         </Row>
 

@@ -4,13 +4,11 @@ import {
   Card,
   Row,
   Col,
-  Statistic,
   Typography,
   List,
   Tag,
   Button,
   Space,
-  Progress,
   Empty,
   Spin,
   message,
@@ -30,16 +28,17 @@ import {
 import { Line } from '@ant-design/charts';
 import dayjs, { Dayjs } from 'dayjs';
 import './style.scss';
-import type { TaskReportResponse } from '../../interfaces/Responses';
+import type { TodoItemReportResponse } from '../../interfaces/Responses';
 import { getProgressReport } from '../../apis/todoItemReportAPI';
+import { PageHeader, StatsCard, PriorityTag } from '../../components';
 
-const { Title, Text, Paragraph } = Typography;
+const { Text } = Typography;
 const { RangePicker } = DatePicker;
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [reportData, setReportData] = useState<TaskReportResponse | null>(null);
+  const [reportData, setReportData] = useState<TodoItemReportResponse | null>(null);
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([
     dayjs().subtract(29, 'day'),
     dayjs()
@@ -77,15 +76,6 @@ const Dashboard = () => {
     fetchDashboardData();
   };
 
-  const getPriorityTag = (priority: number) => {
-    switch (priority) {
-      case 2: return <Tag color="red">Cao</Tag>;
-      case 1: return <Tag color="orange">Trung bình</Tag>;
-      case 0: return <Tag color="green">Thấp</Tag>;
-      default: return <Tag>N/A</Tag>;
-    }
-  };
-
   if (loading && !reportData) {
     return (
       <div style={{ textAlign: 'center', padding: '100px' }}>
@@ -98,21 +88,13 @@ const Dashboard = () => {
     ? Math.round((reportData.completedTasks / Math.max(reportData.totalTasks, 1)) * 100)
     : 0;
 
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Chào buổi sáng' : hour < 18 ? 'Chào buổi chiều' : 'Chào buổi tối';
-
   return (
     <div className="dashboard-container">
-      <div className="dashboard-header">
-        <div>
-          <Title level={2} style={{ margin: 0 }}>
-            {greeting}! 👋
-          </Title>
-          <Paragraph style={{ marginTop: 8, marginBottom: 0, fontSize: '16px', color: '#666' }}>
-            Đây là tổng quan về công việc của bạn
-          </Paragraph>
-        </div>
-        <Space>
+      <PageHeader
+        title="Dashboard"
+        greeting
+        subtitle="Đây là tổng quan về công việc của bạn"
+        actions={
           <Button 
             type="primary" 
             icon={<ArrowRightOutlined />}
@@ -121,8 +103,8 @@ const Dashboard = () => {
           >
             Xem tất cả công việc
           </Button>
-        </Space>
-      </div>
+        }
+      />
 
       <Card 
         style={{ marginBottom: 24 }}
@@ -163,51 +145,42 @@ const Dashboard = () => {
       <Spin spinning={loading}>
         <Row gutter={[24, 24]} style={{ marginBottom: 32 }}>
           <Col xs={24} sm={12} lg={6}>
-            <Card className="stat-card stat-card-primary">
-              <Statistic
-                title="Tổng số công việc"
-                value={reportData?.totalTasks || 0}
-                prefix={<TrophyOutlined />}
-                valueStyle={{ color: '#1890ff', fontSize: '32px', fontWeight: 'bold' }}
-              />
-            </Card>
+            <StatsCard
+              title="Tổng số công việc"
+              value={reportData?.totalTasks || 0}
+              prefix={<TrophyOutlined />}
+              className="stat-card stat-card-primary"
+            />
           </Col>
           <Col xs={24} sm={12} lg={6}>
-            <Card className="stat-card stat-card-success">
-              <Statistic
-                title="Đã hoàn thành"
-                value={reportData?.completedTasks || 0}
-                suffix={`/ ${reportData?.totalTasks || 0}`}
-                prefix={<CheckCircleOutlined />}
-                valueStyle={{ color: '#ffffffbe', fontSize: '32px', fontWeight: 'bold' }}
-              />
-              <Progress 
-                percent={completionRate} 
-                strokeColor="#52c41a" 
-                size="small" 
-                style={{ marginTop: 8 }}
-              />
-            </Card>
+            <StatsCard
+              title="Đã hoàn thành"
+              value={reportData?.completedTasks || 0}
+              suffix={`/ ${reportData?.totalTasks || 0}`}
+              prefix={<CheckCircleOutlined />}
+              valueStyle={{ color: '#ffffffbe', fontSize: '32px', fontWeight: 'bold' }}
+              className="stat-card stat-card-success"
+              showProgress
+              progressPercent={completionRate}
+            />
           </Col>
           <Col xs={24} sm={12} lg={6}>
-            <Card className="stat-card stat-card-warning">
-              <Statistic
-                title="Đang thực hiện"
-                value={reportData?.inProgressTasks || 0}
-                prefix={<ClockCircleOutlined />}
-                valueStyle={{ color: '#ffffffbe', fontSize: '32px', fontWeight: 'bold' }}
-              />
-            </Card>
+            <StatsCard
+              title="Đang thực hiện"
+              value={reportData?.inProgressTasks || 0}
+              prefix={<ClockCircleOutlined />}
+              valueStyle={{ color: '#ffffffbe', fontSize: '32px', fontWeight: 'bold' }}
+              className="stat-card stat-card-warning"
+            />
           </Col>
           <Col xs={24} sm={12} lg={6}>
-            <Card className="stat-card stat-card-danger">
-              <Statistic
-                title="Quá hạn"
-                value={reportData?.overdueTasks || 0}
-                prefix={<WarningOutlined />}
-                valueStyle={{ color: '#ffffffbe', fontSize: '32px', fontWeight: 'bold' }}
-              />
-            </Card>
+            <StatsCard
+              title="Quá hạn"
+              value={reportData?.overdueTasks || 0}
+              prefix={<WarningOutlined />}
+              valueStyle={{ color: '#ffffffbe', fontSize: '32px', fontWeight: 'bold' }}
+              className="stat-card stat-card-danger"
+            />
           </Col>
         </Row>
 
@@ -230,7 +203,7 @@ const Dashboard = () => {
             />
           ) : (
             <Line
-              data={reportData.completionTrend.map(item => ({
+              data={reportData.completionTrend.map((item: { date: string; completedCount: number }) => ({
                 date: dayjs(item.date).format('DD/MM'),
                 value: item.completedCount,
                 type: 'Hoàn thành'
@@ -403,7 +376,7 @@ const Dashboard = () => {
               ) : (
                 <List
                   dataSource={reportData.mostOverdueTasks.slice(0, 5)}
-                  renderItem={(item) => {
+                  renderItem={(item: { title: string; priority: number; dueDate: string | dayjs.Dayjs }) => {
                     const dueDateDayjs = typeof item.dueDate === 'string' ? dayjs(item.dueDate) : item.dueDate;
                     const daysOverdue = dayjs().diff(dueDateDayjs, 'day');
                     
@@ -420,7 +393,7 @@ const Dashboard = () => {
                           title={<Text strong>{item.title}</Text>}
                           description={
                             <Space>
-                              {getPriorityTag(item.priority)}
+                              <PriorityTag priority={item.priority} />
                               <Text type="secondary" delete>Hạn: {dueDateDayjs.format('DD/MM/YYYY')}</Text>
                             </Space>
                           }
