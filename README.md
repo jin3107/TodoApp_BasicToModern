@@ -166,7 +166,7 @@ TodoApp_BasicToModern/
 ### Database Configuration
 ```json
 {
-  "ConnectionString": "Server=localhost;Database=TodoAppDB;Uid=root;Pwd=password;",
+  "ConnectionString": "Server=localhost;Database=TodoApp;Uid=root;Pwd=password;",
   "Redis": {
     "ConnectionString": "localhost:6379"
   }
@@ -267,7 +267,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) 
 
 ## 👨‍💻 Author
 
-Built with ❤️ by [Your Name]
+Built with ❤️ by Rainy
 
 ---
 
