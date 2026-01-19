@@ -9,7 +9,6 @@ import {
   Descriptions,
   Spin,
   Typography,
-  Tag,
   Space,
   Row,
   Col,
@@ -24,7 +23,6 @@ import type { MenuProps } from "antd";
 import {
   PlusOutlined,
   CheckCircleOutlined,
-  ClockCircleOutlined,
   ExclamationCircleOutlined,
   SearchOutlined,
   SortAscendingOutlined,
@@ -57,7 +55,13 @@ interface TodoItemData {
   completedOn?: string;
 }
 
-const TodoItems = () => {
+interface TodoItemsProps {
+  todoListId: string;
+  todoListName: string;
+  onItemsChange: () => void;
+}
+
+const TodoItems = ({ todoListId, todoListName, onItemsChange }: TodoItemsProps) => {
   const { modal, message: messageApi } = App.useApp();
   const { formatDate } = useDateFormatter();
   const [loading, setLoading] = useState(false);
@@ -157,6 +161,7 @@ const TodoItems = () => {
       if (mode === "create") {
         const payloadCreate: TodoItemRequest = {
           ...common,
+          todoListId: todoListId, // Add todoListId to request
         } as unknown as TodoItemRequest;
 
         const response = await createTodoItem(payloadCreate);
@@ -176,6 +181,8 @@ const TodoItems = () => {
             // Chuyển về trang 1 sẽ tự động trigger useEffect
             setCurrentPage(1);
           }
+          // Call parent callback to refresh todo list counts
+          onItemsChange();
         }
       } else if (mode === "update") {
         if (!selectedId) return messageApi.error('Thiếu ID item');
@@ -183,6 +190,7 @@ const TodoItems = () => {
         const payloadUpdate = {
           ...common,
           id: selectedId,
+          todoListId: todoListId, // Add todoListId to request
         } as unknown as TodoItemRequest;
 
         const response = await updateTodoItem(payloadUpdate);
@@ -194,6 +202,8 @@ const TodoItems = () => {
           form.resetFields();
           // Reload trang hiện tại để cập nhật dữ liệu từ cache mới
           await fetchTasks(currentPage, pageSize, searchText);
+          // Call parent callback to refresh todo list counts
+          onItemsChange();
         }
       }
     } catch (err) {
@@ -209,6 +219,14 @@ const TodoItems = () => {
       try {
         setLoading(true);
         const filters: Filter[] = [];
+        
+        // Always filter by todoListId
+        filters.push({
+          fieldName: "TodoListId",
+          value: todoListId,
+          operation: "Equals",
+        });
+        
         if (searchValue) {
           filters.push({
             fieldName: searchField,
@@ -230,6 +248,7 @@ const TodoItems = () => {
         };
 
         const response = await searchTodoItems(searchRequest);
+        
         if (response.isSuccess) {
           const searchResponse = response as unknown as SearchResponse<TodoItemData>;
           let taskData: TodoItemData[] = [];
@@ -251,13 +270,21 @@ const TodoItems = () => {
         setLoading(false);
       }
     },
-    [searchField, sortField, sortDirection]
+    [searchField, sortField, sortDirection, todoListId]
   );
 
   useEffect(() => {
     fetchTasks(currentPage, pageSize, searchText);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchField, sortField, sortDirection, currentPage, pageSize, searchText]);
+  }, [searchField, sortField, sortDirection, currentPage, pageSize, searchText, todoListId]);
+
+  // Clear tasks when todoListId changes
+  useEffect(() => {
+    console.log('TodoListId changed to:', todoListId);
+    setTasks([]);
+    setCurrentPage(1);
+    setSearchText('');
+  }, [todoListId]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -279,6 +306,9 @@ const TodoItems = () => {
           // Force re-fetch nếu vẫn ở cùng trang
           fetchTasks(targetPage, pageSize, searchText);
         }
+        
+        // Call parent callback to refresh todo list counts
+        onItemsChange();
       } else {
         console.error('Delete failed:', response);
         messageApi.error(response.message || 'Xóa item thất bại');
@@ -435,7 +465,7 @@ const TodoItems = () => {
   return (
     <div className="tasks-container">
       <div className="tasks-header">
-        <h2>Quản lý công việc</h2>
+        <h2>{todoListName} - Todo Items</h2>
         <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
           Thêm công việc
         </Button>
@@ -562,19 +592,21 @@ const TodoItems = () => {
           if (!visible) {
             // Reset state khi đóng modal để tránh hiển thị data cũ
             setDetailData(null);
-            form.resetFields();
             return;
           }
 
-          if (mode !== "detail") {
-            form.resetFields();
-            if (mode === "create") {
-              form.setFieldsValue({
-                isCompleted: false,
-                priority: Tier.Medium,
-              });
+          // Delay để đảm bảo form đã render
+          setTimeout(() => {
+            if (mode !== "detail") {
+              form.resetFields();
+              if (mode === "create") {
+                form.setFieldsValue({
+                  isCompleted: false,
+                  priority: Tier.Medium,
+                });
+              }
             }
-          }
+          }, 0);
 
           if ((mode === "detail" || mode === "update") && selectedId) {
             // Reset data cũ trước khi load mới

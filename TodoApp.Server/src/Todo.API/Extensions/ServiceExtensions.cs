@@ -11,6 +11,7 @@ namespace Todo.API.Extensions
         {
             services.AddScoped<ITodoItemRepository, TodoItemRepository>();
             services.AddScoped<ITodoItemProgressReportReporitory, TodoItemProgressReportRepository>();
+            services.AddScoped<ITodoListRepository, TodoListRepository>();
             return services;
         }
 
@@ -23,6 +24,7 @@ namespace Todo.API.Extensions
             // Register cached versions as interface implementations
             services.AddScoped<ITodoItemService, CacheTodoItemService>();
             services.AddScoped<ITodoItemReportService, CachedTodoItemReportService>();
+            services.AddScoped<ITodoListService, TodoListService>();
             
             services.AddScoped<IEmailService, EmailService>();
             return services;

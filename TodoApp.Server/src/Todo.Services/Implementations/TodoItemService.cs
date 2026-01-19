@@ -40,6 +40,7 @@ namespace Todo.Services.Implementations
                 newTask.Description = request.Description;
                 newTask.DueDate = request.DueDate;
                 newTask.Priority = request.Priority;
+                newTask.TodoListId = request.TodoListId;
                 newTask.CreatedOn = DateTime.UtcNow;
                 newTask.IsCompleted = false;
                 newTask.CompletedOn = null;
@@ -144,6 +145,11 @@ namespace Todo.Services.Implementations
                             case "Title":
                                 if (!string.IsNullOrEmpty(filter.Value))
                                     predicate = predicate.And(x => x.Title.Contains(filter.Value));
+                                break;
+
+                            case "TodoListId":
+                                if (!string.IsNullOrEmpty(filter.Value) && Guid.TryParse(filter.Value, out var todoListId))
+                                    predicate = predicate.And(x => x.TodoListId == todoListId);
                                 break;
 
                             default: break;

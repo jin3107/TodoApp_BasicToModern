@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import Dashboard from './pages/Dashboard';
-import TodoItems from './pages/TodoItems';
+import TodoLists from './pages/TodoLists';
 import './App.css';
 
 function App() {
@@ -9,7 +9,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<MainLayout />}>
-          <Route index element={<TodoItems />} />
+          <Route index element={<TodoLists />} />
           <Route path="dashboard" element={<Dashboard />} />
         </Route>
       </Routes>

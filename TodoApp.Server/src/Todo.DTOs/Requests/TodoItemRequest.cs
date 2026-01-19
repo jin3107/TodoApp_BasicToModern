@@ -23,5 +23,6 @@ namespace Todo.DTOs.Requests
         public bool IsCompleted { get; set; }
         public Tier Priority { get; set; }
         public DateTime? CompletedOn { get; set; }
+        public Guid? TodoListId { get; set; }
     }
 }

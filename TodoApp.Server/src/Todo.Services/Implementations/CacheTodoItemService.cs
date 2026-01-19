@@ -124,6 +124,7 @@ namespace Todo.Services.Implementations
 
                 _logger.LogWarning("Cache miss: Search with key {cacheKey}", cacheKey);
                 result = await _todoItemService.SearchAsync(request);
+                
                 if (result.IsSuccess && result != null)
                 {
                     await _cacheService.SetAsync(cacheKey, result, _cacheExpiration);
@@ -153,7 +154,7 @@ namespace Todo.Services.Implementations
             {
                 foreach (var filter in request.Filters)
                 {
-                    keyBuilder.Append($"{filter.FieldName}:{filter.Value}:");
+                    keyBuilder.Append($"{filter.FieldName}:{filter.Operation}:{filter.Value}:");
                 }
             }
 

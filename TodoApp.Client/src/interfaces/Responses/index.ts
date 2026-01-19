@@ -3,3 +3,4 @@ export type { default as DailyCompletionTrendResponse } from './DailyCompletionT
 export type { default as PriorityDistributionResponse } from './PriorityDistributionResponse'
 export type { default as TodoItemReportResponse } from './TodoItemReportResponse'
 export type { default as TodoItemReportItemResponse } from './TodoItemReportItemResponse'
+export type { TodoListResponse } from './TodoListResponse'

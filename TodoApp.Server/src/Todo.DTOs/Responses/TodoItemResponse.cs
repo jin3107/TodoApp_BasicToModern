@@ -18,5 +18,6 @@ namespace Todo.DTOs.Responses
         public DateTime? CompletedOn { get; set; }
         public DateTime? CreatedOn { get; set; }
         public DateTime? ModifiedOn { get; set; }
+        public Guid? TodoListId { get; set; }
     }
 }

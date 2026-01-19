@@ -4,7 +4,6 @@ import {
   Row,
   Col,
   Statistic,
-  Progress,
   Table,
   Tag,
   Typography,

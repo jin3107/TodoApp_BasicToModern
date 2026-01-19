@@ -20,6 +20,7 @@ namespace Todo.Services.Mapping
                 IsCompleted = request.IsCompleted,
                 Priority = request.Priority,
                 CompletedOn = request.CompletedOn,
+                TodoListId = request.TodoListId,
             };
         }
 
@@ -35,7 +36,8 @@ namespace Todo.Services.Mapping
                 Priority = entity.Priority,
                 CompletedOn = entity.CompletedOn,
                 CreatedOn = entity.CreatedOn,
-                ModifiedOn = entity.ModifiedOn
+                ModifiedOn = entity.ModifiedOn,
+                TodoListId = entity.TodoListId
             };
         }
     }

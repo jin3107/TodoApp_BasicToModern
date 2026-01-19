@@ -9,6 +9,7 @@ export default interface TodoItemResponse {
   isCompleted: boolean;
   priority: Tier;
   completedOn: dayjs.Dayjs;
+  todoListId?: string; // ✅ Add TodoListId property
 
   createdOn?: dayjs.Dayjs;
   // createdBy?: string;
