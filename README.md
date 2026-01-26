@@ -43,7 +43,6 @@ A comprehensive full-stack Todo application built with modern technologies, feat
 - **Serilog** - Structured logging
 
 ### Architecture
-- **Clean Architecture** - Separation of concerns
 - **Repository Pattern** - Data access abstraction
 - **Dependency Injection** - Loose coupling
 - **CQRS** - Command Query Responsibility Segregation
