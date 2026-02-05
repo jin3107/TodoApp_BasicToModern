@@ -366,3 +366,39 @@ FodyWeavers.xsd
 appsettings.*.json
 !appsettings.json
 !appsettings.Production.json
+
+# Environment files
+.env
+*.env
+!.env.example
+
+# Nginx configuration with sensitive data
+nginx/conf.d/todoapp.conf
+
+# SSL Certificates
+nginx/ssl/*.pem
+nginx/ssl/*.key
+nginx/ssl/*.crt
+
+# Database
+mysql/data/
+*.sql
+
+# Logs
+*.log
+logs/
+
+# Docker
+.docker/
+
+# Backups
+backups/
+*.backup
+*.bak
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

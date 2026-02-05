@@ -1,11 +1,20 @@
 import axios from "axios";
 
+// const api = axios.create({
+//   baseURL: "https://localhost:7196",
+//   timeout: 60000, // Increase to 60 seconds
+//   headers: {
+//     'Content-Type': 'application/json',
+//   }
+// });
+
 const api = axios.create({
-  baseURL: "https://localhost:7196",
-  timeout: 60000, // Increase to 60 seconds
+  // Dùng relative URL để Nginx proxy
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
-  }
+  },
 });
 
 // Add request interceptor for debugging
