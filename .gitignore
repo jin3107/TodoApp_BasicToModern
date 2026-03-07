@@ -366,3 +366,6 @@ FodyWeavers.xsd
 appsettings.*.json
 !appsettings.json
 !appsettings.Production.json
+
+#Environment
+.env
