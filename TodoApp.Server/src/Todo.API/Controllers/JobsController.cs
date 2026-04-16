@@ -11,9 +11,9 @@ namespace Todo.API.Controllers
         private readonly IScheduler _scheduler;
         private readonly ILogger<JobsController> _logger;
 
-        public JobsController(ISchedulerFactory schedulerFactory, ILogger<JobsController> logger)
+        public JobsController(IScheduler scheduler, ILogger<JobsController> logger)
         {
-            _scheduler = schedulerFactory.GetScheduler().Result;
+            _scheduler = scheduler;
             _logger = logger;
         }
 
@@ -25,7 +25,7 @@ namespace Todo.API.Controllers
                 var jobKey = new JobKey("DailyTaskReportJob", "EmailJobs");
                 await _scheduler.TriggerJob(jobKey);
 
-                _logger.LogInformation("Daily report job triggered manually at {Time}", DateTime.Now);
+                _logger.LogInformation("Daily report job triggered manually at {Time}", DateTime.UtcNow);
 
                 return Ok(new { Message = "Daily report job triggered successfully!" });
             }
@@ -44,7 +44,7 @@ namespace Todo.API.Controllers
                 var jobKey = new JobKey("WeeklyTaskSummaryJob", "EmailJobs");
                 await _scheduler.TriggerJob(jobKey);
 
-                _logger.LogInformation("Weekly summary job triggered manually at {Time}", DateTime.Now);
+                _logger.LogInformation("Weekly summary job triggered manually at {Time}", DateTime.UtcNow);
 
                 return Ok(new { Message = "Weekly summary job triggered successfully!" });
             }
@@ -63,7 +63,7 @@ namespace Todo.API.Controllers
                 var jobKey = new JobKey("TaskReminderJob", "EmailJobs");
                 await _scheduler.TriggerJob(jobKey);
 
-                _logger.LogInformation("Task reminder job triggered manually at {Time}", DateTime.Now);
+                _logger.LogInformation("Task reminder job triggered manually at {Time}", DateTime.UtcNow);
 
                 return Ok(new { Message = "Task reminder job triggered successfully!" });
             }
