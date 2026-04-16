@@ -28,7 +28,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 );
 
 builder.Services.AddApplicationServices().AddRepositories();
-builder.Services.AddQuartzConfiguration();
+builder.Services.AddQuartzConfiguration(builder.Configuration);
 builder.Services.AddRedisCache(builder.Configuration);
 
 builder.Services.AddEndpointsApiExplorer();

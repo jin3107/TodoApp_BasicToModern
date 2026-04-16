@@ -5,12 +5,27 @@ namespace Todo.API.Extensions
 {
     public static class QuartzServiceExtensions
     {
-        public static IServiceCollection AddQuartzConfiguration(this IServiceCollection services)
+        public static IServiceCollection AddQuartzConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddQuartz(q =>
             {
-                q.UseSimpleTypeLoader();
-                q.UseInMemoryStore();
+                q.UsePersistentStore(store =>
+                {
+                    store.UseProperties = true;
+                    store.RetryInterval = TimeSpan.FromSeconds(15);
+                    store.UseNewtonsoftJsonSerializer();
+                    store.UseClustering(c =>
+                    {
+                        c.CheckinMisfireThreshold = TimeSpan.FromSeconds(20);
+                        c.CheckinInterval = TimeSpan.FromSeconds(10);
+                    });
+                    store.UseMySql(mysql =>
+                    {
+                        mysql.ConnectionString = configuration.GetConnectionString("DefaultConnection")!;
+                        mysql.TablePrefix = "QRTZ_";
+                    });
+                });
+
                 q.UseDefaultThreadPool(tp =>
                 {
                     tp.MaxConcurrency = 3;
