@@ -39,14 +39,14 @@ namespace Todo.Services.Implementations
         {
             try
             {
-                _logger.LogInformation("Sending daily todo item report at {DateTime.Now}", DateTime.Now);
+                _logger.LogInformation("Sending daily todo item report at {DateTime.UtcNow}", DateTime.UtcNow);
 
                 var request = new TodoItemReportRequest();
                 var reportResponse = await _taskReportService.GetProgressReportAsync(request);
                 var emailBody = BuildDailyReportEmail(reportResponse.Data);
                 await SendEmailAsync(
                     to: RecipientEmail,
-                    subject: $"Daily Task Report - {DateTime.Now:yyyy-MM-dd}",
+                    subject: $"Daily Task Report - {DateTime.UtcNow:yyyy-MM-dd}",
                     body: emailBody
                 );
 
@@ -62,7 +62,7 @@ namespace Todo.Services.Implementations
         private string BuildDailyReportEmail(TodoItemReportResponse report)
         {
             return $"""
-                Daily todo item Report - {DateTime.Now:dd-MM-yyyy}
+                Daily todo item Report - {DateTime.UtcNow:dd-MM-yyyy}
                 
                 Todo Items Completed Today: {report.CompletedTasks}
                 Todo Items In Progress: {report.InProgressTasks}
@@ -70,7 +70,7 @@ namespace Todo.Services.Implementations
                 """;
         }
 
-        public async Task SendEmailAsync(string to, string subject, string body)
+        public virtual async Task SendEmailAsync(string to, string subject, string body)
         {
             try
             {
@@ -103,7 +103,7 @@ namespace Todo.Services.Implementations
         {
             try
             {
-                _logger.LogInformation("Sending todo item reminder report at {Time}", DateTime.Now);
+                _logger.LogInformation("Sending todo item reminder report at {Time}", DateTime.UtcNow);
 
                 var request = new TodoItemReportRequest();
                 var reportResponse = await _taskReportService.GetProgressReportAsync(request);
@@ -170,7 +170,7 @@ namespace Todo.Services.Implementations
             }
 
             return $"""
-                Todo Item Reminder - {DateTime.Now:dd-MM-yyyy}
+                Todo Item Reminder - {DateTime.UtcNow:dd-MM-yyyy}
                 
                 You have {overdueCount} overdue item(s) that need attention!
                 {taskList}
@@ -185,21 +185,28 @@ namespace Todo.Services.Implementations
         {
             try
             {
-                _logger.LogInformation("Seding weekly todo item summary at {Time}", DateTime.Now);
+                _logger.LogInformation("Sending weekly todo item summary at {Time}", DateTime.UtcNow);
                 var request = new TodoItemReportRequest();
                 var reportResponse = await _taskReportService.GetProgressReportAsync(request);
                 var emailBody = BuildWeeklyReportEmail(reportResponse.Data);
+                await SendEmailAsync(
+                    to: RecipientEmail,
+                    subject: $"Weekly Todo Item Summary - Week of {DateTime.UtcNow:yyyy-MM-dd}",
+                    body: emailBody
+                );
+                _logger.LogInformation("Weekly todo item summary sent successfully");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to send weekly todo item summary");
+                throw;
             }
         }
 
         private string BuildWeeklyReportEmail(TodoItemReportResponse report)
         {
             return $"""
-                Weekly Todo Item Summary - Week of {DateTime.Now:dd-MM-yyyy}
+                Weekly Todo Item Summary - Week of {DateTime.UtcNow:dd-MM-yyyy}
 
                 This Week's Achievements:
                 Completed: {report.CompletedTasks} items
