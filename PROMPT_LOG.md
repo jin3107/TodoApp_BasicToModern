@@ -96,7 +96,9 @@ We are not catching the error in the weekly task summary job. Apply these fixes:
     add throw to the catch block so WeeklyTaskSummaryJob receives the exception
 
 ## Prompt 13
+ 
+Walk me through embedding the standalone SQL script we used to provision the Quartz tables during local setu into an EF Core migration. This is ideally so that dotnet ef database update handles both the application schema and the Quartz schema in one step, and the manual docker exec prerequisite is eliminated.
 
-The standalone SQL script we used to provision the Quartz tables during local setup needs a permanent home. Walk me through embedding it into an EF Core migration so that dotnet ef database update handles both the application schema and the Quartz schema in one step, and the manual docker exec prerequisite is eliminated.
+## Prompt 14
 
-**Intent:** The `QuartzSchema_MySQL.sql` file was a dev shortcut, not a production solution. Moving it into a migration ties it to the project's versioned schema history, removes a manual deployment step, and directly supports the scaling goal — new nodes can come up without any out-of-band setup.
+--arbitrary github branching questions. I ended up forking the repo and submitting my PR there since I dont have push/branch access to the OG one.--
