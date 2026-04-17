@@ -12,7 +12,7 @@ using Todo.Models.Data;
 namespace Todo.Models.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260119093303_DbInit")]
+    [Migration("20260129131055_DbInit")]
     partial class DbInit
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace Todo.Models.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.21")
+                .HasAnnotation("ProductVersion", "8.0.23")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
