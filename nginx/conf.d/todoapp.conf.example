@@ -1,0 +1,47 @@
+# Rate limiting
+limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
+
+upstream backend {
+    server todoapp-backend:8080;
+}
+
+upstream frontend {
+    server todoapp-frontend:80;
+}
+
+server {
+    listen 80;
+    server_name your-domain.com;  # Change to your domain
+    
+    client_max_body_size 10M;
+    
+    # Jobs - CHỈ LOCALHOST  
+    location /jobs {
+        allow 127.0.0.1;
+        allow YOUR_IP_ADDRESS;  # Change to your IP
+        deny all;
+        proxy_pass http://backend;
+    }
+    
+    # Swagger
+    location /swagger {
+        allow 127.0.0.1;
+        allow YOUR_IP_ADDRESS;  # Change to your IP
+        deny all;
+        proxy_pass http://backend;
+    }
+    
+    # API - PUBLIC
+    location ~ ^/(reports|todo-items|todo-lists) {
+        limit_req zone=api_limit burst=20 nodelay;
+        proxy_pass http://backend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+    
+    # Frontend
+    location / {
+        proxy_pass http://frontend;
+        proxy_set_header Host $host;
+    }
+}

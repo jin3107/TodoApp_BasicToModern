@@ -1,4 +1,4 @@
-import { Typography, Space, Button } from 'antd';
+import { Typography } from 'antd';
 import type { ReactNode } from 'react';
 
 const { Title, Paragraph } = Typography;

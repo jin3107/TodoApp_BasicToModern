@@ -1,0 +1,95 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./TodoApp.Server/src
+      dockerfile: Todo.API/Dockerfile
+    container_name: todoapp-backend
+    networks:
+      - todoapp-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=${MYSQL_DATABASE:-TodoApp_BToM};User=${MYSQL_USER:-dev};Password=${MYSQL_PASSWORD:-Dev@123}
+      ConnectionStrings__RedisConnection: redis:6379,abortConnect=false
+      RedisSettings__Enabled: "true"
+      EmailSettings__SmtpServer: smtp.gmail.com
+      EmailSettings__SmtpPort: 587
+      EmailSettings__SmtpUsername: ${SMTP_USERNAME}
+      EmailSettings__SmtpPassword: ${SMTP_PASSWORD}
+      EmailSettings__FromEmail: ${SMTP_USERNAME}
+      EmailSettings__FromName: TodoApp
+      EmailSettings__RecipientEmail: ${RECIPIENT_EMAIL}
+    restart: unless-stopped
+    depends_on:
+      - mysql
+      - redis
+
+  frontend:
+    build:
+      context: ./TodoApp.Client
+      dockerfile: Dockerfile
+    container_name: todoapp-frontend
+    networks:
+      - todoapp-network
+    expose:
+      - "80"
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: todoapp-mysql
+    networks:
+      - todoapp-network
+    ports:
+      - "127.0.0.1:3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-Root@123}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-TodoApp_BToM}
+      MYSQL_USER: ${MYSQL_USER:-dev}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-Dev@123}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: todoapp-redis
+    networks:
+      - todoapp-network
+    expose:
+      - "6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+
+  nginx:
+    image: nginx:alpine
+    container_name: todoapp-nginx
+    networks:
+      - todoapp-network
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - frontend
+
+networks:
+  todoapp-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  redis-data:
