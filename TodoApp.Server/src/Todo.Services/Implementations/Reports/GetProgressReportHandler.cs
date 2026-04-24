@@ -1,5 +1,6 @@
 ﻿using MayNghien.Infrastructures.Models.Responses;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,67 +9,41 @@ using System.Threading.Tasks;
 using Todo.Commons.Enums;
 using Todo.DTOs.Requests;
 using Todo.DTOs.Responses;
-using Todo.Models.Entities;
 using Todo.Repositories.Interfaces;
 using Todo.Services.Interfaces;
+using Todo.Services.Interfaces.Reports;
 using Todo.Services.Mapping;
 
-namespace Todo.Services.Implementations
+namespace Todo.Services.Implementations.Reports
 {
-    public class TodoItemReportService : ITodoItemReportService
+    public class GetProgressReportHandler : IGetProgressReportHandler
     {
         private readonly ITodoItemRepository _todoItemRepository;
         private readonly ITodoItemProgressReportReporitory _reportRepository;
+        private readonly ILogger<GetProgressReportHandler> _logger;
 
-        public TodoItemReportService(ITodoItemRepository todoItemRepository, ITodoItemProgressReportReporitory reportRepository)
+        public GetProgressReportHandler(ITodoItemRepository todoItemRepository, ITodoItemProgressReportReporitory reportRepository, ILogger<GetProgressReportHandler> logger)
         {
             _todoItemRepository = todoItemRepository;
             _reportRepository = reportRepository;
+            _logger = logger;
         }
 
-        public async Task<AppResponse<Guid>> CreateDailySnapshotAsync()
-        {
-            var result = new AppResponse<Guid>();
-            try
-            {
-                var reportRequest = new TodoItemReportRequest();
-                var reportResponse = await GetProgressReportAsync(reportRequest);
-                if (!reportResponse.IsSuccess || reportResponse.Data == null)
-                    return result.BuildError("Failed to generate report for snapshot");
-
-                var report = reportResponse.Data;
-                var now = DateTime.UtcNow;
-                var snapshot = TodoItemReportMapper.ToEntity(report, now.Date, "Auto-generated daily snapshot");
-
-                await _reportRepository.AddAsync(snapshot);
-                result.BuildResult(snapshot.Id, "Daily snapshot created successfully.");
-            }
-            catch (Exception ex)
-            {
-                result.BuildError($"Error creating daily snapshot: {ex.Message}");
-            }
-            return result;
-        }
-
-        public async Task<AppResponse<TodoItemReportResponse>> GetProgressReportAsync(TodoItemReportRequest request)
+        public async Task<AppResponse<TodoItemReportResponse>> HandleAsync(TodoItemReportRequest request)
         {
             var result = new AppResponse<TodoItemReportResponse>();
             try
             {
                 var now = DateTime.UtcNow;
-                
-                // Lấy TẤT CẢ tasks (không filter theo thời gian ở đây)
+
                 var allTasksQuery = _todoItemRepository.AsQueryable()
                     .Where(t => t.IsDeleted == false)
                     .AsNoTracking();
-
                 var allTasks = await allTasksQuery.ToListAsync();
-                
-                // Xác định khoảng thời gian để filter
+
                 var startDate = request.StartDate ?? now.AddDays(-29);
                 var endDate = request.EndDate ?? now;
 
-                // Filter tasks trong khoảng thời gian (được tạo hoặc hoàn thành)
                 var filteredTasks = allTasks.Where(t =>
                     (t.CreatedOn.HasValue && t.CreatedOn.Value.Date >= startDate.Date && t.CreatedOn.Value.Date <= endDate.Date) ||
                     (t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value.Date >= startDate.Date && t.CompletedOn.Value.Date <= endDate.Date)
@@ -83,27 +58,34 @@ namespace Todo.Services.Implementations
                 var mediumPriorityPending = filteredTasks.Count(t => !t.IsCompleted && t.Priority == Tier.Medium);
                 var lowPriorityPending = filteredTasks.Count(t => !t.IsCompleted && t.Priority == Tier.Low);
 
-                var completionRate = totalTasks > 0 ? Math.Round((decimal)completedTasks / totalTasks * 100, 2) : 0;
+                var completionRate = totalTasks > 0
+                    ? Math.Round((decimal)completedTasks / totalTasks * 100, 2)
+                    : 0;
 
-                var tasksWithCompletionTime = filteredTasks.Where(t => t.IsCompleted && t.CompletedOn.HasValue && t.CreatedOn.HasValue).ToList();
-                var avgCompletionTime = tasksWithCompletionTime.Any() ? (decimal)tasksWithCompletionTime
-                    .Average(t => (t.CompletedOn!.Value - t.CreatedOn!.Value).TotalHours) : 0;
+                var tasksWithCompletionTime = filteredTasks
+                    .Where(t => t.IsCompleted && t.CompletedOn.HasValue && t.CreatedOn.HasValue)
+                    .ToList();
+                var avgCompletionTime = tasksWithCompletionTime.Any()
+                    ? (decimal)tasksWithCompletionTime.Average(t => (t.CompletedOn!.Value - t.CreatedOn!.Value).TotalHours)
+                    : 0;
 
                 var today = now.Date;
                 var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
                 var startOfMonth = new DateTime(now.Year, now.Month, 1);
-                
-                // Stats "Hôm nay", "Tuần này", "Tháng này" vẫn dùng allTasks (không filter)
-                var tasksCompletedToday = allTasks.Count(t => t.IsCompleted && t.CompletedOn.HasValue
-                    && t.CompletedOn.Value.Date == today);
-                var tasksCompletedThisWeek = allTasks.Count(t => t.IsCompleted && t.CompletedOn.HasValue
-                    && t.CompletedOn.Value.Date >= startOfWeek);
-                var tasksCompletedThisMonth = allTasks.Count(t => t.IsCompleted && t.CompletedOn.HasValue
-                    && t.CompletedOn.Value.Date >= startOfMonth);
 
-                var mostOverdueTasks = filteredTasks.Where(t => !t.IsCompleted && t.DueDate.Date < today)
+                var tasksCompletedToday = allTasks.Count(t =>
+                    t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value.Date == today);
+                var tasksCompletedThisWeek = allTasks.Count(t =>
+                    t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value.Date >= startOfWeek);
+                var tasksCompletedThisMonth = allTasks.Count(t =>
+                    t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value.Date >= startOfMonth);
+
+                var mostOverdueTasks = filteredTasks
+                    .Where(t => !t.IsCompleted && t.DueDate.Date < today)
                     .OrderBy(t => t.DueDate)
-                    .Take(5).Select(TodoItemMapper.ToResponse).ToList();
+                    .Take(5)
+                    .Select(TodoItemMapper.ToResponse)
+                    .ToList();
 
                 var priorityDistribution = new PriorityDistribution
                 {
@@ -113,17 +95,17 @@ namespace Todo.Services.Implementations
                 };
 
                 var dayCount = (endDate.Date - startDate.Date).Days + 1;
-                var dateRange = Enumerable.Range(0, dayCount).Select(i => startDate.Date.AddDays(i)).ToList();
-                
-                // CompletionTrend dùng allTasks nhưng filter theo date
-                var completionTrend = dateRange.Select(date => new DailyCompletionTrend
-                {
-                    Date = date,
-                    CompletedCount = allTasks.Count(t =>
-                        t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value.Date == date),
-                    CreatedCount = allTasks.Count(t =>
-                        t.CreatedOn.HasValue && t.CreatedOn.Value.Date == date)
-                }).ToList();
+                var completionTrend = Enumerable.Range(0, dayCount)
+                    .Select(i => startDate.Date.AddDays(i))
+                    .Select(date => new DailyCompletionTrend
+                    {
+                        Date = date,
+                        CompletedCount = allTasks.Count(t =>
+                            t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value.Date == date),
+                        CreatedCount = allTasks.Count(t =>
+                            t.CreatedOn.HasValue && t.CreatedOn.Value.Date == date)
+                    })
+                    .ToList();
 
                 var report = new TodoItemReportResponse
                 {
