@@ -12,7 +12,7 @@ using Todo.Models.Data;
 namespace Todo.Models.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260129131055_DbInit")]
+    [Migration("20260421051415_DbInit")]
     partial class DbInit
     {
         /// <inheritdoc />
@@ -238,7 +238,8 @@ namespace Todo.Models.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
 
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime(6)");
@@ -255,12 +256,14 @@ namespace Todo.Models.Migrations
                     b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("Priority")
-                        .HasColumnType("int");
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
 
                     b.Property<Guid?>("TodoListId")
                         .HasColumnType("char(36)");
@@ -269,7 +272,7 @@ namespace Todo.Models.Migrations
 
                     b.HasIndex("TodoListId");
 
-                    b.ToTable("TodoItems");
+                    b.ToTable("TodoItems", (string)null);
                 });
 
             modelBuilder.Entity("Todo.Models.Entities.TodoItemProgressReport", b =>
@@ -279,13 +282,13 @@ namespace Todo.Models.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<decimal>("AverageCompletionTimeHours")
-                        .HasColumnType("decimal(65,30)");
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<int>("CompletedTasks")
                         .HasColumnType("int");
 
                     b.Property<decimal>("CompletionRate")
-                        .HasColumnType("decimal(65,30)");
+                        .HasColumnType("decimal(5,2)");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("longtext");
@@ -310,7 +313,8 @@ namespace Todo.Models.Migrations
 
                     b.Property<string>("Notes")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
 
                     b.Property<int>("OverdueTasks")
                         .HasColumnType("int");
@@ -326,7 +330,7 @@ namespace Todo.Models.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TaskProgressReports");
+                    b.ToTable("TodoItemProgressReports", (string)null);
                 });
 
             modelBuilder.Entity("Todo.Models.Entities.TodoList", b =>
@@ -342,7 +346,8 @@ namespace Todo.Models.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Description")
-                        .HasColumnType("longtext");
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");
@@ -355,11 +360,12 @@ namespace Todo.Models.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("TodoLists");
+                    b.ToTable("TodoLists", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -418,7 +424,7 @@ namespace Todo.Models.Migrations
                     b.HasOne("Todo.Models.Entities.TodoList", "TodoList")
                         .WithMany("TodoItems")
                         .HasForeignKey("TodoListId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("TodoList");
                 });

@@ -1,8 +1,10 @@
 using MayNghien.Infrastructures.Models.Requests;
+using MayNghien.Infrastructures.Models.Responses;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Todo.DTOs.Requests;
 using Todo.Services.Interfaces;
+using Todo.Services.Interfaces.TodoLists;
 
 namespace Todo.API.Controllers
 {
@@ -10,49 +12,56 @@ namespace Todo.API.Controllers
     [ApiController]
     public class TodoListsController : ControllerBase
     {
-        private readonly ITodoListService _todoListService;
+        private readonly ICreateTodoListHandler _create;
+        private readonly IUpdateTodoListHandler _update;
+        private readonly IDeleteTodoListHandler _delete;
+        private readonly IGetTodoListByIdHandler _getById;
+        private readonly ISearchTodoListHandler _search;
 
-        public TodoListsController(ITodoListService todoListService)
+        public TodoListsController(
+            ICreateTodoListHandler create,
+            IUpdateTodoListHandler update,
+            IDeleteTodoListHandler delete,
+            IGetTodoListByIdHandler getById,
+            ISearchTodoListHandler search)
         {
-            _todoListService = todoListService;
+            _create = create;
+            _update = update;
+            _delete = delete;
+            _getById = getById;
+            _search = search;
         }
 
-        [HttpGet]
-        [Route("{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
-        {
-            var result = await _todoListService.GetByIdAsync(id);
-            return Ok(result);
-        }
+            => ToActionResult(await _getById.HandleAsync(id));
 
         [HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody] TodoListRequest request)
-        {
-            var result = await _todoListService.CreateAsync(request);
-            return Ok(result);
-        }
+            => ToActionResult(await _create.HandleAsync(request));
 
         [HttpPut]
         public async Task<IActionResult> UpdateAsync([FromBody] TodoListRequest request)
-        {
-            var result = await _todoListService.UpdateAsync(request);
-            return Ok(result);
-        }
+            => ToActionResult(await _update.HandleAsync(request));
 
-        [HttpDelete]
-        [Route("{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
-        {
-            var result = await _todoListService.DeleteAsync(id);
-            return Ok(result);
-        }
+            => ToActionResult(await _delete.HandleAsync(id));
 
-        [HttpPost]
-        [Route("search")]
+        [HttpPost("search")]
         public async Task<IActionResult> Search([FromBody] SearchRequest request)
+            => ToActionResult(await _search.HandleAsync(request));
+
+        private IActionResult ToActionResult<T>(AppResponse<T> result)
         {
-            var result = await _todoListService.SearchAsync(request);
-            return Ok(result);
+            if (result.IsSuccess)
+                return Ok(result);
+
+            if (!string.IsNullOrWhiteSpace(result.Message) &&
+                result.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+                return NotFound(result);
+
+            return BadRequest(result);
         }
     }
 }
