@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,12 +18,14 @@ namespace Todo.Services.Implementations.Background
         private readonly ILogger<SendDailyReportHandler> _logger;
         private readonly string _recipientEmail;
 
-        public SendDailyReportHandler(IGetProgressReportHandler getReport, IEmailService emailService, ILogger<SendDailyReportHandler> logger, string recipientEmail)
+        public SendDailyReportHandler(IGetProgressReportHandler getReport, 
+            IEmailService emailService, ILogger<SendDailyReportHandler> logger, IConfiguration configuration)
         {
             _getReport = getReport;
             _emailService = emailService;
             _logger = logger;
-            _recipientEmail = recipientEmail;
+            _recipientEmail = configuration["EmailSettings:RecipientEmail"]
+                ?? throw new InvalidOperationException("Missing config: EmailSettings:RecipientEmail");
         }
 
         public async Task HandleAsync()
