@@ -49,39 +49,9 @@ namespace Todo.Services
 
             // Backgrounds
             services.AddScoped<IEmailService, EmailService>();
-            services.AddScoped<ISendDailyReportHandler>(sp =>
-            {
-                var recipientEmail = sp.GetRequiredService<IConfiguration>()["EmailSettings:RecipientEmail"]
-                    ?? throw new InvalidOperationException("Missing configuration: EmailSettings:RecipientEmail");
-
-                return new SendDailyReportHandler(
-                    sp.GetRequiredService<IGetProgressReportHandler>(),
-                    sp.GetRequiredService<IEmailService>(),
-                    sp.GetRequiredService<ILogger<SendDailyReportHandler>>(),
-                    recipientEmail);
-            });
-            services.AddScoped<ISendReminderHandler>(sp =>
-            {
-                var recipientEmail = sp.GetRequiredService<IConfiguration>()["EmailSettings:RecipientEmail"]
-                    ?? throw new InvalidOperationException("Missing configuration: EmailSettings:RecipientEmail");
-
-                return new SendReminderHandler(
-                    sp.GetRequiredService<IGetProgressReportHandler>(),
-                    sp.GetRequiredService<IEmailService>(),
-                    sp.GetRequiredService<ILogger<SendReminderHandler>>(),
-                    recipientEmail);
-            });
-            services.AddScoped<ISendWeeklySummaryHandler>(sp =>
-            {
-                var recipientEmail = sp.GetRequiredService<IConfiguration>()["EmailSettings:RecipientEmail"]
-                    ?? throw new InvalidOperationException("Missing configuration: EmailSettings:RecipientEmail");
-
-                return new SendWeeklySummaryHandler(
-                    sp.GetRequiredService<IGetProgressReportHandler>(),
-                    sp.GetRequiredService<IEmailService>(),
-                    sp.GetRequiredService<ILogger<SendWeeklySummaryHandler>>(),
-                    recipientEmail);
-            });
+            services.AddScoped<ISendDailyReportHandler, SendDailyReportHandler>();
+            services.AddScoped<ISendReminderHandler, SendReminderHandler>();
+            services.AddScoped<ISendWeeklySummaryHandler, SendWeeklySummaryHandler>();
 
             return services;
         }
