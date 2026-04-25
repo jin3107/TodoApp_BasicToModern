@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Todo.DTOs.Requests;
 using Todo.Services.Interfaces;
+using Todo.Services.Interfaces.TodoItems;
 
 namespace Todo.API.Controllers
 {
@@ -10,49 +11,44 @@ namespace Todo.API.Controllers
     [ApiController]
     public class TodoItemsController : ControllerBase
     {
-        private readonly ITodoItemService _todoItemService;
+        private readonly ICreateTodoItemHandler _create;
+        private readonly IUpdateTodoItemHandler _update;
+        private readonly IDeleteTodoItemHandler _delete;
+        private readonly IGetTodoItemByIdHandler _getById;
+        private readonly ISearchTodoItemHandler _search;
 
-        public TodoItemsController(ITodoItemService todoItemService)
+        public TodoItemsController(
+            ICreateTodoItemHandler create,
+            IUpdateTodoItemHandler update,
+            IDeleteTodoItemHandler delete,
+            IGetTodoItemByIdHandler getById,
+            ISearchTodoItemHandler search)
         {
-            _todoItemService = todoItemService;
+            _create = create;
+            _update = update;
+            _delete = delete;
+            _getById = getById;
+            _search = search;
         }
 
-        [HttpGet]
-        [Route("{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
-        {
-            var result = await _todoItemService.GetByIdAsync(id);
-            return Ok(result);
-        }
+            => Ok(await _getById.HandleAsync(id));
 
         [HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody] TodoItemRequest request)
-        {
-            var result = await _todoItemService.CreateAsync(request);
-            return Ok(result);
-        }
+            => Ok(await _create.HandleAsync(request));
 
         [HttpPut]
         public async Task<IActionResult> UpdateAsync([FromBody] TodoItemRequest request)
-        {
-            var result = await _todoItemService.UpdateAsync(request);
-            return Ok(result);
-        }
+            => Ok(await _update.HandleAsync(request));
 
-        [HttpDelete]
-        [Route("{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
-        {
-            var result = await _todoItemService.DeleteAsync(id);
-            return Ok(result);
-        }
+            => Ok(await _delete.HandleAsync(id));
 
-        [HttpPost]
-        [Route("search")]
+        [HttpPost("search")]
         public async Task<IActionResult> Search([FromBody] SearchRequest request)
-        {
-            var result = await _todoItemService.SearchAsync(request);
-            return Ok(result);
-        }
+            => Ok(await _search.HandleAsync(request));
     }
 }

@@ -70,7 +70,7 @@ namespace Todo.Models.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "TaskProgressReports",
+                name: "TodoItemProgressReports",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
@@ -80,10 +80,10 @@ namespace Todo.Models.Migrations
                     InProgressTasks = table.Column<int>(type: "int", nullable: false),
                     OverdueTasks = table.Column<int>(type: "int", nullable: false),
                     HighPriorityPendingTasks = table.Column<int>(type: "int", nullable: false),
-                    CompletionRate = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
-                    AverageCompletionTimeHours = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
+                    CompletionRate = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
+                    AverageCompletionTimeHours = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     TasksCompletedToday = table.Column<int>(type: "int", nullable: false),
-                    Notes = table.Column<string>(type: "longtext", nullable: false)
+                    Notes = table.Column<string>(type: "varchar(2000)", maxLength: 2000, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: true)
@@ -95,7 +95,7 @@ namespace Todo.Models.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TaskProgressReports", x => x.Id);
+                    table.PrimaryKey("PK_TodoItemProgressReports", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -104,9 +104,9 @@ namespace Todo.Models.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    Name = table.Column<string>(type: "longtext", nullable: false)
+                    Name = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Description = table.Column<string>(type: "longtext", nullable: true)
+                    Description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: true)
@@ -254,13 +254,14 @@ namespace Todo.Models.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    Title = table.Column<string>(type: "longtext", nullable: false)
+                    Title = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Description = table.Column<string>(type: "longtext", nullable: false)
+                    Description = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     DueDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     IsCompleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    Priority = table.Column<int>(type: "int", nullable: false),
+                    Priority = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     CompletedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     TodoListId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
                     CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -279,7 +280,7 @@ namespace Todo.Models.Migrations
                         column: x => x.TodoListId,
                         principalTable: "TodoLists",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.SetNull);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -345,7 +346,7 @@ namespace Todo.Models.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "TaskProgressReports");
+                name: "TodoItemProgressReports");
 
             migrationBuilder.DropTable(
                 name: "TodoItems");

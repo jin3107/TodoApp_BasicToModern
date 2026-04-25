@@ -8,12 +8,12 @@ namespace Todo.API.Controllers
     [ApiController]
     public class JobsController : ControllerBase
     {
-        private readonly IScheduler _scheduler;
+        private readonly ISchedulerFactory _schedulerFactory;
         private readonly ILogger<JobsController> _logger;
 
         public JobsController(ISchedulerFactory schedulerFactory, ILogger<JobsController> logger)
         {
-            _scheduler = schedulerFactory.GetScheduler().Result;
+            _schedulerFactory = schedulerFactory;
             _logger = logger;
         }
 
@@ -22,11 +22,9 @@ namespace Todo.API.Controllers
         {
             try
             {
-                var jobKey = new JobKey("DailyTaskReportJob", "EmailJobs");
-                await _scheduler.TriggerJob(jobKey);
-
+                var scheduler = await _schedulerFactory.GetScheduler();
+                await scheduler.TriggerJob(new JobKey("DailyTaskReportJob", "EmailJobs"));
                 _logger.LogInformation("Daily report job triggered manually at {Time}", DateTime.Now);
-
                 return Ok(new { Message = "Daily report job triggered successfully!" });
             }
             catch (Exception ex)
@@ -41,11 +39,9 @@ namespace Todo.API.Controllers
         {
             try
             {
-                var jobKey = new JobKey("WeeklyTaskSummaryJob", "EmailJobs");
-                await _scheduler.TriggerJob(jobKey);
-
+                var scheduler = await _schedulerFactory.GetScheduler();
+                await scheduler.TriggerJob(new JobKey("WeeklyTaskSummaryJob", "EmailJobs"));
                 _logger.LogInformation("Weekly summary job triggered manually at {Time}", DateTime.Now);
-
                 return Ok(new { Message = "Weekly summary job triggered successfully!" });
             }
             catch (Exception ex)
@@ -60,11 +56,9 @@ namespace Todo.API.Controllers
         {
             try
             {
-                var jobKey = new JobKey("TaskReminderJob", "EmailJobs");
-                await _scheduler.TriggerJob(jobKey);
-
+                var scheduler = await _schedulerFactory.GetScheduler();
+                await scheduler.TriggerJob(new JobKey("TaskReminderJob", "EmailJobs"));
                 _logger.LogInformation("Task reminder job triggered manually at {Time}", DateTime.Now);
-
                 return Ok(new { Message = "Task reminder job triggered successfully!" });
             }
             catch (Exception ex)
@@ -79,9 +73,8 @@ namespace Todo.API.Controllers
         {
             try
             {
-                var jobKey = new JobKey(jobName, "EmailJobs");
-                await _scheduler.PauseJob(jobKey);
-
+                var scheduler = await _schedulerFactory.GetScheduler();
+                await scheduler.PauseJob(new JobKey(jobName, "EmailJobs"));
                 return Ok(new { Message = $"Job '{jobName}' paused successfully!" });
             }
             catch (Exception ex)
@@ -96,9 +89,8 @@ namespace Todo.API.Controllers
         {
             try
             {
-                var jobKey = new JobKey(jobName, "EmailJobs");
-                await _scheduler.ResumeJob(jobKey);
-
+                var scheduler = await _schedulerFactory.GetScheduler();
+                await scheduler.ResumeJob(new JobKey(jobName, "EmailJobs"));
                 return Ok(new { Message = $"Job '{jobName}' resumed successfully!" });
             }
             catch (Exception ex)
@@ -111,19 +103,27 @@ namespace Todo.API.Controllers
         [HttpGet("scheduler/info")]
         public async Task<IActionResult> GetSchedulerInfo()
         {
-            var metadata = await _scheduler.GetMetaData();
-
-            return Ok(new
+            try
             {
-                SchedulerName = metadata.SchedulerName,
-                SchedulerInstanceId = metadata.SchedulerInstanceId,
-                IsStarted = metadata.Started,
-                IsInStandbyMode = metadata.InStandbyMode,
-                IsShutdown = metadata.Shutdown,
-                JobsExecuted = metadata.NumberOfJobsExecuted,
-                RunningSince = metadata.RunningSince?.LocalDateTime,
-                SchedulerType = metadata.SchedulerType?.FullName
-            });
+                var scheduler = await _schedulerFactory.GetScheduler();
+                var metadata = await scheduler.GetMetaData();
+                return Ok(new
+                {
+                    SchedulerName = metadata.SchedulerName,
+                    SchedulerInstanceId = metadata.SchedulerInstanceId,
+                    IsStarted = metadata.Started,
+                    IsInStandbyMode = metadata.InStandbyMode,
+                    IsShutdown = metadata.Shutdown,
+                    JobsExecuted = metadata.NumberOfJobsExecuted,
+                    RunningSince = metadata.RunningSince?.LocalDateTime,
+                    SchedulerType = metadata.SchedulerType?.FullName
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get scheduler info");
+                return StatusCode(500, new { Error = ex.Message });
+            }
         }
     }
 }
