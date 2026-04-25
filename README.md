@@ -55,24 +55,35 @@ A comprehensive full-stack Todo application built with modern technologies, feat
 
 ```
 TodoApp_BasicToModern/
-├── TodoApp.Client/                 # React TypeScript Frontend
+├── TodoApp.Client/                  # React TypeScript frontend
 │   ├── src/
-│   │   ├── components/            # Reusable UI components
-│   │   ├── pages/                # Page components
-│   │   ├── apis/                 # API service layers
-│   │   ├── interfaces/           # TypeScript interfaces
-│   │   ├── helpers/              # Utility functions
-│   │   └── scss/                 # Global styles
-│   └── public/                   # Static assets
+│   │   ├── apis/                    # API service layers
+│   │   ├── components/              # Reusable UI components
+│   │   ├── interfaces/              # Request/response contracts
+│   │   ├── layouts/                 # App layouts
+│   │   ├── pages/                   # Feature pages
+│   │   │   ├── Dashboard/
+│   │   │   ├── TodoLists/
+│   │   │   ├── TodoItems/
+│   │   │   └── TodoItemsReports/
+│   │   └── configs/                 # Axios and app configs
+│   ├── public/
+│   └── Dockerfile
 │
-└── TodoApp.Server/               # .NET Core Backend
-    └── src/
-        ├── Todo.API/             # Web API controllers
-        ├── Todo.Services/        # Business logic layer
-        ├── Todo.Repositories/    # Data access layer
-        ├── Todo.Models/          # Entity models
-        ├── Todo.DTOs/           # Data transfer objects
-        └── Todo.Commons/        # Shared utilities
+├── TodoApp.Server/
+│   └── src/
+│       ├── src.sln
+│       ├── Todo.API/                # Web API + controllers
+│       ├── Todo.Services/           # Handler-based business logic
+│       ├── Todo.Repositories/       # Data access layer
+│       ├── Todo.Models/             # Entities + DbContext + migrations
+│       ├── Todo.DTOs/               # Contracts
+│       ├── Todo.Commons/            # Shared constants/enums
+│       └── MayNghien.Infrastructures/
+│
+├── docker-compose.yml
+├── docker-compose.yml.example
+└── nginx/
 ```
 
 ## 🚦 Getting Started
