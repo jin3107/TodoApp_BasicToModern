@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Todo.Services.Implementations.Authentication;
 using Todo.Services.Implementations.Background;
 using Todo.Services.Implementations.Reports;
 using Todo.Services.Implementations.TodoItems;
 using Todo.Services.Implementations.TodoLists;
 using Todo.Services.Interfaces;
+using Todo.Services.Interfaces.Authentication;
 using Todo.Services.Interfaces.Background;
 using Todo.Services.Interfaces.Reports;
 using Todo.Services.Interfaces.TodoItems;
@@ -36,7 +38,6 @@ namespace Todo.Services
             services.AddScoped<IGetTodoListByIdHandler, GetTodoListByIdHandler>();
             services.AddScoped<ISearchTodoListHandler, SearchTodoListHandler>();
 
-
             // Report handlers 
             services.AddScoped<GetProgressReportHandler>();
             services.AddScoped<IGetProgressReportHandler>(sp =>
@@ -46,6 +47,16 @@ namespace Todo.Services
                     sp.GetRequiredService<ILogger<CachedGetProgressReportHandler>>()
                 ));
             services.AddScoped<ICreateDailySnapshotHandler, CreateDailySnapshotHandler>();
+
+            // Authentication handlers
+            services.AddScoped<ILoginHandler, LoginHandler>();
+            services.AddScoped<IRegisterHandler, RegisterHandler>();
+            services.AddScoped<IRefreshTokenHandler, RefreshTokenHandler>();
+            services.AddScoped<ILogoutHandler, LogoutHandler>();
+            services.AddScoped<IChangePasswordHandler, ChangePasswordHandler>();
+            services.AddScoped<ISendOtpHandler, SendOtpHandler>();
+            services.AddScoped<IVerifyOtpHandler, VerifyOtpHandler>();
+            services.AddScoped<IClearExpiredDataHandler, ClearExpiredDataHandler>();
 
             // Backgrounds
             services.AddScoped<IEmailService, EmailService>();
