@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Todo.Models.Entities;
 using TodoItem = Todo.Models.Entities.TodoItem;
@@ -19,6 +20,16 @@ namespace Todo.Models.Data
         public DbSet<TodoItem> TodoItems { get; set; }
         public DbSet<TodoList> TodoLists { get; set; }
         public DbSet<TodoItemProgressReport> TaskProgressReports { get; set; }
+        public DbSet<RefreshTokenModel> RefreshTokens { get; set; }
+        public DbSet<BlacklistedToken> BlacklistedTokens { get; set; }
+        public DbSet<OtpCode> OtpCodes { get; set; }
+
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

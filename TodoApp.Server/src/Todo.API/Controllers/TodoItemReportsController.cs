@@ -1,35 +1,35 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Todo.DTOs.Requests;
 using Todo.Services.Interfaces;
+using Todo.Services.Interfaces.Reports;
 
 namespace Todo.API.Controllers
 {
     [Route("reports")]
     [ApiController]
+    [Authorize]
     public class TodoItemReportsController : ControllerBase
     {
-        private readonly ITodoItemReportService _todoItemReportService;
+        private readonly IGetProgressReportHandler _getReport;
+        private readonly ICreateDailySnapshotHandler _createSnapshot;
 
-        public TodoItemReportsController(ITodoItemReportService todoItemReportService)
+        public TodoItemReportsController(
+            IGetProgressReportHandler getReport,
+            ICreateDailySnapshotHandler createSnapshot)
         {
-            _todoItemReportService = todoItemReportService;
+            _getReport = getReport;
+            _createSnapshot = createSnapshot;
         }
 
-        [HttpPost]
-        [Route("progress")]
+        [HttpPost("progress")]
         public async Task<IActionResult> GetProgressReport([FromBody] TodoItemReportRequest request)
-        {
-            var result = await _todoItemReportService.GetProgressReportAsync(request);
-            return Ok(result);
-        }
+            => Ok(await _getReport.HandleAsync(request));
 
-        [HttpPost]
-        [Route("snapshot")]
+        [HttpPost("snapshot")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> CreateDailySnapshot()
-        {
-            var result = await _todoItemReportService.CreateDailySnapshotAsync();
-            return Ok(result);
-        }
+            => Ok(await _createSnapshot.HandleAsync());
     }
 }

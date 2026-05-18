@@ -52,6 +52,13 @@ namespace Todo.API.Extensions
                     .WithCronSchedule("0 0 8 * * ?") // 8:00 am mỗi ngày
                     .WithDescription("Trigger for morning task reminder"));
 
+                var clearJobKey = new JobKey("ClearExpiredDataJob", "MaintenanceJobs");
+                q.AddJob<ClearExpiredDataJob>(opts => opts.WithIdentity(clearJobKey));
+                q.AddTrigger(opts => opts
+                    .ForJob(clearJobKey)
+                    .WithCronSchedule("0 0 3 ? * MON") // 3:00 AM thứ 2
+                    .WithDescription("Clear expired blacklisted tokens and OTPs weekly"));
+
             });
             
             services.AddQuartzHostedService(options =>
