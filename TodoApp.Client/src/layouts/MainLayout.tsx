@@ -1,9 +1,12 @@
-import { Link, useLocation, Outlet } from 'react-router-dom';
-import { Layout, Menu, Typography, Space, Avatar } from 'antd';
+import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
+import { App, Avatar, Button, Layout, Menu, Space, Typography } from 'antd';
 import {
   CheckSquareOutlined,
+  KeyOutlined,
+  LogoutOutlined,
   UserOutlined,
 } from '@ant-design/icons';
+import { logout } from '../apis/authenticationAPI';
 import './MainLayout.scss';
 
 const { Header, Content } = Layout;
@@ -11,6 +14,8 @@ const { Text } = Typography;
 
 const MainLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { message } = App.useApp();
 
   const menuItems = [
     {
@@ -18,10 +23,26 @@ const MainLayout = () => {
       label: <Link to="/dashboard">Trang chủ</Link>,
     },
     {
-      key: '/',
-      label: <Link to="/">Quản lý công việc</Link>,
+      key: '/todo-lists',
+      label: <Link to="/todo-lists">Quản lý công việc</Link>,
+    },
+    {
+      key: '/change-password',
+      label: <Link to="/change-password">Đổi mật khẩu</Link>,
+      icon: <KeyOutlined />,
     },
   ];
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      message.success('Đã đăng xuất');
+    } catch {
+      message.warning('Phiên đăng nhập đã kết thúc');
+    } finally {
+      navigate('/login', { replace: true });
+    }
+  };
 
   return (
     <Layout className="main-layout">
@@ -45,6 +66,14 @@ const MainLayout = () => {
         <Space className="user-info">
           <Avatar icon={<UserOutlined />} className="user-avatar" />
           <Text className="user-name">Admin</Text>
+          <Button
+            type="text"
+            icon={<LogoutOutlined />}
+            className="logout-button"
+            onClick={handleLogout}
+          >
+            Đăng xuất
+          </Button>
         </Space>
       </Header>
       <Layout>

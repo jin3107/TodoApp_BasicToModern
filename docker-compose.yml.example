@@ -16,7 +16,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://0.0.0.0:8080
       ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=${MYSQL_DATABASE:-TodoApp_BToM};User=${MYSQL_USER:-dev};Password=${MYSQL_PASSWORD:-Dev@123}
-      ConnectionStrings__RedisConnection: redis:6379,abortConnect=false
+      ConnectionStrings__RedisConnection: redis:6379,password=${REDIS_PASSWORD:-DevRedis@123},abortConnect=false
       RedisSettings__Enabled: "true"
       EmailSettings__SmtpServer: smtp.gmail.com
       EmailSettings__SmtpPort: 587
@@ -63,12 +63,14 @@ services:
     container_name: todoapp-redis
     networks:
       - todoapp-network
+    ports:
+      - "127.0.0.1:6379:6379"
     expose:
       - "6379"
     volumes:
       - redis-data:/data
     restart: unless-stopped
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-DevRedis@123}
 
   nginx:
     image: nginx:alpine
