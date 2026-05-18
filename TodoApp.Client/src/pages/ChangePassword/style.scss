@@ -1,0 +1,59 @@
+.change-password-page {
+  min-height: calc(100vh - 98px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+
+  &__card {
+    width: min(100%, 520px);
+    border-radius: 8px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+
+    .ant-card-body {
+      padding: 32px;
+    }
+  }
+
+  &__header {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 28px;
+
+    h2 {
+      margin: 0;
+    }
+  }
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    color: #1677ff;
+    background: #e6f4ff;
+    font-size: 24px;
+  }
+
+  &__otp,
+  &__password {
+    margin-top: 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  .change-password-page {
+    padding: 16px 0;
+
+    &__card {
+      box-shadow: none;
+
+      .ant-card-body {
+        padding: 24px 16px;
+      }
+    }
+  }
+}

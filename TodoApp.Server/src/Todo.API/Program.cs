@@ -34,7 +34,7 @@ builder.Services.AddQuartzConfiguration();
 builder.Services.AddSwaggerConfiguration();
 builder.Services.AddCorsConfiguration(builder.Configuration);
 builder.Services.AddIdentityConfiguration();
-// builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
 
 builder.Host.UseSerilog((context, configuration) =>
@@ -51,6 +51,7 @@ if (app.Environment.IsDevelopment())
 app.UseSerilogRequestLogging();
 app.UseCors();
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

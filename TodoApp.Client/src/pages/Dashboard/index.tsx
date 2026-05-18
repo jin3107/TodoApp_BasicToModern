@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  App,
   Card,
   Row,
   Col,
@@ -11,7 +12,6 @@ import {
   Space,
   Empty,
   Spin,
-  message,
   DatePicker,
 } from 'antd';
 import {
@@ -37,6 +37,8 @@ const { RangePicker } = DatePicker;
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { message } = App.useApp();
+  const didLoadInitialData = useRef(false);
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState<TodoItemReportResponse | null>(null);
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([
@@ -44,15 +46,17 @@ const Dashboard = () => {
     dayjs()
   ]);
 
-  const fetchDashboardData = useCallback(async () => {
+  const fetchDashboardData = useCallback(async (range: [Dayjs, Dayjs] = dateRange) => {
     try {
       setLoading(true);
       const progressResponse = await getProgressReport({
-        startDate: dateRange[0].format('YYYY-MM-DD'),
-        endDate: dateRange[1].format('YYYY-MM-DD'),
+        startDate: range[0].format('YYYY-MM-DD'),
+        endDate: range[1].format('YYYY-MM-DD'),
       });
       if (progressResponse.isSuccess && progressResponse.data) {
         setReportData(progressResponse.data);
+      } else {
+        message.error(progressResponse.message || 'Không thể tải dashboard');
       }
     } catch (error) {
       console.error('Error fetching dashboard:', error);
@@ -60,10 +64,12 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, [dateRange]);
+  }, [dateRange, message]);
 
   useEffect(() => {
-    fetchDashboardData();
+    if (didLoadInitialData.current) return;
+    didLoadInitialData.current = true;
+    fetchDashboardData(dateRange);
   }, [fetchDashboardData]);
 
   const handleDateChange = (dates: null | [Dayjs | null, Dayjs | null]) => {
@@ -73,7 +79,7 @@ const Dashboard = () => {
   };
 
   const applyFilters = () => {
-    fetchDashboardData();
+    fetchDashboardData(dateRange);
   };
 
   if (loading && !reportData) {
@@ -98,7 +104,7 @@ const Dashboard = () => {
           <Button 
             type="primary" 
             icon={<ArrowRightOutlined />}
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/todo-lists')}
             size="large"
           >
             Xem tất cả công việc
@@ -363,7 +369,7 @@ const Dashboard = () => {
                 </Space>
               }
               extra={
-                <Button type="link" onClick={() => navigate('/')}>
+                <Button type="link" onClick={() => navigate('/todo-lists')}>
                   Xem tất cả →
                 </Button>
               }
@@ -415,7 +421,7 @@ const Dashboard = () => {
             <Button 
               type="primary" 
               size="large"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/todo-lists')}
             >
               Quản lý công việc
             </Button>

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Todo.Commons.Helpers;
@@ -40,20 +40,20 @@ namespace Todo.API.Controllers
 
         private void SetAccessTokenCookie(string token)
         {
-            var opts = CookieHelper.GetSecureCookieOptions(_environment);
+            var opts = CookieHelper.GetSecureCookieOptions(_environment, Request.IsHttps);
             Response.Cookies.Append("AuthToken", token, opts);
         }
 
         private void SetRefreshTokenCookie(string token)
         {
             var minutes = int.Parse(_configuration["Jwt:RefreshTokenExpiresIn"] ?? "10080");
-            var opts = CookieHelper.GetRefreshTokenCookieOptions(_environment, minutes);
+            var opts = CookieHelper.GetRefreshTokenCookieOptions(_environment, Request.IsHttps, minutes);
             Response.Cookies.Append("RefreshToken", token, opts);
         }
 
         private void DeleteAuthCookies()
         {
-            var opts = CookieHelper.GetDeleteCookieOptions(_environment);
+            var opts = CookieHelper.GetDeleteCookieOptions(_environment, Request.IsHttps);
             Response.Cookies.Delete("AuthToken", opts);
             Response.Cookies.Delete("RefreshToken", opts);
         }
@@ -95,7 +95,7 @@ namespace Todo.API.Controllers
             => Ok(await _verifyOtp.HandleAsync(request));
 
         [HttpPost("change-password")]
-        [AllowAnonymous]
+        [Authorize]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
             => Ok(await _changePassword.HandleAsync(request));
 

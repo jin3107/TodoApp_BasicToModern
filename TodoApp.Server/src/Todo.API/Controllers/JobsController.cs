@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Quartz;
 
@@ -6,6 +7,7 @@ namespace Todo.API.Controllers
 {
     [Route("jobs")]
     [ApiController]
+    [Authorize(Roles = "SuperAdmin")]
     public class JobsController : ControllerBase
     {
         private readonly ISchedulerFactory _schedulerFactory;

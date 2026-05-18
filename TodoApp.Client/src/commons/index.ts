@@ -1,1 +1,1 @@
-export { Tier } from './enums'
+export { Tier, OtpPurpose } from './enums'

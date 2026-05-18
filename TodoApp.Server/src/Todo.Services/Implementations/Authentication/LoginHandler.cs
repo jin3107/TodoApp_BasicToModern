@@ -22,6 +22,8 @@ namespace Todo.Services.Implementations.Authentication
 {
     public class LoginHandler : ILoginHandler
     {
+        private const string BootstrapAdminEmail = "tanchuonghuynh3@gmail.com";
+
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
@@ -46,8 +48,9 @@ namespace Todo.Services.Implementations.Authentication
             {
                 var user = await _userManager.FindByNameAsync(request.UserName)
                            ?? await _userManager.FindByEmailAsync(request.UserName);
+                var isBootstrapAdmin = IsBootstrapAdmin(request.UserName);
 
-                if (user == null && request.UserName == "tanchuonghuynh3@gmail.com")
+                if (user == null && isBootstrapAdmin)
                 {
                     user = await CreateAdminAsync(request.UserName);
                 }
@@ -58,6 +61,13 @@ namespace Todo.Services.Implementations.Authentication
                     return result.BuildError("Invalid credentials.");
                 if (!user.EmailConfirmed)
                     return result.BuildError("Email not verified. Please verify your email first.");
+
+                if (isBootstrapAdmin)
+                {
+                    var ensureRoleResult = await EnsureRoleAssignedAsync(user, Role.SuperAdmin.ToString(), Role.SuperAdmin);
+                    if (!ensureRoleResult.Succeeded)
+                        return result.BuildError(string.Join(", ", ensureRoleResult.Errors.Select(e => e.Description)));
+                }
 
                 var roles = await _userManager.GetRolesAsync(user);
                 if (!roles.Any())
@@ -96,11 +106,45 @@ namespace Todo.Services.Implementations.Authentication
                 Role = Role.SuperAdmin,
                 LastLoginIp = string.Empty
             };
-            await _userManager.CreateAsync(admin, "Admin@123");
-            if (!await _roleManager.RoleExistsAsync("SuperAdmin"))
-                await _roleManager.CreateAsync(new IdentityRole("SuperAdmin"));
-            await _userManager.AddToRoleAsync(admin, "SuperAdmin");
+            var createUserResult = await _userManager.CreateAsync(admin, "Admin@123");
+            if (!createUserResult.Succeeded)
+                throw new InvalidOperationException(string.Join(", ", createUserResult.Errors.Select(e => e.Description)));
+
+            var roleResult = await EnsureRoleAssignedAsync(admin, Role.SuperAdmin.ToString(), Role.SuperAdmin);
+            if (!roleResult.Succeeded)
+                throw new InvalidOperationException(string.Join(", ", roleResult.Errors.Select(e => e.Description)));
+
             return admin;
+        }
+
+        private static bool IsBootstrapAdmin(string userName)
+            => string.Equals(userName, BootstrapAdminEmail, StringComparison.OrdinalIgnoreCase);
+
+        private async Task<IdentityResult> EnsureRoleAssignedAsync(ApplicationUser user, string roleName, Role appRole)
+        {
+            if (!await _roleManager.RoleExistsAsync(roleName))
+            {
+                var createRoleResult = await _roleManager.CreateAsync(new IdentityRole(roleName));
+                if (!createRoleResult.Succeeded)
+                    return createRoleResult;
+            }
+
+            if (!await _userManager.IsInRoleAsync(user, roleName))
+            {
+                var addRoleResult = await _userManager.AddToRoleAsync(user, roleName);
+                if (!addRoleResult.Succeeded)
+                    return addRoleResult;
+            }
+
+            if (user.Role != appRole)
+            {
+                user.Role = appRole;
+                var updateUserResult = await _userManager.UpdateAsync(user);
+                if (!updateUserResult.Succeeded)
+                    return updateUserResult;
+            }
+
+            return IdentityResult.Success;
         }
 
         private static List<Claim> BuildClaims(string email, IList<string> roles)
