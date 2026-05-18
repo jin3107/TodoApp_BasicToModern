@@ -10,42 +10,42 @@ namespace Todo.Commons.Helpers
 {
     public static class CookieHelper
     {
-        public static CookieOptions GetSecureCookieOptions(IHostEnvironment environment)
+        public static CookieOptions GetSecureCookieOptions(IHostEnvironment environment, bool isHttpsRequest)
         {
             var isDev = environment.IsDevelopment();
             return new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = isDev ? SameSiteMode.None : SameSiteMode.Strict,
+                Secure = isDev ? isHttpsRequest : true,
+                SameSite = isDev && isHttpsRequest ? SameSiteMode.None : isDev ? SameSiteMode.Lax : SameSiteMode.Strict,
                 Expires = DateTimeOffset.UtcNow.AddHours(24),
                 Path = "/",
                 IsEssential = true
             };
         }
 
-        public static CookieOptions GetRefreshTokenCookieOptions(IHostEnvironment environment, int expiresMinutes = 10080)
+        public static CookieOptions GetRefreshTokenCookieOptions(IHostEnvironment environment, bool isHttpsRequest, int expiresMinutes = 10080)
         {
             var isDev = environment.IsDevelopment();
             return new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = isDev ? SameSiteMode.None : SameSiteMode.Strict,
+                Secure = isDev ? isHttpsRequest : true,
+                SameSite = isDev && isHttpsRequest ? SameSiteMode.None : isDev ? SameSiteMode.Lax : SameSiteMode.Strict,
                 Expires = DateTimeOffset.UtcNow.AddMinutes(expiresMinutes),
                 Path = "/",
                 IsEssential = true
             };
         }
 
-        public static CookieOptions GetDeleteCookieOptions(IHostEnvironment environment)
+        public static CookieOptions GetDeleteCookieOptions(IHostEnvironment environment, bool isHttpsRequest)
         {
             var isDev = environment.IsDevelopment();
             return new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = isDev ? SameSiteMode.None : SameSiteMode.Strict,
+                Secure = isDev ? isHttpsRequest : true,
+                SameSite = isDev && isHttpsRequest ? SameSiteMode.None : isDev ? SameSiteMode.Lax : SameSiteMode.Strict,
                 Path = "/",
                 Expires = DateTimeOffset.UtcNow.AddDays(-1)
             };

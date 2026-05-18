@@ -35,75 +35,92 @@ namespace Todo.Services.Implementations.Reports
             try
             {
                 var now = DateTime.UtcNow;
+                var today = now.Date;
+                var startDate = (request.StartDate ?? now.AddDays(-29)).Date;
+                var endDate = (request.EndDate ?? now).Date;
+                var endExclusive = endDate.AddDays(1);
 
-                var allTasksQuery = _todoItemRepository.AsQueryable()
+                var baseQuery = _todoItemRepository.AsQueryable()
                     .Where(t => t.IsDeleted == false)
                     .AsNoTracking();
-                var allTasks = await allTasksQuery.ToListAsync();
 
-                var startDate = request.StartDate ?? now.AddDays(-29);
-                var endDate = request.EndDate ?? now;
+                var filteredQuery = baseQuery.Where(t =>
+                    (t.CreatedOn.HasValue && t.CreatedOn.Value >= startDate && t.CreatedOn.Value < endExclusive) ||
+                    (t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value >= startDate && t.CompletedOn.Value < endExclusive)
+                );
 
-                var filteredTasks = allTasks.Where(t =>
-                    (t.CreatedOn.HasValue && t.CreatedOn.Value.Date >= startDate.Date && t.CreatedOn.Value.Date <= endDate.Date) ||
-                    (t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value.Date >= startDate.Date && t.CompletedOn.Value.Date <= endDate.Date)
-                ).ToList();
+                var totalTasks = await filteredQuery.CountAsync();
+                var completedTasks = await filteredQuery.CountAsync(t => t.IsCompleted);
+                var inProgressTasks = await filteredQuery.CountAsync(t => !t.IsCompleted && t.DueDate >= today);
+                var overdueTasks = await filteredQuery.CountAsync(t => !t.IsCompleted && t.DueDate < today);
 
-                var totalTasks = filteredTasks.Count;
-                var completedTasks = filteredTasks.Count(t => t.IsCompleted);
-                var inProgressTasks = filteredTasks.Count(t => !t.IsCompleted && t.DueDate.Date >= now.Date);
-                var overdueTasks = filteredTasks.Count(t => !t.IsCompleted && t.DueDate.Date < now.Date);
-
-                var highPriorityPending = filteredTasks.Count(t => !t.IsCompleted && t.Priority == Tier.High);
-                var mediumPriorityPending = filteredTasks.Count(t => !t.IsCompleted && t.Priority == Tier.Medium);
-                var lowPriorityPending = filteredTasks.Count(t => !t.IsCompleted && t.Priority == Tier.Low);
+                var highPriorityPending = await filteredQuery.CountAsync(t => !t.IsCompleted && t.Priority == Tier.High);
+                var mediumPriorityPending = await filteredQuery.CountAsync(t => !t.IsCompleted && t.Priority == Tier.Medium);
+                var lowPriorityPending = await filteredQuery.CountAsync(t => !t.IsCompleted && t.Priority == Tier.Low);
 
                 var completionRate = totalTasks > 0
                     ? Math.Round((decimal)completedTasks / totalTasks * 100, 2)
                     : 0;
 
-                var tasksWithCompletionTime = filteredTasks
+                var tasksWithCompletionTime = filteredQuery
                     .Where(t => t.IsCompleted && t.CompletedOn.HasValue && t.CreatedOn.HasValue)
+                    .Select(t => new { t.CompletedOn, t.CreatedOn })
                     .ToList();
                 var avgCompletionTime = tasksWithCompletionTime.Any()
                     ? (decimal)tasksWithCompletionTime.Average(t => (t.CompletedOn!.Value - t.CreatedOn!.Value).TotalHours)
                     : 0;
 
-                var today = now.Date;
                 var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
                 var startOfMonth = new DateTime(now.Year, now.Month, 1);
 
-                var tasksCompletedToday = allTasks.Count(t =>
-                    t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value.Date == today);
-                var tasksCompletedThisWeek = allTasks.Count(t =>
-                    t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value.Date >= startOfWeek);
-                var tasksCompletedThisMonth = allTasks.Count(t =>
-                    t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value.Date >= startOfMonth);
+                var tasksCompletedToday = await baseQuery.CountAsync(t =>
+                    t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value >= today && t.CompletedOn.Value < today.AddDays(1));
+                var tasksCompletedThisWeek = await baseQuery.CountAsync(t =>
+                    t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value >= startOfWeek);
+                var tasksCompletedThisMonth = await baseQuery.CountAsync(t =>
+                    t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value >= startOfMonth);
 
-                var mostOverdueTasks = filteredTasks
-                    .Where(t => !t.IsCompleted && t.DueDate.Date < today)
+                var mostOverdueEntities = await filteredQuery
+                    .Where(t => !t.IsCompleted && t.DueDate < today)
                     .OrderBy(t => t.DueDate)
                     .Take(5)
+                    .ToListAsync();
+                var mostOverdueTasks = mostOverdueEntities
                     .Select(TodoItemMapper.ToResponse)
                     .ToList();
 
                 var priorityDistribution = new PriorityDistribution
                 {
-                    HighPriority = filteredTasks.Count(t => t.Priority == Tier.High),
-                    MediumPriority = filteredTasks.Count(t => t.Priority == Tier.Medium),
-                    LowPriority = filteredTasks.Count(t => t.Priority == Tier.Low)
+                    HighPriority = await filteredQuery.CountAsync(t => t.Priority == Tier.High),
+                    MediumPriority = await filteredQuery.CountAsync(t => t.Priority == Tier.Medium),
+                    LowPriority = await filteredQuery.CountAsync(t => t.Priority == Tier.Low)
                 };
 
-                var dayCount = (endDate.Date - startDate.Date).Days + 1;
+                var trendItems = await baseQuery
+                    .Where(t =>
+                        (t.CreatedOn.HasValue && t.CreatedOn.Value >= startDate && t.CreatedOn.Value < endExclusive) ||
+                        (t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value >= startDate && t.CompletedOn.Value < endExclusive)
+                    )
+                    .Select(t => new { t.CreatedOn, t.CompletedOn, t.IsCompleted })
+                    .ToListAsync();
+
+                var createdByDate = trendItems
+                    .Where(t => t.CreatedOn.HasValue)
+                    .GroupBy(t => t.CreatedOn!.Value.Date)
+                    .ToDictionary(g => g.Key, g => g.Count());
+                var completedByDate = trendItems
+                    .Where(t => t.IsCompleted && t.CompletedOn.HasValue)
+                    .GroupBy(t => t.CompletedOn!.Value.Date)
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                var dayCount = (endDate - startDate).Days + 1;
                 var completionTrend = Enumerable.Range(0, dayCount)
-                    .Select(i => startDate.Date.AddDays(i))
+                    .Select(i => startDate.AddDays(i))
                     .Select(date => new DailyCompletionTrend
                     {
                         Date = date,
-                        CompletedCount = allTasks.Count(t =>
-                            t.IsCompleted && t.CompletedOn.HasValue && t.CompletedOn.Value.Date == date),
-                        CreatedCount = allTasks.Count(t =>
-                            t.CreatedOn.HasValue && t.CreatedOn.Value.Date == date)
+                        CompletedCount = completedByDate.GetValueOrDefault(date, 0),
+                        CreatedCount = createdByDate.GetValueOrDefault(date, 0)
                     })
                     .ToList();
 

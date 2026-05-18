@@ -428,6 +428,7 @@ logs/
 .docker/
 docker-compose.yml
 docker-compose.*.yml
+!docker-compose.yml.example
 
 # Backups
 backups/

@@ -1,5 +1,5 @@
-export interface TodoListRequest {
-    id?: string; // Make id optional for create requests
+export default interface TodoListRequest {
+    id?: string;
     name: string;
     description?: string;
 }

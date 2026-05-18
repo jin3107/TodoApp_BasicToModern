@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Todo.DTOs.Requests;
 using Todo.Services.Interfaces;
@@ -8,6 +9,7 @@ namespace Todo.API.Controllers
 {
     [Route("reports")]
     [ApiController]
+    [Authorize]
     public class TodoItemReportsController : ControllerBase
     {
         private readonly IGetProgressReportHandler _getReport;
@@ -26,6 +28,7 @@ namespace Todo.API.Controllers
             => Ok(await _getReport.HandleAsync(request));
 
         [HttpPost("snapshot")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> CreateDailySnapshot()
             => Ok(await _createSnapshot.HandleAsync());
     }

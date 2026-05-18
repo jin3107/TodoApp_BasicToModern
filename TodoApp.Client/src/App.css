@@ -79,6 +79,17 @@ body {
   min-height: 200px;
 }
 
+.route-loader {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  background: #f0f2f5;
+  color: rgba(0, 0, 0, 0.65);
+}
+
 /* Custom Tag Styles */
 .ant-tag {
   border-radius: 4px;

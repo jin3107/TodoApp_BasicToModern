@@ -1,3 +1,9 @@
 export type { default as TodoItemRequest } from './TodoItemRequest'
 export type { default as TodoItemReportRequest } from './TodoItemReportRequest'
-export type { TodoListRequest } from './TodoListRequest'
+export type { default as TodoListRequest } from './TodoListRequest'
+export type { default as LoginRequest } from './LoginRequest';
+export type { default as RegisterRequest } from './RegisterRequest';
+export type { default as SendOtpRequest } from './SendOtpRequest';
+export type { default as VerifyOtpRequest } from './VerifyOtpRequest';
+export type { default as VeriftOtpRequest } from './VerifyOtpRequest';
+export type { default as ChangePasswordRequest } from './ChangePasswordRequest';
