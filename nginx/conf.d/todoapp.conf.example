@@ -32,7 +32,7 @@ server {
     }
     
     # API - PUBLIC
-    location ~ ^/(reports|todo-items|todo-lists) {
+    location ~ ^/(authentication|reports|todo-items|todo-lists) {
         limit_req zone=api_limit burst=20 nodelay;
         proxy_pass http://backend;
         proxy_set_header Host $host;

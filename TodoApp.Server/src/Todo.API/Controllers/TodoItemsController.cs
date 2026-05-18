@@ -1,4 +1,5 @@
-﻿using MayNghien.Infrastructures.Models.Requests;
+using MayNghien.Infrastructures.Models.Requests;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Todo.DTOs.Requests;
@@ -9,6 +10,7 @@ namespace Todo.API.Controllers
 {
     [Route("todo-items")]
     [ApiController]
+    [Authorize]
     public class TodoItemsController : ControllerBase
     {
         private readonly ICreateTodoItemHandler _create;

@@ -17,6 +17,10 @@ namespace Todo.Repositories
             services.AddScoped<ITodoListRepository, TodoListRepository>();
             services.AddScoped<ITodoItemProgressReportReporitory, TodoItemProgressReportRepository>();
 
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddScoped<IBlacklistedTokenRepository, BlacklistedTokenRepository>();
+            services.AddScoped<IOtpCodeRepository, OtpCodeRepository>();
+
             return services;
         }
     }

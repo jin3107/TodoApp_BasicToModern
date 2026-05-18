@@ -3,7 +3,9 @@ import type { AppResponse } from "../helpers";
 import type { TodoItemReportRequest, TodoItemReportResponse } from '../interfaces';
 
 export const getProgressReport = async (request: TodoItemReportRequest) : Promise<AppResponse<TodoItemReportResponse>> => {
-  const response = await axios.post<AppResponse<TodoItemReportResponse>>('/reports/progress',request);
+  const response = await axios.post<AppResponse<TodoItemReportResponse>>('/reports/progress', request, {
+    timeout: 30000,
+  });
   return response.data;
 }
 
