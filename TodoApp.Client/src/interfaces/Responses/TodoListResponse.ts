@@ -1,4 +1,4 @@
-export interface TodoListResponse {
+export default interface TodoListResponse {
     id: string;
     name: string;
     description?: string;

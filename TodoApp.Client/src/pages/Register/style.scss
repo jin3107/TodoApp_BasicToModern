@@ -1,0 +1,85 @@
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  background:
+    linear-gradient(135deg, rgba(82, 196, 26, 0.12), rgba(24, 144, 255, 0.12)),
+    #f0f2f5;
+
+  &__panel {
+    width: min(100%, 1080px);
+    display: grid;
+    grid-template-columns: 1fr 480px;
+    gap: 40px;
+    align-items: center;
+  }
+
+  &__intro {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    h1 {
+      margin: 0;
+      font-size: 46px;
+      line-height: 1.1;
+    }
+  }
+
+  &__eyebrow {
+    color: #1677ff;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  &__subtitle {
+    max-width: 520px;
+    color: rgba(0, 0, 0, 0.65);
+    font-size: 17px;
+  }
+
+  &__card {
+    border-radius: 8px;
+    box-shadow: 0 16px 42px rgba(15, 23, 42, 0.14);
+
+    .ant-card-body {
+      padding: 32px;
+    }
+  }
+
+  &__steps {
+    margin-bottom: 28px;
+  }
+
+  &__notice {
+    display: block;
+    margin-bottom: 20px;
+    color: rgba(0, 0, 0, 0.65);
+  }
+
+  &__footer {
+    width: 100%;
+    justify-content: center;
+    margin-top: 24px;
+  }
+}
+
+@media (max-width: 900px) {
+  .register-page {
+    &__panel {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    &__intro {
+      text-align: center;
+      align-items: center;
+
+      h1 {
+        font-size: 36px;
+      }
+    }
+  }
+}

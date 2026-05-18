@@ -1,6 +1,8 @@
-﻿using LinqKit;
+using LinqKit;
 using MayNghien.Infrastructures.Models.Requests;
 using MayNghien.Infrastructures.Models.Responses;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Todo.DTOs.Responses;
 using Todo.Models.Entities;
@@ -14,18 +16,33 @@ namespace Todo.Services.Implementations.TodoLists
     public class SearchTodoListHandler : ISearchTodoListHandler
     {
         private readonly ITodoListRepository _todoListRepository;
+        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public SearchTodoListHandler(ITodoListRepository todoListRepository)
+        public SearchTodoListHandler(ITodoListRepository todoListRepository, 
+            IHttpContextAccessor contextAccessor, UserManager<ApplicationUser> userManager)
         {
             _todoListRepository = todoListRepository;
+            _contextAccessor = contextAccessor;
+            _userManager = userManager;
         }
+
+        private async Task<ApplicationUser?> GetCurrentUser()
+        => await _userManager.FindByEmailAsync(_contextAccessor.HttpContext?.User.Identity?.Name!);
 
         public async Task<AppResponse<SearchResponse<TodoListResponse>>> HandleAsync(SearchRequest request)
         {
             var result = new AppResponse<SearchResponse<TodoListResponse>>();
             try
             {
-                var query = BuildFilterExpression(request.Filters!);
+                var user = await GetCurrentUser();
+                if (user == null)
+                    return result.BuildError("Unauthorized.");
+
+                var roles = await _userManager.GetRolesAsync(user);
+                var isSuperAdmin = roles.Contains("SuperAdmin");
+
+                var query = BuildFilterExpression(request.Filters!, isSuperAdmin ? null : user.Email);
                 var numOfRecords = await _todoListRepository.CountRecordsAsync(query);
                 var todoLists = _todoListRepository.FindByPredicate(query).AsQueryable();
 
@@ -58,11 +75,14 @@ namespace Todo.Services.Implementations.TodoLists
             }
         }
 
-        private ExpressionStarter<TodoList> BuildFilterExpression(List<Filter> filters)
+        private ExpressionStarter<TodoList> BuildFilterExpression(List<Filter> filters, string? ownerEmail)
         {
             try
             {
                 var predicate = PredicateBuilder.New<TodoList>(true);
+                if (ownerEmail != null)
+                    predicate = predicate.And(x => x.CreatedBy == ownerEmail);
+
                 if (filters != null)
                 {
                     foreach (var filter in filters)

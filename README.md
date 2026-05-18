@@ -1,429 +1,384 @@
-# TodoApp - Basic to Modern
+# TodoApp Basic To Modern
 
-A comprehensive full-stack Todo application built with modern technologies, featuring a React TypeScript frontend and .NET Core backend with advanced features like caching, background jobs, and detailed reporting.
+[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=111111)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=flat-square&logo=vite&logoColor=ffffff)](https://vite.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=ffffff)](https://www.typescriptlang.org/)
+[![MySQL](https://img.shields.io/badge/MySQL-8-4479A1?style=flat-square&logo=mysql&logoColor=ffffff)](https://www.mysql.com/)
+[![Redis](https://img.shields.io/badge/Redis-cache-DC382D?style=flat-square&logo=redis&logoColor=ffffff)](https://redis.io/)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE.txt)
 
-## 🚀 Features
+A full-stack Todo application that starts with familiar CRUD workflows and grows into a more production-oriented system: cookie-based authentication, OTP email verification, reporting, Redis caching, background jobs, Docker deployment, and a modern React interface.
 
-### Core Functionality
-- ✅ **Todo Lists Management** - Create, edit, delete, and organize todo lists
-- ✅ **Todo Items Management** - Full CRUD operations with rich metadata
-- ✅ **Priority System** - High, Medium, Low priority levels
-- ✅ **Status Tracking** - Track completion status with timestamps
-- ✅ **Due Dates** - Set and manage due dates for tasks
-- ✅ **Search & Filter** - Advanced search across all todo items
-- ✅ **Pagination** - Efficient data loading with pagination
+> This is a personal learning project. It is public for reference, but it is not currently maintained as a community contribution project.
 
-### Advanced Features
-- 📊 **Dashboard Analytics** - Visual insights into productivity
-- 📈 **Progress Reports** - Detailed completion statistics
-- 📅 **Daily Trends** - Track completion patterns over time
-- 🔄 **Background Jobs** - Automated tasks using Quartz.NET
-- 📧 **Email Reports** - Scheduled daily/weekly email summaries
-- ⚡ **Redis Caching** - High-performance data caching
-- 🐳 **Docker Support** - Containerized deployment
-- 🔒 **Nginx Reverse Proxy** - Production-ready web server
-- 🎨 **Modern UI/UX** - Clean, responsive design with Ant Design
+## Table Of Contents
 
-## 🛠️ Tech Stack
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Configuration](#configuration)
+- [Docker](#docker)
+- [API Overview](#api-overview)
+- [Troubleshooting](#troubleshooting)
+- [What's Changed](#whats-changed)
+- [License](#license)
 
-### Frontend
-- **React 18** - Modern React with hooks
-- **TypeScript** - Type-safe development
-- **Vite** - Fast build tool and dev server
-- **Ant Design** - Professional UI component library
-- **Axios** - HTTP client with interceptors
-- **Day.js** - Modern date manipulation library
-- **SCSS** - Enhanced styling capabilities
+## Features
 
-### Backend
-- **.NET 8** - Latest .NET framework
-- **ASP.NET Core Web API** - RESTful API development
-- **Entity Framework Core** - ORM with Code First approach
-- **MySQL** - Primary database
-- **Redis** - Caching and session storage
-- **Quartz.NET** - Background job scheduling
-- **AutoMapper** - Object-to-object mapping
-- **Serilog** - Structured logging
+- Todo list CRUD with search, pagination, and progress counts.
+- Todo item CRUD with priority, due date, completion status, and filtering.
+- Dashboard analytics with completion rate, overdue tasks, trends, and priority distribution.
+- Cookie-based authentication using `AuthToken` and `RefreshToken` HttpOnly cookies.
+- Email OTP flows for account verification and password changes.
+- Refresh-token rotation and logout support.
+- Role-based authorization for admin-only reports/jobs.
+- Redis-backed caching for expensive report data, with memory-cache fallback.
+- Quartz.NET background jobs for reports, reminders, summaries, and cleanup.
+- Lazy-loaded React routes and a responsive Ant Design UI.
+- Docker-ready backend, frontend, MySQL, Redis, and Nginx setup.
 
-### Architecture
-- **Repository Pattern** - Data access abstraction
-- **Dependency Injection** - Loose coupling
-- **CQRS** - Command Query Responsibility Segregation
-- **Caching Strategy** - Multi-level caching with Redis
+## Tech Stack
 
-## 📁 Project Structure
+**Frontend**
 
-```
+- React 19
+- TypeScript
+- Vite
+- React Router
+- Ant Design
+- Axios
+- Day.js
+- SCSS
+
+**Backend**
+
+- .NET 8
+- ASP.NET Core Web API
+- ASP.NET Core Identity
+- Entity Framework Core
+- MySQL
+- Redis / Distributed Cache
+- Quartz.NET
+- MailKit
+- Serilog
+
+**Infrastructure**
+
+- Docker Compose
+- Nginx reverse proxy
+- MySQL 8
+- Redis 7
+
+## Architecture
+
+The backend follows a layered structure:
+
+- `Todo.API`: controllers, middleware configuration, CORS, auth, Swagger, Redis, Quartz.
+- `Todo.Services`: business handlers for auth, todos, reports, cache, and background jobs.
+- `Todo.Repositories`: repository abstractions and implementations.
+- `Todo.Models`: EF Core entities, configurations, DbContext, and migrations.
+- `Todo.DTOs`: request and response contracts.
+- `Todo.Commons`: shared enums and helpers.
+
+The frontend is feature-oriented:
+
+- `src/routes`: lazy route definitions.
+- `src/pages`: route-level pages.
+- `src/apis`: API wrappers.
+- `src/components`: reusable UI components.
+- `src/interfaces`: typed request/response contracts.
+- `src/layouts`: shared layout shells.
+
+## Project Structure
+
+```text
 TodoApp_BasicToModern/
-├── TodoApp.Client/                  # React TypeScript frontend
+├── TodoApp.Client/
 │   ├── src/
-│   │   ├── apis/                    # API service layers
-│   │   ├── components/              # Reusable UI components
-│   │   ├── interfaces/              # Request/response contracts
-│   │   ├── layouts/                 # App layouts
-│   │   ├── pages/                   # Feature pages
-│   │   │   ├── Dashboard/
-│   │   │   ├── TodoLists/
-│   │   │   ├── TodoItems/
-│   │   │   └── TodoItemsReports/
-│   │   └── configs/                 # Axios and app configs
-│   ├── public/
-│   └── Dockerfile
-│
+│   │   ├── apis/
+│   │   ├── commons/
+│   │   ├── components/
+│   │   ├── configs/
+│   │   ├── interfaces/
+│   │   ├── layouts/
+│   │   ├── pages/
+│   │   └── routes/
+│   ├── Dockerfile
+│   ├── package.json
+│   └── vite.config.ts
 ├── TodoApp.Server/
 │   └── src/
-│       ├── src.sln
-│       ├── Todo.API/                # Web API + controllers
-│       ├── Todo.Services/           # Handler-based business logic
-│       ├── Todo.Repositories/       # Data access layer
-│       ├── Todo.Models/             # Entities + DbContext + migrations
-│       ├── Todo.DTOs/               # Contracts
-│       ├── Todo.Commons/            # Shared constants/enums
-│       └── MayNghien.Infrastructures/
-│
-├── docker-compose.yml
+│       ├── Todo.API/
+│       ├── Todo.Commons/
+│       ├── Todo.DTOs/
+│       ├── Todo.Models/
+│       ├── Todo.Repositories/
+│       ├── Todo.Services/
+│       └── src.sln
+├── nginx/
+├── .env.example
 ├── docker-compose.yml.example
-└── nginx/
+├── LICENSE.txt
+└── README.md
 ```
 
-## 🚦 Getting Started
+## Getting Started
 
 ### Prerequisites
 
-#### For Development
-- **Node.js** 18+ 
-- **.NET 8 SDK**
-- **MySQL 8.0+**
-- **Redis** (optional, for caching)
-- **Visual Studio 2022** or **VS Code**
+- .NET 8 SDK
+- Node.js 18 or newer
+- MySQL 8
+- Redis 7, optional but recommended for report caching
+- Docker Desktop, optional
 
-#### For Docker Deployment
-- **Docker** 20.10+
-- **Docker Compose** 2.0+
+### Backend
 
-### Backend Setup
+From the repository root:
 
-1. **Clone and navigate to server directory**
-   ```bash
-   git clone <repository-url>
-   cd TodoApp_BasicToModern/TodoApp.Server/src
-   ```
-
-2. **Configure database connection**
-   ```json
-   // appsettings.json
-   {
-     "ConnectionString": "Server=localhost;Database=TodoAppDB;Uid=root;Pwd=your_password;"
-   }
-   ```
-
-3. **Run database migrations**
-   ```bash
-   cd Todo.API
-   dotnet ef database update
-   ```
-
-4. **Install dependencies and run**
-   ```bash
-   dotnet restore
-   dotnet run
-   ```
-   
-   🌐 **API will be available at:** `https://localhost:7196`
-   📚 **Swagger documentation:** `https://localhost:7196/swagger`
-
-### Frontend Setup
-
-1. **Navigate to client directory**
-   ```bash
-   cd TodoApp_BasicToModern/TodoApp.Client
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Configure API endpoint (if needed)**
-   ```typescript
-   // src/configs/axios.ts
-   const api = axios.create({
-     baseURL: "https://localhost:7196",
-   });
-   ```
-
-4. **Start development server**
-  # Docker Deployment (Recommended for Production)
-
-1. **Create environment file**
-   ```bash
-   # Copy and edit .env file
-   cp .env.example .env
-   nano .env
-   ```
-   
-   **Configure these variables:**
-   ```bash
-   # Email Settings (for scheduled reports)
-   SMTP_USERNAME=your-email@gmail.com
-   SMTP_PASSWORD=your-gmail-app-password
-   RECIPIENT_EMAIL=recipient@example.com
-   
-   # Redis Password
-   REDIS_reports/progress` - Get progress report
-- `POST /reports/snapshot` - Create daily snapshot
-- `GET /reports/daily-completion-trend` - Daily completion statistics
-- `GET /reports/priority-distribution` - Priority distribution data
-
-### Jobs (Admin Only)
-- `POST /jobs/daily-report/trigger` - Manually trigger daily email report
-- `POST /jobs/weekly-summary/trigger` - Manually trigger weekly summary
-- `POST /jobs/task-reminder/trigger` - Manually trigger task reminder
-2. **Configure Nginx (Optional)**
-   ```bash
-   # Copy and edit nginx config
-   cp nginx/conf.d/todoapp.conf.example nginx/conf.d/todoapp.conf
-   nano nginx/conf.d/todoapp.conf
-   
-   # Update:
-   # - server_name: your domain
-   # - allow: your IP address
-   ```
-
-3. **Start all services**
-   ```bash
-   docker-compose up -d
-   ```
-   
-   🌐 **Services will be available at:**
-   - Frontend: `http://localhost` (port 80)
-   - Backend API: `http://localhost/api`
-   - MySQL: `localh (Quartz.NET Scheduler)
-```csharp
-// Automated email reports
-- Daily Task Report: 6:00 PM every day
-- Weekly Summary: 9:00 AM every Monday  
-- Task Reminder: 8:00 AM every day
+```powershell
+cd TodoApp.Server/src
+dotnet restore
 ```
 
-### Email Configuration
-Configure SMTP settings for email reports:
+Configure local secrets from `Todo.API`:
 
-**Development Mode** (`appsettings.Development.json`):
-```json
-{
-  "EmailSettings": {
-    "SmtpServer": "smtp.gmail.com",
-    "SmtpPort": 587,
-    "SmtpUsername": "your-email@gmail.com",
-    "SmtpPassword": "your-app-password",
-    "RecipientEmail": "recipient@example.com"
-  }
-}
+```powershell
+cd Todo.API
+dotnet user-secrets init
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost;Database=TodoApp_BToM;User=root;Password=your_password;"
+dotnet user-secrets set "Jwt:Key" "replace-with-a-long-random-secret"
+dotnet user-secrets set "Jwt:Issuer" "https://localhost:7196"
+dotnet user-secrets set "Jwt:Audience" "https://localhost:7196"
 ```
 
-**Production Mode** (Docker - `.env` file):
-```bash
-SMTP_USERNAME=your-email@gmail.com
-SMTP_PASSWORD=your-app-password
-RECIPIENT_EMAIL=recipient@example.com
+Optional Redis cache for development:
+
+```powershell
+dotnet user-secrets set "RedisSettings:Enabled" "true"
+dotnet user-secrets set "ConnectionStrings:RedisConnection" "localhost:6379,abortConnect=false,connectTimeout=5000,syncTimeout=5000,asyncTimeout=5000,connectRetry=3,keepAlive=60"
 ```
 
-> **Note:** For Gmail, use [App Passwords](https://support.google.com/accounts/answer/185833) instead of regular password.
-   ```bash
-   docker-compose logs -f
-   ```
+Run migrations:
 
-5. *� Deployment to VPS
+```powershell
+cd ..
+dotnet ef database update --project Todo.Models --startup-project Todo.API
+```
 
-1. **Prepare VPS**
-   ```bash
-   # Install Docker and Docker Compose
-   curl -fsSL https://get.docker.com -o get-docker.sh
-   sh get-docker.sh
-   ```
+Start the API:
 
-2. **Clone repository**
-   ```bash
-   git clone https://github.com/jin3107/TodoApp_BasicToModern.git
-   cd TodoApp_BasicToModern
-   ```
+```powershell
+dotnet run --project Todo.API
+```
 
-3. **Create environment file**
-   ```bash
-   nano .env
-   # Add your SMTP and Redis credentials
-   ```
+Default local URLs:
 
-4. **Configure Nginx (Optional)**
-   ```bash
-   cp nginx/conf.d/todoapp.conf.example nginx/conf.d/todoapp.conf
-   nano nginx/conf.d/todoapp.conf
-   # Update domain and IP whitelist
-   ```
+- API: `https://localhost:7196`
+- Swagger: `https://localhost:7196/swagger`
 
-5. **Start services**
-   ```bash
-   docker-compose up -d
-   ```
+### Frontend
 
-6. **Check logs**
-   ```bash
-   docker-compose logs -f backend
-   ```
+```powershell
+cd TodoApp.Client
+npm install
+npm run dev
+```
 
-> **Security Note:** Files `.env` and `nginx/conf.d/todoapp.conf` are gitignored. Create them manually on the server.
+The client defaults to relative API routes. For direct backend calls, create a local `.env` in `TodoApp.Client` if needed:
 
-## 🐛 Troubleshooting
+```text
+VITE_API_BASE_URL=https://localhost:7196
+```
 
-### Common Issues
+## Configuration
 
-1. **Database Connection**
-   - Ensure MySQL is running
-   - Check connection string format
-   - Verify credentials
+Keep real secrets out of Git.
 
-2. **CORS Issues**
-   - Confirm API URL in axios config
-   - Check CORS policy in backend
+Use these files as templates only:
 
-3. **Cache Issues**
-   - Restart Redis server
-   - Clear cache keys manually if needed
+- `.env.example`
+- `docker-compose.yml.example`
+- `nginx/conf.d/todoapp.conf.example`
 
-4. **Docker Issues**
-   - Check if ports 80, 3306, 6379 are available
-   - Verify `.env` file exists and has correct values
-   - Run `docker-compose logs` to see errors
+Create local files when needed:
 
-5. **Email Not Sending**
-   - Verify SMTP credentials in `.env` (Production) or `appsettings.Development.json` (Development)
-   - For Gmail, ensure you're using App Password, not regular password
-   - Check Quartz job logs: `docker-compose logs backend | grep Email`
+```powershell
+Copy-Item .env.example .env
+Copy-Item docker-compose.yml.example docker-compose.yml
+Copy-Item nginx/conf.d/todoapp.conf.example nginx/conf.d/todoapp.conf
+```
 
-6 `DELETE /todo-lists/{id}` - Delete todo list
-- `POST /todo-lists/search` - Search todo lists
+Recommended local secret storage:
+
+- Backend development: `dotnet user-secrets`
+- Docker deployment: `.env`
+- Production server: environment variables or a secret manager
+
+### Gmail SMTP
+
+Gmail requires an App Password, not your normal Gmail password.
+
+```powershell
+dotnet user-secrets set "EmailSettings:SmtpServer" "smtp.gmail.com"
+dotnet user-secrets set "EmailSettings:SmtpPort" "587"
+dotnet user-secrets set "EmailSettings:SmtpUsername" "your-email@gmail.com"
+dotnet user-secrets set "EmailSettings:SmtpPassword" "your-gmail-app-password"
+dotnet user-secrets set "EmailSettings:FromEmail" "your-email@gmail.com"
+dotnet user-secrets set "EmailSettings:FromName" "TodoApp"
+dotnet user-secrets set "EmailSettings:RecipientEmail" "recipient@example.com"
+```
+
+## Docker
+
+Copy examples first:
+
+```powershell
+Copy-Item .env.example .env
+Copy-Item docker-compose.yml.example docker-compose.yml
+```
+
+Edit `.env`, then start services:
+
+```powershell
+docker compose up -d
+```
+
+For local development with only Redis:
+
+```powershell
+docker run -d --name todoapp-redis -p 127.0.0.1:6379:6379 redis:7-alpine redis-server --appendonly yes
+```
+
+Useful commands:
+
+```powershell
+docker compose ps
+docker compose logs -f backend
+docker compose logs -f redis
+docker compose down
+```
+
+## API Overview
+
+### Authentication
+
+| Method | Route | Description |
+| --- | --- | --- |
+| `POST` | `/authentication/login` | Login and set auth cookies |
+| `POST` | `/authentication/register` | Register a user and send verification OTP |
+| `POST` | `/authentication/send-otp` | Send OTP for email verification or password change |
+| `POST` | `/authentication/verify-otp` | Verify OTP |
+| `POST` | `/authentication/change-password` | Change password after OTP verification |
+| `POST` | `/authentication/refresh-token` | Refresh auth cookies |
+| `POST` | `/authentication/logout` | Revoke session and clear cookies |
+
+### Todo Lists
+
+| Method | Route | Description |
+| --- | --- | --- |
+| `POST` | `/todo-lists/search` | Search todo lists |
+| `GET` | `/todo-lists/{id}` | Get list by id |
+| `POST` | `/todo-lists` | Create list |
+| `PUT` | `/todo-lists` | Update list |
+| `DELETE` | `/todo-lists/{id}` | Delete list |
 
 ### Todo Items
-- `GET /todo-items/{id}` - Get todo item by ID
-- `POST /todo-items` - Create new todo item
-- `PUT /todo-items` - Update todo item
-- `DELETE /todo-items/{id}` - Delete todo item
-- `POST /todo-items/search` - Search todo items
 
-### Reports (5-30 min TTL)
-- **Pagination** for large datasets
-- **Connection Pooling** for database connections
-- **Lazy Loading** in React components
-- **Bundle Optimization** with Vite
-- **Nginx Reverse Proxy** with rate limiting (10 req/s)
-- **Docker Multi-stage Builds** for smaller images
-## 🔧 Configuration
+| Method | Route | Description |
+| --- | --- | --- |
+| `POST` | `/todo-items/search` | Search todo items |
+| `GET` | `/todo-items/{id}` | Get item by id |
+| `POST` | `/todo-items` | Create item |
+| `PUT` | `/todo-items` | Update item |
+| `DELETE` | `/todo-items/{id}` | Delete item |
 
-### Database Configuration
-```json
-{
-- **Rate Limiting** via Nginx (10 requests/second)
-- **IP Whitelisting** for admin endpoints (/jobs, /swagger)
-- **Environment Variables** for sensitive data (not committed to Git)
-  "ConnectionString": "Server=localhost;Database=TodoApp;Uid=root;Pwd=password;",
-  "Redis": {
-    "ConnectionString": "localhost:6379"
-  }
-}
+### Reports And Jobs
+
+| Method | Route | Description |
+| --- | --- | --- |
+| `POST` | `/reports/progress` | Get dashboard progress report |
+| `POST` | `/reports/snapshot` | Create daily snapshot, admin only |
+| `POST` | `/jobs/trigger/daily-report` | Trigger daily report, admin only |
+| `POST` | `/jobs/trigger/weekly-summary` | Trigger weekly summary, admin only |
+| `POST` | `/jobs/trigger/task-reminder` | Trigger reminder job, admin only |
+| `GET` | `/jobs/scheduler/info` | Scheduler info, admin only |
+
+## Troubleshooting
+
+### Login succeeds but the app returns to `/login`
+
+Check whether `RefreshToken` is stored and sent by the browser. In development, cookie settings depend on whether requests are made through HTTP proxy or direct HTTPS backend calls.
+
+Also verify:
+
+- `withCredentials: true` is enabled in Axios.
+- Backend was restarted after cookie configuration changes.
+- Old localhost cookies were cleared.
+- `AllowedOrigins` includes the frontend origin when calling the API directly.
+
+### Dashboard report times out
+
+`/reports/progress` is an expensive endpoint on cache miss.
+
+Recommended checks:
+
+- Ensure Redis is running if `RedisSettings:Enabled=true`.
+- Ensure the Redis connection string matches whether Redis uses a password.
+- Restart backend after changing user-secrets.
+- Check API logs for slow DB queries or Redis connection errors.
+
+### Gmail OTP fails with `535 5.7.8`
+
+Gmail rejected SMTP authentication. Use a Gmail App Password and restart the backend after updating user-secrets.
+
+### Docker Redis password mismatch
+
+If Redis is started with `--requirepass`, the backend connection string must include:
+
+```text
+password=your_redis_password
 ```
 
-### Caching Strategy
-- **Search Results**: 5-minute expiration
-- **Individual Records**: 10-minute expiration
-- **Cache Keys**: Structured with operation and filters
-- **Cache Invalidation**: Automatic on CUD operations
+If Redis is only bound to `127.0.0.1` for local development, running without a password is acceptable for this project.
 
-### Background Jobs
-- **Daily Reports**: Generate daily completion statistics
-- **Cleanup Tasks**: Remove old completed items
-- **Cache Warming**: Pre-load frequently accessed data
+## What's Changed
 
-## 🎯 Key Features Implementation
+### Unreleased
 
-### Smart Caching
-```csharp
-// Cache key includes filters for accurate invalidation
-private string GenerateSearchCacheKey(SearchRequest request)
-{
-    return $"todo-item:search:page:{request.PageIndex}:filters:{SerializeFilters(request.Filters)}";
-}
-```
+- Added authentication API wrappers on the React client.
+- Added Login, Register, and Change Password pages.
+- Added cookie-based private routing and lazy-loaded route boundaries.
+- Added OTP-based registration verification and password-change flow.
+- Added Redis-backed progress report caching with memory fallback.
+- Optimized progress report generation to reduce in-memory work.
+- Improved local development cookie behavior for direct HTTPS API calls and proxy-based HTTP calls.
+- Updated Docker example configuration for Redis password and localhost port exposure.
+- Stopped tracking local `docker-compose.yml`; use `docker-compose.yml.example` as the template.
+- Cleaned up Ant Design warnings for `Spin`, `Card`, and static `message` usage.
 
-### Advanced Filtering
-```typescript
-// Client-side filter building
-const filters: Filter[] = [
-  {
-    fieldName: "TodoListId",
-    value: todoListId,
-    operation: "Equals"
-  }
-];
-```
+### Earlier
 
-### Real-time Updates
-```typescript
-// Automatic refresh after operations
-const onItemsChange = useCallback(() => {
-  loadTodoLists(currentPage, searchText);
-}, [currentPage, searchText]);
-```
+- Todo list and todo item CRUD.
+- Dashboard analytics and progress reporting.
+- Quartz.NET background jobs for reports, reminders, summaries, and cleanup.
+- MySQL persistence with EF Core migrations.
+- Docker and Nginx deployment templates.
 
-## 🐛 Troubleshooting
+## Security Notes
 
-### Common Issues
+- Do not commit `.env`, `docker-compose.yml`, `appsettings.Development.json`, SMTP credentials, JWT secrets, or database passwords.
+- Rotate any credential that was pasted into chat, terminal logs, or committed history.
+- Use Gmail App Passwords for SMTP.
+- Keep admin-only endpoints behind role checks and network controls.
 
-1. **Database Connection**
-   - Ensure MySQL is running
-   - Check connection string format
-   - Verify credentials
+## License
 
-2. **CORS Issues**
-   - Confirm API URL in axios config
-   - Check CORS policy in backend
+This project is licensed under the [MIT License](LICENSE.txt).
 
-3. **Cache Issues**
-   - Restart Redis server
-   - Clear cache keys manually if needed
+## Author
 
-4. **Build Errors**
-   - Run `dotnet restore` for backend
-   - Run `npm install` for frontend
-   - Check .NET and Node versions
-
-## 📈 Performance Optimizations
-
-- **Database Indexing** on frequently queried fields
-- **Redis Caching** for expensive queries
-- **Pagination** for large datasets
-- **Connection Pooling** for database connections
-- **Lazy Loading** in React components
-- **Bundle Optimization** with Vite
-
-## 🔒 Security Features
-
-- **Input Validation** on all endpoints
-- **CORS Configuration** for cross-origin requests
-- **Error Handling** with proper status codes
-- **SQL Injection Prevention** with parameterized queries
-
-## Note
-- This is a personal learning project — not actively accepting external contributions
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details.
-
-## 👨‍💻 Author
-
-Built with ❤️ by Rainy
-
----
-
-⭐ **If you found this project helpful, please give it a star!**
+Built by Rainy.
