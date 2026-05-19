@@ -19,18 +19,36 @@ namespace Todo.Repositories.Implementations
         }
 
         public async Task<OtpCode?> FindActiveAsync(string email, OtpPurpose purpose)
+<<<<<<< HEAD
             => await _context.Set<OtpCode>()
                 .Where(o => o.Email == email
+=======
+        {
+            var normalizedEmail = email.Trim().ToLower();
+            return await _context.Set<OtpCode>()
+                .Where(o => !o.IsDeleted
+                    && o.Email == normalizedEmail
+>>>>>>> dev
                     && o.Purpose == purpose
                     && !o.IsUsed
                     && o.ExpiresAt > DateTime.UtcNow)
                 .OrderByDescending(o => o.CreatedOn)
                 .FirstOrDefaultAsync();
+<<<<<<< HEAD
 
         public async Task InvalidatePreviousAsync(string email, OtpPurpose purpose)
         {
             var previous = await _context.Set<OtpCode>()
                 .Where(o => o.Email == email && o.Purpose == purpose
+=======
+        }
+
+        public async Task InvalidatePreviousAsync(string email, OtpPurpose purpose)
+        {
+            var normalizedEmail = email.Trim().ToLower();
+            var previous = await _context.Set<OtpCode>()
+                .Where(o => !o.IsDeleted && o.Email == normalizedEmail && o.Purpose == purpose
+>>>>>>> dev
                     && !o.IsUsed).ToListAsync();
             foreach (var otp in previous)
                 otp.IsUsed = true;

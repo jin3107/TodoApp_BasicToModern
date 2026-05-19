@@ -6,8 +6,7 @@ import { refreshToken } from "../apis/authenticationAPI";
 const PrivateRoute = () => {
   const location = useLocation();
   const hasVerified = useRef(false);
-  const [checking, setChecking] = useState(true);
-  const [authenticated, setAuthenticated] = useState(false);
+  const [status, setStatus] = useState<"checking" | "authenticated" | "unauthenticated">("checking");
 
   useEffect(() => {
     if (hasVerified.current) return;
@@ -16,30 +15,24 @@ const PrivateRoute = () => {
     const verify = async () => {
       try {
         const res = await refreshToken();
-        if (res.isSuccess) {
-          setAuthenticated(true);
-        } else {
-          setAuthenticated(false);
-        }
+        setStatus(res.isSuccess ? "authenticated" : "unauthenticated");
       } catch {
-        setAuthenticated(false);
-      } finally {
-        setChecking(false);
+        setStatus("unauthenticated");
       }
     };
     verify();
   }, []);
 
-  if (checking) {
+  if (status === "checking") {
     return (
       <div className="route-loader">
         <Spin size="large" />
-        <span>Đang kiểm tra phiên đăng nhập...</span>
+        <span>Đang kiểm tra phiên đăng nhập…</span>
       </div>
     );
   }
 
-  return authenticated ? (
+  return status === "authenticated" ? (
     <Outlet />
   ) : (
     <Navigate to="/login" replace state={{ from: location }} />

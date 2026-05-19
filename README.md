@@ -33,11 +33,20 @@ A full-stack Todo application that starts with familiar CRUD workflows and grows
 - Dashboard analytics with completion rate, overdue tasks, trends, and priority distribution.
 - Cookie-based authentication using `AuthToken` and `RefreshToken` HttpOnly cookies.
 - Email OTP flows for account verification and password changes.
+<<<<<<< HEAD
+=======
+- Fixed OTP verification flow and post-login redirect to the dashboard.
+>>>>>>> dev
 - Refresh-token rotation and logout support.
 - Role-based authorization for admin-only reports/jobs.
 - Redis-backed caching for expensive report data, with memory-cache fallback.
 - Quartz.NET background jobs for reports, reminders, summaries, and cleanup.
+<<<<<<< HEAD
 - Lazy-loaded React routes and a responsive Ant Design UI.
+=======
+- Lazy-loaded React routes and a responsive Ant Design UI for mobile, tablet, laptop, and desktop.
+- Shared SCSS tokens, mixins, and layout utilities for cleaner frontend styling.
+>>>>>>> dev
 - Docker-ready backend, frontend, MySQL, Redis, and Nginx setup.
 
 ## Tech Stack
@@ -353,6 +362,13 @@ If Redis is only bound to `127.0.0.1` for local development, running without a p
 - Added Login, Register, and Change Password pages.
 - Added cookie-based private routing and lazy-loaded route boundaries.
 - Added OTP-based registration verification and password-change flow.
+<<<<<<< HEAD
+=======
+- Fixed OTP handling and login redirect behavior on the React client.
+- Refined the React UI for mobile, tablet, laptop, and desktop breakpoints.
+- Extracted shared SCSS tokens, mixins, page shells, cards, and utility classes.
+- Replaced deprecated Sass `@import` usage and split large frontend vendor chunks.
+>>>>>>> dev
 - Added Redis-backed progress report caching with memory fallback.
 - Optimized progress report generation to reduce in-memory work.
 - Improved local development cookie behavior for direct HTTPS API calls and proxy-based HTTP calls.
