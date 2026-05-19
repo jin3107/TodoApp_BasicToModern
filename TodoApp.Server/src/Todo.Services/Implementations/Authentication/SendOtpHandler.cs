@@ -24,8 +24,8 @@ namespace Todo.Services.Implementations.Authentication
         private readonly IEmailService _emailService;
         private readonly ILogger<SendOtpHandler> _logger;
 
-        public SendOtpHandler(UserManager<ApplicationUser> userManager, 
-            IOtpCodeRepository otpRepository, IEmailService emailService, 
+        public SendOtpHandler(UserManager<ApplicationUser> userManager,
+            IOtpCodeRepository otpRepository, IEmailService emailService,
             ILogger<SendOtpHandler> logger)
         {
             _userManager = userManager;
@@ -39,29 +39,17 @@ namespace Todo.Services.Implementations.Authentication
             var result = new AppResponse<SendOtpResponse>();
             try
             {
-<<<<<<< HEAD
-                var user = await _userManager.FindByEmailAsync(request.Email);
-                if (user == null)
-                    return result.BuildError("Email address does not exist.");
-
-                await _otpRepository.InvalidatePreviousAsync(request.Email, request.Purpose);
-=======
                 var email = request.Email.Trim().ToLowerInvariant();
                 var user = await _userManager.FindByEmailAsync(email);
                 if (user == null)
                     return result.BuildError("Email address does not exist.");
 
                 await _otpRepository.InvalidatePreviousAsync(email, request.Purpose);
->>>>>>> dev
 
                 var otp = GenerateOtp();
                 await _otpRepository.AddAsync(new OtpCode
                 {
-<<<<<<< HEAD
-                    Email = request.Email,
-=======
                     Email = email,
->>>>>>> dev
                     Code = otp,
                     Purpose = request.Purpose,
                     ExpiresAt = DateTime.UtcNow.AddMinutes(5),
@@ -74,20 +62,12 @@ namespace Todo.Services.Implementations.Authentication
                     ? "Confirm your TodoApp password change."
                     : "Verify your TodoApp account";
 
-<<<<<<< HEAD
-                await _emailService.SendEmailAsync(request.Email, subject,
-=======
                 await _emailService.SendEmailAsync(email, subject,
->>>>>>> dev
                     $"Your OTP code is: {otp}\nThe code is valid for 5 minutes.");
 
                 return result.BuildResult(new SendOtpResponse
                 {
-<<<<<<< HEAD
-                    Email = request.Email,
-=======
                     Email = email,
->>>>>>> dev
                     Message = "The OTP has been sent to your email."
                 });
             }
