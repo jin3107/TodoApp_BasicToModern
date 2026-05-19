@@ -26,7 +26,7 @@ namespace Todo.Services.Implementations.Authentication
         private readonly ILogger<RegisterHandler> _logger;
 
         public RegisterHandler(UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager, IOtpCodeRepository otpCodeRepository, 
+            RoleManager<IdentityRole> roleManager, IOtpCodeRepository otpCodeRepository,
             IEmailService emailService, ILogger<RegisterHandler> logger)
         {
             _userManager = userManager;
@@ -41,24 +41,15 @@ namespace Todo.Services.Implementations.Authentication
             var result = new AppResponse<RegisterResponse>();
             try
             {
-<<<<<<< HEAD
-                if (await _userManager.FindByEmailAsync(request.Email) != null)
-=======
                 var email = request.Email.Trim().ToLowerInvariant();
 
                 if (await _userManager.FindByEmailAsync(email) != null)
->>>>>>> dev
                     return result.BuildError("Email already exists.");
 
                 var user = new ApplicationUser
                 {
-<<<<<<< HEAD
-                    UserName = request.Email,
-                    Email = request.Email,
-=======
                     UserName = email,
                     Email = email,
->>>>>>> dev
                     EmailConfirmed = false, // chưa verify
                     SecurityStamp = Guid.NewGuid().ToString(),
                     PhoneNumber = request.PhoneNumber,
@@ -74,17 +65,10 @@ namespace Todo.Services.Implementations.Authentication
                 await _userManager.AddToRoleAsync(user, "User");
 
                 var otp = GenerateOtp();
-<<<<<<< HEAD
-                await _otpCodeRepository.InvalidatePreviousAsync(request.Email, OtpPurpose.VerifyEmail);
-                await _otpCodeRepository.AddAsync(new OtpCode
-                {
-                    Email = request.Email,
-=======
                 await _otpCodeRepository.InvalidatePreviousAsync(email, OtpPurpose.VerifyEmail);
                 await _otpCodeRepository.AddAsync(new OtpCode
                 {
                     Email = email,
->>>>>>> dev
                     Code = otp,
                     Purpose = OtpPurpose.VerifyEmail,
                     ExpiresAt = DateTime.UtcNow.AddMinutes(5),
@@ -94,21 +78,13 @@ namespace Todo.Services.Implementations.Authentication
                 });
 
                 await _emailService.SendEmailAsync(
-<<<<<<< HEAD
-                    request.Email,
-=======
                     email,
->>>>>>> dev
                     "Confirm TodoApp account",
                     $"Your OTP code is: {otp}\nThe code is valid for 5 minutes.");
 
                 return result.BuildResult(new RegisterResponse
                 {
-<<<<<<< HEAD
-                    Email = request.Email,
-=======
                     Email = email,
->>>>>>> dev
                     PhoneNumber = request.PhoneNumber,
                     Name = request.Name,
                     Role = "User",

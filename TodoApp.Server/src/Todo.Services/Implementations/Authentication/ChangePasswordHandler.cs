@@ -38,27 +38,17 @@ namespace Todo.Services.Implementations.Authentication
             var result = new AppResponse<ChangePasswordResponse>();
             try
             {
-<<<<<<< HEAD
-                var user = await _userManager.FindByEmailAsync(request.Email);
-=======
                 var email = request.Email.Trim().ToLowerInvariant();
                 var user = await _userManager.FindByEmailAsync(email);
->>>>>>> dev
                 if (user == null)
                     return result.BuildError("User not found.");
 
                 var verifiedOtp = await _otpRepository.AsQueryable()
-<<<<<<< HEAD
-                    .Where(o => o.Email == request.Email
-                             && o.Purpose == OtpPurpose.ChangePassword
-                             && o.IsUsed
-=======
                     .Where(o => !o.IsDeleted
                              && o.Email == email
                              && o.Purpose == OtpPurpose.ChangePassword
                              && o.IsUsed
                              && o.ModifiedOn != null
->>>>>>> dev
                              && o.ModifiedOn >= DateTime.UtcNow.AddMinutes(-10))
                     .OrderByDescending(o => o.ModifiedOn)
                     .FirstOrDefaultAsync();
@@ -73,13 +63,10 @@ namespace Todo.Services.Implementations.Authentication
 
                 await _refreshTokenRepository.RevokeByUserIdAsync(Guid.Parse(user.Id));
 
-<<<<<<< HEAD
-=======
                 verifiedOtp.IsDeleted = true;
                 verifiedOtp.ModifiedOn = DateTime.UtcNow;
                 await _otpRepository.EditAsync(verifiedOtp);
 
->>>>>>> dev
                 return result.BuildResult(new ChangePasswordResponse
                 {
                     Email = user.Email!
