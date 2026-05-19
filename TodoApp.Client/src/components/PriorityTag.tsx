@@ -1,5 +1,5 @@
 import { Tag } from 'antd';
-import { Tier } from '../commons';
+import { Tier } from '../commons/enums/Tier';
 
 interface PriorityTagProps {
   priority: Tier | number;

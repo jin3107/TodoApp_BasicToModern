@@ -1,0 +1,88 @@
+@use './tokens' as t;
+@use './mixins' as m;
+
+.page-shell {
+  @include m.page-shell;
+}
+
+.content-card {
+  @include m.card-surface;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  &__title {
+    margin: 0;
+  }
+
+  &__subtitle {
+    margin: 8px 0 0;
+    color: t.$color-text-muted;
+    font-size: 16px;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  @include m.respond-down(t.$screen-md) {
+    flex-direction: column;
+
+    &__actions,
+    &__actions .ant-btn {
+      width: 100%;
+    }
+  }
+}
+
+.section-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.card-grid {
+  margin-bottom: 24px;
+}
+
+.full-width-field,
+.full-width-field .ant-picker,
+.full-width-field .ant-input,
+.full-width-field .ant-select {
+  width: 100%;
+}
+
+.route-loader,
+.loading-state {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  color: t.$color-text-muted;
+}
+
+.danger-note {
+  margin-top: 8px;
+  color: t.$color-danger;
+  font-weight: 700;
+}
+
+.muted-note {
+  margin-top: 8px;
+  color: t.$color-text-muted;
+  font-size: 12px;
+}
+
+.stats-card-progress {
+  margin-top: 8px;
+}

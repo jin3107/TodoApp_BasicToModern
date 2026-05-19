@@ -33,10 +33,12 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
-import { Tier } from "../../commons";
+import { Tier } from "../../commons/enums/Tier";
 import type { Filter, SearchRequest, SearchResponse, TodoItemRequest, TodoItemResponse } from "../../interfaces";
 import { createTodoItem, deleteTodoItem, getTodoItemById, searchTodoItems, updateTodoItem } from "../../apis/todoItemAPI";
-import { PriorityTag, StatusTag, useDateFormatter } from "../../components";
+import { PriorityTag } from "../../components/PriorityTag";
+import { StatusTag } from "../../components/StatusTag";
+import { useDateFormatter } from "../../components/useDateFormatter";
 import "./style.scss";
 
 const { TextArea } = Input;
@@ -60,6 +62,42 @@ interface TodoItemsProps {
   todoListName: string;
   onItemsChange: () => void;
 }
+
+interface SortHeaderProps {
+  label: string;
+  field: string;
+  sortField?: string;
+  sortDirection: boolean;
+  onSort: (field: string) => void;
+}
+
+const SortIcon = ({
+  field,
+  sortField,
+  sortDirection,
+}: Pick<SortHeaderProps, "field" | "sortField" | "sortDirection">) => {
+  if (sortField !== field) return null;
+  return sortDirection ? <SortAscendingOutlined /> : <SortDescendingOutlined />;
+};
+
+const SortHeader = ({
+  label,
+  field,
+  sortField,
+  sortDirection,
+  onSort,
+}: SortHeaderProps) => (
+  <button
+    type="button"
+    className="column-header"
+    aria-label={`Sắp xếp theo ${label}`}
+    aria-pressed={sortField === field}
+    onClick={() => onSort(field)}
+  >
+    <span>{label}</span>
+    <SortIcon field={field} sortField={sortField} sortDirection={sortDirection} />
+  </button>
+);
 
 const TodoItems = ({ todoListId, todoListName, onItemsChange }: TodoItemsProps) => {
   const { modal, message: messageApi } = App.useApp();
@@ -270,21 +308,12 @@ const TodoItems = ({ todoListId, todoListName, onItemsChange }: TodoItemsProps) 
         setLoading(false);
       }
     },
-    [searchField, sortField, sortDirection, todoListId]
+    [messageApi, searchField, sortField, sortDirection, todoListId]
   );
 
   useEffect(() => {
     fetchTasks(currentPage, pageSize, searchText);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchField, sortField, sortDirection, currentPage, pageSize, searchText, todoListId]);
-
-  // Clear tasks when todoListId changes
-  useEffect(() => {
-    console.log('TodoListId changed to:', todoListId);
-    setTasks([]);
-    setCurrentPage(1);
-    setSearchText('');
-  }, [todoListId]);
+  }, [currentPage, fetchTasks, pageSize, searchText]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -332,21 +361,16 @@ const TodoItems = ({ todoListId, todoListName, onItemsChange }: TodoItemsProps) 
     }
   };
 
-  const renderSortIcon = (field: string) =>
-    sortField === field ? (
-      sortDirection ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      )
-    ) : null;
-
   const columns = [
     {
       title: (
-        <div className="column-header" onClick={() => handleSortChange("Title")}>
-          Tiêu đề {renderSortIcon("Title")}
-        </div>
+        <SortHeader
+          label="Tiêu đề"
+          field="Title"
+          sortField={sortField}
+          sortDirection={sortDirection}
+          onSort={handleSortChange}
+        />
       ),
       dataIndex: 'title',
       key: 'title',
@@ -355,8 +379,8 @@ const TodoItems = ({ todoListId, todoListName, onItemsChange }: TodoItemsProps) 
       },
       render: (text: string, r: TodoItemData) => (
         <Space>
-          {r.priority === Tier.High && <ExclamationCircleOutlined style={{ color: 'red' }} />}
-          <Text strong ellipsis={{ tooltip: text }} style={{ maxWidth: 150 }}>
+          {r.priority === Tier.High && <ExclamationCircleOutlined className="high-priority-icon" />}
+          <Text strong ellipsis={{ tooltip: text }} className="task-title-cell">
             {text}
           </Text>
         </Space>
@@ -370,16 +394,20 @@ const TodoItems = ({ todoListId, todoListName, onItemsChange }: TodoItemsProps) 
         showTitle: false,
       },
       render: (text: string) => (
-        <Text ellipsis={{ tooltip: text }} style={{ maxWidth: 200 }}>
+        <Text ellipsis={{ tooltip: text }} className="task-description-cell">
           {text || "-"}
         </Text>
       ),
     },
     {
       title: (
-        <div className="column-header" onClick={() => handleSortChange("Priority")}>
-          Độ ưu tiên {renderSortIcon("Priority")}
-        </div>
+        <SortHeader
+          label="Độ ưu tiên"
+          field="Priority"
+          sortField={sortField}
+          sortDirection={sortDirection}
+          onSort={handleSortChange}
+        />
       ),
       dataIndex: 'priority',
       key: 'priority',
@@ -393,9 +421,13 @@ const TodoItems = ({ todoListId, todoListName, onItemsChange }: TodoItemsProps) 
     },
     {
       title: (
-        <div className="column-header" onClick={() => handleSortChange("DueDate")}>
-          Hạn hoàn thành {renderSortIcon("DueDate")}
-        </div>
+        <SortHeader
+          label="Hạn hoàn thành"
+          field="DueDate"
+          sortField={sortField}
+          sortDirection={sortDirection}
+          onSort={handleSortChange}
+        />
       ),
       dataIndex: 'dueDate',
       key: 'dueDate',
@@ -471,7 +503,7 @@ const TodoItems = ({ todoListId, todoListName, onItemsChange }: TodoItemsProps) 
         </Button>
       </div>
 
-      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+      <Row gutter={[16, 16]} className="tasks-stats-row">
         <Col xs={24} sm={8}>
           <Card>
             <Statistic
@@ -510,7 +542,7 @@ const TodoItems = ({ todoListId, todoListName, onItemsChange }: TodoItemsProps) 
         <div className="search-container">
           <Select
             defaultValue="Title"
-            style={{ width: 120 }}
+            className="search-field-select"
             onChange={(value) => setSearchField(value)}
             value={searchField}
           >
@@ -523,7 +555,7 @@ const TodoItems = ({ todoListId, todoListName, onItemsChange }: TodoItemsProps) 
             onChange={(e) => setSearchText(e.target.value)}
             onPressEnter={handleSearch}
             suffix={<SearchOutlined onClick={handleSearch} />}
-            style={{ width: 300 }}
+            className="search-input"
           />
           <Button type="primary" onClick={handleSearch}>
             Tìm kiếm
@@ -681,7 +713,7 @@ const TodoItems = ({ todoListId, todoListName, onItemsChange }: TodoItemsProps) 
                   name="dueDate"
                   rules={[{ required: true, message: 'Vui lòng chọn hạn hoàn thành!' }]}
                 >
-                  <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
+                  <DatePicker className="full-width-field" format="DD/MM/YYYY" />
                 </Form.Item>
               </Col>
             </Row>
@@ -702,7 +734,7 @@ const TodoItems = ({ todoListId, todoListName, onItemsChange }: TodoItemsProps) 
                   {({ getFieldValue }) =>
                     getFieldValue('isCompleted') ? (
                       <Form.Item label="Ngày hoàn thành" name="completedOn">
-                        <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
+                        <DatePicker className="full-width-field" format="DD/MM/YYYY" />
                       </Form.Item>
                     ) : null
                   }

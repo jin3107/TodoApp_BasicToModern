@@ -46,7 +46,7 @@ const Dashboard = () => {
     dayjs()
   ]);
 
-  const fetchDashboardData = useCallback(async (range: [Dayjs, Dayjs] = dateRange) => {
+  const fetchDashboardData = useCallback(async (range: [Dayjs, Dayjs]) => {
     try {
       setLoading(true);
       const progressResponse = await getProgressReport({
@@ -64,13 +64,13 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, [dateRange, message]);
+  }, [message]);
 
   useEffect(() => {
     if (didLoadInitialData.current) return;
     didLoadInitialData.current = true;
     fetchDashboardData(dateRange);
-  }, [fetchDashboardData]);
+  }, [dateRange, fetchDashboardData]);
 
   const handleDateChange = (dates: null | [Dayjs | null, Dayjs | null]) => {
     if (dates && dates[0] && dates[1]) {
@@ -84,7 +84,7 @@ const Dashboard = () => {
 
   if (loading && !reportData) {
     return (
-      <div style={{ textAlign: 'center', padding: '100px' }}>
+      <div className="loading-state dashboard-loading">
         <Spin size="large" />
       </div>
     );
@@ -95,7 +95,7 @@ const Dashboard = () => {
     : 0;
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container page-shell section-stack">
       <PageHeader
         title="Dashboard"
         greeting
@@ -112,24 +112,24 @@ const Dashboard = () => {
         }
       />
 
-      <Card 
-        style={{ marginBottom: 24 }}
+      <Card
+        className="dashboard-filter-card content-card"
         title={
           <Space>
-            <CalendarOutlined style={{ color: '#1890ff' }} />
+            <CalendarOutlined className="dashboard-title-icon" />
             <span>Bộ lọc thời gian</span>
           </Space>
         }
       >
         <Row gutter={[16, 16]} align="middle">
           <Col xs={24} md={20}>
-            <Space direction="vertical" style={{ width: '100%' }}>
+            <Space direction="vertical" className="full-width-field">
               <Text strong>Chọn khoảng thời gian xem báo cáo:</Text>
               <RangePicker
                 value={dateRange}
                 onChange={handleDateChange}
                 format="DD/MM/YYYY"
-                style={{ width: '100%' }}
+                className="full-width-field"
                 placeholder={['Từ ngày', 'Đến ngày']}
               />
             </Space>
@@ -140,7 +140,7 @@ const Dashboard = () => {
               block 
               onClick={applyFilters}
               loading={loading}
-              style={{ marginTop: 24 }}
+              className="dashboard-filter-button"
             >
               Áp dụng
             </Button>
@@ -149,7 +149,7 @@ const Dashboard = () => {
       </Card>
 
       <Spin spinning={loading}>
-        <Row gutter={[24, 24]} style={{ marginBottom: 32 }}>
+        <Row gutter={[16, 16]} className="card-grid">
           <Col xs={24} sm={12} lg={6}>
             <StatsCard
               title="Tổng số công việc"
@@ -190,17 +190,17 @@ const Dashboard = () => {
           </Col>
         </Row>
 
-        <Card 
+        <Card
+          className="dashboard-chart-card content-card"
           title={
             <Space>
-              <LineChartOutlined style={{ color: '#1890ff' }} />
+              <LineChartOutlined className="dashboard-title-icon" />
               <span>Biểu đồ hoàn thành</span>
               <Tag color="blue">
                 {dateRange[0].format('DD/MM')} - {dateRange[1].format('DD/MM/YYYY')}
               </Tag>
             </Space>
           }
-          style={{ marginBottom: 24 }}
         >
           {!reportData?.completionTrend || reportData.completionTrend.length === 0 ? (
             <Empty 
@@ -254,12 +254,13 @@ const Dashboard = () => {
           )}
         </Card>
 
-        <Row gutter={[24, 24]} style={{ marginBottom: 32 }}>
+        <Row gutter={[16, 16]} className="card-grid">
           <Col xs={24} lg={12}>
-            <Card 
+            <Card
+              className="content-card"
               title={
                 <Space>
-                  <RocketOutlined style={{ color: '#1890ff' }} />
+                  <RocketOutlined className="dashboard-title-icon" />
                   <span>Năng suất của bạn</span>
                 </Space>
               }
@@ -270,7 +271,7 @@ const Dashboard = () => {
                     <Text type="secondary">Hôm nay</Text>
                     <div className="productivity-value">
                       {reportData?.tasksCompletedThisToday || 0}
-                      <Text type="secondary" style={{ fontSize: '14px', marginLeft: 4 }}>tasks</Text>
+                      <Text type="secondary" className="metric-unit">tasks</Text>
                     </div>
                   </div>
                 </Col>
@@ -279,7 +280,7 @@ const Dashboard = () => {
                     <Text type="secondary">Tuần này</Text>
                     <div className="productivity-value">
                       {reportData?.tasksCompletedThisWeek || 0}
-                      <Text type="secondary" style={{ fontSize: '14px', marginLeft: 4 }}>tasks</Text>
+                      <Text type="secondary" className="metric-unit">tasks</Text>
                     </div>
                   </div>
                 </Col>
@@ -288,20 +289,20 @@ const Dashboard = () => {
                     <Text type="secondary">Tháng này</Text>
                     <div className="productivity-value">
                       {reportData?.tasksCompletedThisMonth || 0}
-                      <Text type="secondary" style={{ fontSize: '14px', marginLeft: 4 }}>tasks</Text>
+                      <Text type="secondary" className="metric-unit">tasks</Text>
                     </div>
                   </div>
                 </Col>
               </Row>
-              <div style={{ marginTop: 24, padding: '16px', background: '#f0f2f5', borderRadius: 8 }}>
-                <Space direction="vertical" style={{ width: '100%' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div className="dashboard-summary-box">
+                <Space direction="vertical" className="full-width-field">
+                  <div className="dashboard-summary-row">
                     <Text strong>Thời gian hoàn thành TB:</Text>
                     <Text>{reportData?.averageCompletionTimeHours.toFixed(1) || 0} giờ</Text>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <div className="dashboard-summary-row">
                     <Text strong>Tỷ lệ hoàn thành:</Text>
-                    <Text style={{ color: completionRate >= 70 ? '#52c41a' : '#faad14' }}>
+                    <Text className={completionRate >= 70 ? 'metric-good' : 'metric-warning'}>
                       {completionRate}%
                     </Text>
                   </div>
@@ -311,10 +312,11 @@ const Dashboard = () => {
           </Col>
 
           <Col xs={24} lg={12}>
-            <Card 
+            <Card
+              className="content-card"
               title={
                 <Space>
-                  <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />
+                  <ExclamationCircleOutlined className="dashboard-danger-icon" />
                   <span>Cần chú ý</span>
                 </Space>
               }
@@ -346,10 +348,10 @@ const Dashboard = () => {
                 </Col>
               </Row>
               {(reportData?.overdueTasks || 0) > 0 && (
-                <div style={{ marginTop: 24, padding: '12px', background: '#fff2e8', borderRadius: 8, border: '1px solid #ffbb96' }}>
+                <div className="overdue-alert">
                   <Space>
-                    <WarningOutlined style={{ color: '#ff4d4f' }} />
-                    <Text strong style={{ color: '#ff4d4f' }}>
+                    <WarningOutlined />
+                    <Text strong>
                       Bạn có {reportData?.overdueTasks} công việc quá hạn!
                     </Text>
                   </Space>
@@ -359,12 +361,13 @@ const Dashboard = () => {
           </Col>
         </Row>
 
-        <Row gutter={[24, 24]}>
+        <Row gutter={[16, 16]}>
           <Col xs={24}>
             <Card
+              className="content-card"
               title={
                 <Space>
-                  <WarningOutlined style={{ color: '#ff4d4f' }} />
+                  <WarningOutlined className="dashboard-danger-icon" />
                   <span>Quá hạn</span>
                 </Space>
               }
@@ -395,7 +398,7 @@ const Dashboard = () => {
                         }
                       >
                         <List.Item.Meta
-                          avatar={<WarningOutlined style={{ color: 'red', fontSize: 18 }} />}
+                          avatar={<WarningOutlined className="overdue-list-icon" />}
                           title={<Text strong>{item.title}</Text>}
                           description={
                             <Space>
@@ -413,11 +416,8 @@ const Dashboard = () => {
           </Col>
         </Row>
 
-        <Card 
-          title="Hành động nhanh" 
-          style={{ marginTop: 24 }}
-        >
-          <Space size="large" wrap>
+        <Card title="Hành động nhanh" className="quick-actions-card content-card">
+          <Space size="middle" wrap className="quick-actions">
             <Button 
               type="primary" 
               size="large"
@@ -427,7 +427,7 @@ const Dashboard = () => {
             </Button>
             <Button 
               size="large"
-              onClick={fetchDashboardData}
+              onClick={() => fetchDashboardData(dateRange)}
               loading={loading}
             >
               Làm mới dữ liệu

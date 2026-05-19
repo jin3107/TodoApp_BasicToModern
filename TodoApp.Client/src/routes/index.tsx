@@ -13,7 +13,7 @@ const ChangePassword = lazy(() => import("../pages/ChangePassword"));
 const PageLoader = () => (
   <div className="route-loader">
     <Spin size="large" />
-    <span>Đang tải trang...</span>
+    <span>Đang tải trang…</span>
   </div>
 );
 
