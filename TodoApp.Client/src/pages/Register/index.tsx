@@ -18,7 +18,7 @@ import {
   UserAddOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { OtpPurpose } from "../../commons";
+import { OtpPurpose } from "../../commons/enums/OtpPupose";
 import type { RegisterRequest, VerifyOtpRequest } from "../../interfaces";
 import { register, sendOtp, verifyOtp } from "../../apis/authenticationAPI";
 import "./style.scss";

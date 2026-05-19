@@ -72,7 +72,7 @@ export const StatsCard = ({
           percent={calculatedPercent}
           strokeColor={progressColor}
           size="small"
-          style={{ marginTop: 8 }}
+          className="stats-card-progress"
         />
       )}
     </Card>

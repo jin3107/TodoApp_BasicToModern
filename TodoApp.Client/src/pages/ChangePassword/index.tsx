@@ -16,7 +16,7 @@ import {
   MailOutlined,
   SendOutlined,
 } from "@ant-design/icons";
-import { OtpPurpose } from "../../commons";
+import { OtpPurpose } from "../../commons/enums/OtpPupose";
 import type { ChangePasswordRequest, VerifyOtpRequest } from "../../interfaces";
 import {
   changePassword,

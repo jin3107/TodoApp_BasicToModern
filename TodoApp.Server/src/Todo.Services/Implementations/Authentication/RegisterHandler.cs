@@ -41,13 +41,15 @@ namespace Todo.Services.Implementations.Authentication
             var result = new AppResponse<RegisterResponse>();
             try
             {
-                if (await _userManager.FindByEmailAsync(request.Email) != null)
+                var email = request.Email.Trim().ToLowerInvariant();
+
+                if (await _userManager.FindByEmailAsync(email) != null)
                     return result.BuildError("Email already exists.");
 
                 var user = new ApplicationUser
                 {
-                    UserName = request.Email,
-                    Email = request.Email,
+                    UserName = email,
+                    Email = email,
                     EmailConfirmed = false, // chưa verify
                     SecurityStamp = Guid.NewGuid().ToString(),
                     PhoneNumber = request.PhoneNumber,
@@ -63,10 +65,10 @@ namespace Todo.Services.Implementations.Authentication
                 await _userManager.AddToRoleAsync(user, "User");
 
                 var otp = GenerateOtp();
-                await _otpCodeRepository.InvalidatePreviousAsync(request.Email, OtpPurpose.VerifyEmail);
+                await _otpCodeRepository.InvalidatePreviousAsync(email, OtpPurpose.VerifyEmail);
                 await _otpCodeRepository.AddAsync(new OtpCode
                 {
-                    Email = request.Email,
+                    Email = email,
                     Code = otp,
                     Purpose = OtpPurpose.VerifyEmail,
                     ExpiresAt = DateTime.UtcNow.AddMinutes(5),
@@ -76,13 +78,13 @@ namespace Todo.Services.Implementations.Authentication
                 });
 
                 await _emailService.SendEmailAsync(
-                    request.Email,
+                    email,
                     "Confirm TodoApp account",
                     $"Your OTP code is: {otp}\nThe code is valid for 5 minutes.");
 
                 return result.BuildResult(new RegisterResponse
                 {
-                    Email = request.Email,
+                    Email = email,
                     PhoneNumber = request.PhoneNumber,
                     Name = request.Name,
                     Role = "User",

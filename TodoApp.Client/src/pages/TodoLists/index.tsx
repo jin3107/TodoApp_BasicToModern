@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useCallback, useReducer } from "react";
 import {
   Row,
   Col,
@@ -50,33 +50,117 @@ interface TodoListData {
   modifiedOn?: string;
 }
 
+interface TodoListsQueryState {
+  currentPage: number;
+  pageSize: number;
+  total: number;
+  searchText: string;
+}
+
+type TodoListsQueryAction =
+  | { type: "setPage"; page: number }
+  | { type: "setPageSize"; page: number; pageSize: number }
+  | { type: "setTotal"; total: number }
+  | { type: "setSearchText"; searchText: string }
+  | { type: "resetSearch" };
+
+const initialQueryState: TodoListsQueryState = {
+  currentPage: 1,
+  pageSize: 5,
+  total: 0,
+  searchText: "",
+};
+
+const queryReducer = (
+  state: TodoListsQueryState,
+  action: TodoListsQueryAction,
+): TodoListsQueryState => {
+  switch (action.type) {
+    case "setPage":
+      return { ...state, currentPage: action.page };
+    case "setPageSize":
+      return { ...state, currentPage: action.page, pageSize: action.pageSize };
+    case "setTotal":
+      return { ...state, total: action.total };
+    case "setSearchText":
+      return { ...state, searchText: action.searchText };
+    case "resetSearch":
+      return { ...state, currentPage: 1, searchText: "" };
+    default:
+      return state;
+  }
+};
+
+interface TodoListsViewState {
+  loading: boolean;
+  todoLists: TodoListData[];
+  selectedList?: TodoListData;
+  open: boolean;
+  editingId?: string;
+  submitting: boolean;
+  detailLoading: boolean;
+}
+
+type TodoListsViewAction =
+  | { type: "setLoading"; loading: boolean }
+  | { type: "setTodoLists"; todoLists: TodoListData[] }
+  | { type: "selectList"; list: TodoListData }
+  | { type: "clearSelection"; id: string }
+  | { type: "openCreate" }
+  | { type: "openEdit"; id: string }
+  | { type: "closeModal" }
+  | { type: "setSubmitting"; submitting: boolean }
+  | { type: "setDetailLoading"; detailLoading: boolean };
+
+const initialViewState: TodoListsViewState = {
+  loading: false,
+  todoLists: [],
+  selectedList: undefined,
+  open: false,
+  editingId: undefined,
+  submitting: false,
+  detailLoading: false,
+};
+
+const viewReducer = (
+  state: TodoListsViewState,
+  action: TodoListsViewAction,
+): TodoListsViewState => {
+  switch (action.type) {
+    case "setLoading":
+      return { ...state, loading: action.loading };
+    case "setTodoLists":
+      return { ...state, todoLists: action.todoLists };
+    case "selectList":
+      return { ...state, selectedList: action.list };
+    case "clearSelection":
+      return state.selectedList?.id === action.id
+        ? { ...state, selectedList: undefined }
+        : state;
+    case "openCreate":
+      return { ...state, open: true, editingId: undefined };
+    case "openEdit":
+      return { ...state, open: true, editingId: action.id };
+    case "closeModal":
+      return { ...state, open: false };
+    case "setSubmitting":
+      return { ...state, submitting: action.submitting };
+    case "setDetailLoading":
+      return { ...state, detailLoading: action.detailLoading };
+    default:
+      return state;
+  }
+};
+
 const TodoLists = () => {
   const { modal, message: messageApi } = App.useApp();
-  const [loading, setLoading] = useState(false);
-  const [todoLists, setTodoLists] = useState<TodoListData[]>([]);
-  const [selectedListId, setSelectedListId] = useState<string | undefined>(
-    undefined,
-  );
-  const [selectedList, setSelectedList] = useState<TodoListData | undefined>(
-    undefined,
-  );
-
-  // Pagination states
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
-  const [total, setTotal] = useState(0);
-  const [searchText, setSearchText] = useState("");
-
-  // Modal states
-  const [open, setOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | undefined>(undefined);
-  const [submitting, setSubmitting] = useState(false);
-  const [detailLoading, setDetailLoading] = useState(false);
+  const [query, dispatchQuery] = useReducer(queryReducer, initialQueryState);
+  const [view, dispatchView] = useReducer(viewReducer, initialViewState);
   const [form] = Form.useForm<{ name: string; description?: string }>();
 
-  const loadTodoLists = async (page: number = 1, search: string = "") => {
+  const loadTodoLists = useCallback(async (page: number = 1, search: string = "") => {
     try {
-      setLoading(true);
+      dispatchView({ type: "setLoading", loading: true });
       const filters = [];
       if (search) {
         filters.push({
@@ -89,7 +173,7 @@ const TodoLists = () => {
       const searchRequest: SearchRequest = {
         filters,
         pageIndex: page,
-        pageSize,
+        pageSize: query.pageSize,
       };
 
       const response = await searchTodoLists(searchRequest);
@@ -104,41 +188,38 @@ const TodoLists = () => {
           );
         }
 
-        setTodoLists(todoListData);
-        setTotal(searchResponse.data.totalRows);
+        dispatchView({ type: "setTodoLists", todoLists: todoListData });
+        dispatchQuery({ type: "setTotal", total: searchResponse.data.totalRows });
       } else {
         messageApi.error(response.message || "Không thể tải danh sách todos");
       }
-    } catch (error) {
+    } catch {
       messageApi.error("An error occurred while loading todo lists");
     } finally {
-      setLoading(false);
+      dispatchView({ type: "setLoading", loading: false });
     }
-  };
+  }, [messageApi, query.pageSize]);
 
   useEffect(() => {
-    loadTodoLists(currentPage, searchText);
-  }, [currentPage, pageSize, searchText]);
+    loadTodoLists(query.currentPage, query.searchText);
+  }, [loadTodoLists, query.currentPage, query.searchText]);
 
   const handleSelectList = (list: TodoListData) => {
-    setSelectedListId(list.id);
-    setSelectedList(list);
+    dispatchView({ type: "selectList", list });
   };
 
   const handleCreateList = () => {
-    setEditingId(undefined);
-    setOpen(true);
+    dispatchView({ type: "openCreate" });
   };
 
   const handleEditList = (list: TodoListData) => {
-    setEditingId(list.id);
-    setOpen(true);
+    dispatchView({ type: "openEdit", id: list.id });
   };
 
   const loadDetail = async (id: string) => {
-    setDetailLoading(true);
+    dispatchView({ type: "setDetailLoading", detailLoading: true });
     const response = await getTodoListById(id);
-    setDetailLoading(false);
+    dispatchView({ type: "setDetailLoading", detailLoading: false });
 
     if (!response.isSuccess) {
       messageApi.error(response.message || "Failed to load todo list");
@@ -158,10 +239,10 @@ const TodoLists = () => {
       content: (
         <div>
           <p>Are you sure you want to delete "<strong>{list.name}</strong>"?</p>
-          <p style={{ color: '#ff4d4f', fontWeight: 'bold', marginTop: '8px' }}>
-            ⚠️ This will permanently delete ALL {list.totalItems} todo item(s) in this list!
+          <p className="danger-note">
+            This will permanently delete ALL {list.totalItems} todo item(s) in this list!
           </p>
-          <p style={{ color: '#666', fontSize: '12px', marginTop: '8px' }}>
+          <p className="muted-note">
             This action cannot be undone.
           </p>
         </div>
@@ -179,21 +260,18 @@ const TodoLists = () => {
             messageApi.success(result.message || "Todo list deleted successfully");
             
             // Clear selection if deleted item was selected
-            if (selectedListId === list.id) {
-              setSelectedListId(undefined);
-              setSelectedList(undefined);
-            }
+            dispatchView({ type: "clearSelection", id: list.id });
             
             // Handle pagination after delete
-            const newTotal = total - 1;
-            const maxPage = Math.ceil(newTotal / pageSize);
-            const targetPage = currentPage > maxPage ? Math.max(1, maxPage) : currentPage;
+            const newTotal = query.total - 1;
+            const maxPage = Math.ceil(newTotal / query.pageSize);
+            const targetPage = query.currentPage > maxPage ? Math.max(1, maxPage) : query.currentPage;
             
-            if (targetPage !== currentPage) {
-              setCurrentPage(targetPage); // useEffect will trigger reload
+            if (targetPage !== query.currentPage) {
+              dispatchQuery({ type: "setPage", page: targetPage }); // useEffect will trigger reload
             } else {
               // Force re-fetch if staying on same page
-              loadTodoLists(targetPage, searchText);
+              loadTodoLists(targetPage, query.searchText);
             }
           } else {
             console.error('Delete failed:', result);
@@ -210,7 +288,7 @@ const TodoLists = () => {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      setSubmitting(true);
+      dispatchView({ type: "setSubmitting", submitting: true });
 
       const request: TodoListRequest = {
         name: values.name,
@@ -218,19 +296,19 @@ const TodoLists = () => {
       };
 
       // Only add id for update requests
-      if (editingId) {
-        request.id = editingId;
+      if (view.editingId) {
+        request.id = view.editingId;
       }
 
-      if (editingId) {
+      if (view.editingId) {
         // Update existing todo list
         const result = await updateTodoList(request);
         if (result.isSuccess) {
           messageApi.success(result.message || "Todo list updated successfully");
-          setOpen(false);
+          dispatchView({ type: "closeModal" });
           form.resetFields();
           // Reload current page to update data
-          await loadTodoLists(currentPage, searchText);
+          await loadTodoLists(query.currentPage, query.searchText);
         } else {
           messageApi.error(result.message || "Failed to update todo list");
         }
@@ -239,17 +317,14 @@ const TodoLists = () => {
         const result = await createTodoList(request);
         if (result.isSuccess) {
           messageApi.success(result.message || "Todo list created successfully");
-          setOpen(false);
+          dispatchView({ type: "closeModal" });
           form.resetFields();
           
           // Reset to page 1 and clear search to show all items including new one
-          setSearchText('');
-          if (currentPage === 1 && searchText === '') {
+          dispatchQuery({ type: "resetSearch" });
+          if (query.currentPage === 1 && query.searchText === "") {
             // If already on page 1 and no search, force reload
             await loadTodoLists(1, '');
-          } else {
-            // Change to page 1 will trigger useEffect
-            setCurrentPage(1);
           }
         } else {
           messageApi.error(result.message || "Failed to create todo list");
@@ -259,27 +334,31 @@ const TodoLists = () => {
       console.error('Submit error:', error);
       messageApi.error("An error occurred while saving the todo list");
     } finally {
-      setSubmitting(false);
+      dispatchView({ type: "setSubmitting", submitting: false });
     }
   };
 
   const onTodoItemsChange = () => {
     // Refresh current page to update progress counts
-    loadTodoLists(currentPage, searchText);
+    loadTodoLists(query.currentPage, query.searchText);
   };
 
   const handleSearch = () => {
-    setCurrentPage(1);
+    dispatchQuery({ type: "setPage", page: 1 });
   };
 
   const handlePageChange = (page: number, size?: number) => {
-    setCurrentPage(page);
-    if (size) setPageSize(size);
+    if (size) {
+      dispatchQuery({ type: "setPageSize", page, pageSize: size });
+      return;
+    }
+
+    dispatchQuery({ type: "setPage", page });
   };
 
   return (
-    <div className="todo-lists-management">
-      <Row gutter={[16, 16]} style={{ height: "calc(100vh - 64px)" }}>
+    <div className="todo-lists-management page-shell">
+      <Row gutter={[16, 16]} className="todo-lists-grid">
         {/* Left Column - Todo Lists */}
         <Col xs={24} lg={8} className="todo-lists-column">
           <Card
@@ -301,33 +380,38 @@ const TodoLists = () => {
             className="todo-lists-card"
           >
             {/* Search Box */}
-            <div style={{ marginBottom: 16 }}>
+            <div className="todo-list-search">
               <Input.Search
                 placeholder="Search todo lists..."
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
+                value={query.searchText}
+                onChange={(e) =>
+                  dispatchQuery({
+                    type: "setSearchText",
+                    searchText: e.target.value,
+                  })
+                }
                 onSearch={handleSearch}
-                style={{ marginBottom: 8 }}
               />
             </div>
 
-            <Spin spinning={loading}>
-              {todoLists.length === 0 ? (
+            <Spin spinning={view.loading}>
+              {view.todoLists.length === 0 ? (
                 <Empty
                   description="No todo lists yet"
                   image={Empty.PRESENTED_IMAGE_SIMPLE}
                 />
               ) : (
                 <List
-                  dataSource={todoLists}
+                  dataSource={view.todoLists}
                   renderItem={(list) => (
                     <List.Item
                       className={`todo-list-item ${
-                        selectedListId === list.id ? "selected" : ""
+                        view.selectedList?.id === list.id ? "selected" : ""
                       }`}
                       onClick={() => handleSelectList(list)}
                       actions={[
                         <Button
+                          key="edit"
                           type="text"
                           size="small"
                           icon={<EditOutlined />}
@@ -337,6 +421,7 @@ const TodoLists = () => {
                           }}
                         />,
                         <Button
+                          key="delete"
                           type="text"
                           size="small"
                           danger
@@ -378,12 +463,12 @@ const TodoLists = () => {
               )}
 
               {/* Pagination */}
-              {total > 0 && (
-                <div style={{ marginTop: 16, textAlign: "center" }}>
+              {query.total > 0 && (
+                <div className="todo-list-pagination">
                   <Pagination
-                    current={currentPage}
-                    total={total}
-                    pageSize={pageSize}
+                    current={query.currentPage}
+                    total={query.total}
+                    pageSize={query.pageSize}
                     showSizeChanger
                     showTotal={(t, range) =>
                       `${range[0]}-${range[1]} of ${t} todo lists`
@@ -400,11 +485,11 @@ const TodoLists = () => {
 
         {/* Right Column - Todo Items */}
         <Col xs={24} lg={16} className="todo-items-column">
-          {selectedListId && selectedList ? (
+          {view.selectedList ? (
             <TodoItems
-              key={selectedListId} // Force re-render when todoListId changes
-              todoListId={selectedListId}
-              todoListName={selectedList.name}
+              key={view.selectedList.id} // Force re-render when todoListId changes
+              todoListId={view.selectedList.id}
+              todoListName={view.selectedList.name}
               onItemsChange={onTodoItemsChange}
             />
           ) : (
@@ -420,20 +505,20 @@ const TodoLists = () => {
 
       {/* Create/Edit Modal */}
       <Modal
-        title={`${editingId ? "Edit" : "Create"} Todo List`}
-        open={open}
+        title={`${view.editingId ? "Edit" : "Create"} Todo List`}
+        open={view.open}
         onOk={handleSubmit}
-        onCancel={() => setOpen(false)}
-        confirmLoading={submitting}
+        onCancel={() => dispatchView({ type: "closeModal" })}
+        confirmLoading={view.submitting}
         destroyOnHidden
         afterOpenChange={async (isOpen) => {
-          if (isOpen && editingId) {
+          if (isOpen && view.editingId) {
             // Load detail data when editing
-            await loadDetail(editingId);
+            await loadDetail(view.editingId);
           }
         }}
       >
-        <Spin spinning={detailLoading}>
+        <Spin spinning={view.detailLoading}>
           <Form form={form} layout="vertical" preserve={false}>
             <Form.Item
               label="Name"

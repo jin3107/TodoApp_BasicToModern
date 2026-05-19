@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import type { Tier } from "../../commons";
+import type { Tier } from "../../commons/enums/Tier";
 
 export default interface TodoItemResponse {
   id?: string,

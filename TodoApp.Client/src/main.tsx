@@ -5,10 +5,9 @@ import viVN from "antd/locale/vi_VN";
 import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import "@ant-design/v5-patch-for-react-19";
-import "./index.css";
+import "./scss/global.scss";
 import App from "./App.tsx";
 
-// Set Vietnamese locale for dayjs
 dayjs.locale("vi");
 
 createRoot(document.getElementById("root")!).render(

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Card,
   Row,
@@ -39,7 +39,7 @@ const TasksReports = () => {
   const [reportData, setReportData] = useState<TodoItemReportResponse | null>(null);
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
 
-  const fetchReport = async () => {
+  const fetchReport = useCallback(async () => {
     try {
       setLoading(true);
       const request = dateRange
@@ -62,11 +62,11 @@ const TasksReports = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dateRange]);
 
   useEffect(() => {
     fetchReport();
-  }, []);
+  }, [fetchReport]);
 
   const getDaysOverdue = (dueDate: string) => {
     const days = dayjs().diff(dayjs(dueDate), 'day');

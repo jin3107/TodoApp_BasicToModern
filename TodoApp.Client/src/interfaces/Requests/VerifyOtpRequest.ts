@@ -1,4 +1,4 @@
-import type { OtpPurpose } from "../../commons";
+import type { OtpPurpose } from "../../commons/enums/OtpPupose";
 
 export default interface VerifyOtpRequest {
   email: string;
