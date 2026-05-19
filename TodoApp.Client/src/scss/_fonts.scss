@@ -1,10 +1,6 @@
-@use 'sass:string';
-@import url('https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@100..1000&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-
-
-@mixin inter($weight: 100){
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: $weight;
-    font-style: normal;
+@mixin inter($weight: 400) {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: $weight;
+  font-style: normal;
 }

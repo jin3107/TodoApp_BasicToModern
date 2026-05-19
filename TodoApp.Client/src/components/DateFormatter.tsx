@@ -1,4 +1,5 @@
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
+import type { Dayjs } from 'dayjs';
 
 interface DateFormatterProps {
   date?: string | Dayjs;
@@ -29,24 +30,4 @@ export const DateFormatter = ({ date, withTime = false, format }: DateFormatterP
   const finalFormat = format || defaultFormat;
   
   return <>{dayjsDate.format(finalFormat)}</>;
-};
-
-/**
- * Hook utility để format date trong logic
- */
-export const useDateFormatter = () => {
-  const formatDate = (date?: string | Dayjs, withTime = false, customFormat?: string) => {
-    if (!date) return '-';
-    
-    const dayjsDate = typeof date === 'string' ? dayjs(date) : date;
-    
-    if (!dayjsDate || !dayjsDate.isValid()) return '-';
-    
-    const defaultFormat = withTime ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY';
-    const finalFormat = customFormat || defaultFormat;
-    
-    return dayjsDate.format(finalFormat);
-  };
-  
-  return { formatDate };
 };
