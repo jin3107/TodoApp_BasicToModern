@@ -1,0 +1,86 @@
+@use './tokens' as t;
+@use './shared';
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: t.$color-page;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: t.$color-text;
+  background: t.$color-page;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #eef2f7;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c8d2df;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a9b7c8;
+}
+
+.ant-card {
+  border-radius: t.$radius-md;
+}
+
+.ant-tag {
+  border-radius: t.$radius-sm;
+  padding: 2px 8px;
+  font-weight: 500;
+}
+
+.ant-table-thead > tr > th {
+  white-space: nowrap;
+}
+
+.ant-modal-header,
+.ant-modal-footer {
+  border-color: #eef0f4;
+}
+
+@media (max-width: t.$screen-md) {
+  body {
+    font-size: 14px;
+  }
+
+  .ant-modal {
+    max-width: calc(100vw - 24px);
+  }
+}

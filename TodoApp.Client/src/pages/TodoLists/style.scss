@@ -1,9 +1,16 @@
+@use '../../scss/tokens' as t;
+@use '../../scss/mixins' as m;
+
 .todo-lists-management {
-  padding: 16px;
+  .todo-lists-grid {
+    min-height: calc(100vh - 104px);
+  }
   
   .todo-lists-column {
     .todo-lists-card {
       height: 100%;
+      border-radius: t.$radius-md;
+      box-shadow: t.$shadow-card;
       
       .ant-card-body {
         height: calc(100% - 57px);
@@ -26,6 +33,15 @@
         justify-content: center;
       }
     }
+  }
+
+  .todo-list-search {
+    margin-bottom: 16px;
+  }
+
+  .todo-list-pagination {
+    margin-top: 16px;
+    text-align: center;
   }
 
   .todo-list-item {
@@ -75,13 +91,36 @@
       }
     }
   }
-}
 
-@media (max-width: 992px) {
-  .todo-lists-management {
+  @include m.respond-down(t.$screen-lg) {
+    .todo-lists-grid {
+      min-height: auto;
+    }
+
     .todo-lists-column,
     .todo-items-column {
       margin-bottom: 16px;
+    }
+
+    .todo-lists-column .todo-lists-card {
+      max-height: 520px;
+    }
+  }
+
+  @include m.respond-down(t.$screen-sm) {
+    .todo-list-item {
+      align-items: flex-start;
+
+      .ant-list-item-action {
+        margin-left: 0;
+      }
+    }
+
+    .ant-pagination {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 4px;
     }
   }
 }

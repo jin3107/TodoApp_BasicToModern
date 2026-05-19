@@ -1,35 +1,19 @@
+@use '../../scss/tokens' as t;
+@use '../../scss/mixins' as m;
+
 .login-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 32px 16px;
-  background:
-    linear-gradient(135deg, rgba(24, 144, 255, 0.14), rgba(82, 196, 26, 0.1)),
-    #f0f2f5;
+  @include m.auth-shell(t.$color-primary, t.$color-success);
 
   &__panel {
-    width: min(100%, 960px);
-    display: grid;
-    grid-template-columns: 1fr 420px;
-    gap: 40px;
-    align-items: center;
+    @include m.auth-panel(420px, 960px);
   }
 
   &__intro {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-
-    h1 {
-      margin: 0;
-      font-size: 48px;
-      line-height: 1.08;
-    }
+    @include m.auth-intro;
   }
 
   &__eyebrow {
-    color: #1677ff;
+    color: t.$color-primary;
     font-weight: 700;
     letter-spacing: 0;
     text-transform: uppercase;
@@ -37,13 +21,12 @@
 
   &__subtitle {
     max-width: 520px;
-    color: rgba(0, 0, 0, 0.65);
+    color: t.$color-text-muted;
     font-size: 17px;
   }
 
   &__card {
-    border-radius: 8px;
-    box-shadow: 0 16px 42px rgba(15, 23, 42, 0.14);
+    @include m.card-surface;
 
     .ant-card-body {
       padding: 32px;
@@ -55,21 +38,13 @@
     justify-content: center;
     margin-top: 24px;
   }
-}
 
-@media (max-width: 820px) {
-  .login-page {
-    &__panel {
-      grid-template-columns: 1fr;
-      gap: 24px;
-    }
+  @include m.respond-down(t.$screen-sm) {
+    &__card {
+      width: 100%;
 
-    &__intro {
-      text-align: center;
-      align-items: center;
-
-      h1 {
-        font-size: 36px;
+      .ant-card-body {
+        padding: 24px 16px;
       }
     }
   }

@@ -33,7 +33,12 @@ namespace Todo.Services.Implementations.Authentication
             var result = new AppResponse<bool>();
             try
             {
+<<<<<<< HEAD
                 var otp = await _otpRepository.FindActiveAsync(request.Email, request.Purpose);
+=======
+                var email = request.Email.Trim().ToLowerInvariant();
+                var otp = await _otpRepository.FindActiveAsync(email, request.Purpose);
+>>>>>>> dev
                 if (otp == null)
                     return result.BuildError("The OTP is invalid or has expired.");
 
@@ -52,11 +57,19 @@ namespace Todo.Services.Implementations.Authentication
                 }
 
                 otp.IsUsed = true;
+<<<<<<< HEAD
+=======
+                otp.ModifiedOn = DateTime.UtcNow;
+>>>>>>> dev
                 await _otpRepository.EditAsync(otp);
 
                 if (request.Purpose == OtpPurpose.VerifyEmail)
                 {
+<<<<<<< HEAD
                     var user = await _userManager.FindByEmailAsync(request.Email);
+=======
+                    var user = await _userManager.FindByEmailAsync(email);
+>>>>>>> dev
                     if (user != null)
                     {
                         user.EmailConfirmed = true;

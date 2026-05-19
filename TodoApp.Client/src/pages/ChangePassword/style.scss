@@ -1,14 +1,16 @@
+@use '../../scss/tokens' as t;
+@use '../../scss/mixins' as m;
+
 .change-password-page {
-  min-height: calc(100vh - 98px);
+  min-height: calc(100vh - 56px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 16px;
+  padding: 24px 16px 40px;
 
   &__card {
     width: min(100%, 520px);
-    border-radius: 8px;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+    @include m.card-surface;
 
     .ant-card-body {
       padding: 32px;
@@ -32,8 +34,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
-    color: #1677ff;
+    border-radius: t.$radius-md;
+    color: t.$color-primary;
     background: #e6f4ff;
     font-size: 24px;
   }
@@ -42,10 +44,9 @@
   &__password {
     margin-top: 16px;
   }
-}
 
-@media (max-width: 576px) {
-  .change-password-page {
+  @include m.respond-down(t.$screen-sm) {
+    align-items: flex-start;
     padding: 16px 0;
 
     &__card {
