@@ -1,48 +1,31 @@
+@use '../../scss/tokens' as t;
+@use '../../scss/mixins' as m;
+
 .register-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 32px 16px;
-  background:
-    linear-gradient(135deg, rgba(82, 196, 26, 0.12), rgba(24, 144, 255, 0.12)),
-    #f0f2f5;
+  @include m.auth-shell(t.$color-success, t.$color-primary);
 
   &__panel {
-    width: min(100%, 1080px);
-    display: grid;
-    grid-template-columns: 1fr 480px;
-    gap: 40px;
-    align-items: center;
+    @include m.auth-panel(480px, 1080px);
   }
 
   &__intro {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-
-    h1 {
-      margin: 0;
-      font-size: 46px;
-      line-height: 1.1;
-    }
+    @include m.auth-intro;
   }
 
   &__eyebrow {
-    color: #1677ff;
+    color: t.$color-primary;
     font-weight: 700;
     text-transform: uppercase;
   }
 
   &__subtitle {
     max-width: 520px;
-    color: rgba(0, 0, 0, 0.65);
+    color: t.$color-text-muted;
     font-size: 17px;
   }
 
   &__card {
-    border-radius: 8px;
-    box-shadow: 0 16px 42px rgba(15, 23, 42, 0.14);
+    @include m.card-surface;
 
     .ant-card-body {
       padding: 32px;
@@ -56,7 +39,7 @@
   &__notice {
     display: block;
     margin-bottom: 20px;
-    color: rgba(0, 0, 0, 0.65);
+    color: t.$color-text-muted;
   }
 
   &__footer {
@@ -64,21 +47,17 @@
     justify-content: center;
     margin-top: 24px;
   }
-}
 
-@media (max-width: 900px) {
-  .register-page {
-    &__panel {
-      grid-template-columns: 1fr;
-      gap: 24px;
+  @include m.respond-down(t.$screen-sm) {
+    &__steps .ant-steps-item-title {
+      font-size: 13px;
     }
 
-    &__intro {
-      text-align: center;
-      align-items: center;
+    &__card {
+      width: 100%;
 
-      h1 {
-        font-size: 36px;
+      .ant-card-body {
+        padding: 24px 16px;
       }
     }
   }

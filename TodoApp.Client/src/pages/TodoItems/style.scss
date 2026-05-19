@@ -1,26 +1,28 @@
-@use '../../scss/fonts' as fonts;
-@use '../../scss/colors' as colors;
-@use '../../scss/variables' as variables;
+@use '../../scss/tokens' as t;
+@use '../../scss/mixins' as m;
 
 .tasks-container {
-  padding: 24px;
-  background-color: #f0f2f5;
-  min-height: 100vh;
-  @include fonts.inter(400);
+  min-height: 100%;
+  background-color: transparent;
 
   .tasks-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
     margin-bottom: 24px;
 
-    h1, h2 {
+    h1,
+    h2 {
+      margin: 0;
+      color: t.$color-text;
       font-size: 28px;
       font-weight: 600;
-      color: #262626;
-      margin: 0;
-      @include fonts.inter(600);
     }
+  }
+
+  .tasks-stats-row {
+    margin-bottom: 24px;
   }
 
   .tasks-search {
@@ -36,22 +38,40 @@
     }
   }
 
+  .search-field-select {
+    width: 120px;
+  }
+
+  .search-input {
+    width: 300px;
+  }
+
+  .task-title-cell {
+    max-width: 150px;
+  }
+
+  .task-description-cell {
+    max-width: 200px;
+  }
+
+  .high-priority-icon {
+    color: t.$color-danger;
+  }
+
   .ant-table-wrapper {
     background: white;
-    border-radius: 8px;
+    border-radius: t.$radius-md;
     overflow: hidden;
   }
 
   .ant-card {
-    border-radius: 8px;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03),
-                0 1px 6px -1px rgba(0, 0, 0, 0.02),
-                0 2px 4px 0 rgba(0, 0, 0, 0.02);
+    border-radius: t.$radius-md;
+    box-shadow: t.$shadow-card;
   }
 
   .ant-statistic-title {
+    color: t.$color-text-muted;
     font-size: 14px;
-    color: #8c8c8c;
   }
 
   .ant-statistic-content {
@@ -62,8 +82,8 @@
   .ant-table {
     .ant-table-thead > tr > th {
       background-color: #fafafa;
+      color: t.$color-text;
       font-weight: 600;
-      color: #262626;
       white-space: nowrap;
     }
 
@@ -77,6 +97,11 @@
   }
 
   .column-header {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
     cursor: pointer;
     user-select: none;
     display: inline-flex;
@@ -85,35 +110,31 @@
     white-space: nowrap;
 
     &:hover {
-      color: #1890ff;
+      color: t.$color-primary;
     }
   }
 
-  // Dropdown menu styles
   .ant-dropdown-menu {
     min-width: 140px;
 
     .ant-dropdown-menu-item {
       padding: 8px 12px;
-      
+
       .anticon {
         margin-right: 8px;
       }
     }
   }
 
-  // Tablet
-  @media (max-width: 768px) {
-    padding: 16px;
-
+  @include m.respond-down(t.$screen-md) {
     .tasks-header {
       flex-direction: column;
-      gap: 16px;
       align-items: stretch;
 
-      h1, h2 {
-        font-size: 24px;
+      h1,
+      h2 {
         text-align: center;
+        font-size: 24px;
       }
 
       .ant-btn {
@@ -121,76 +142,28 @@
       }
     }
 
-    .tasks-search {
-      .search-container {
-        width: 100%;
-        gap: 8px;
+    .tasks-search .search-container {
+      width: 100%;
+      gap: 8px;
 
-        .ant-select {
-          width: 150px !important;
-        }
-
-        .ant-input {
-          flex: 1;
-          min-width: 0;
-        }
-
-        .ant-btn {
-          width: auto;
-          padding: 0 20px;
-        }
-      }
-    }
-
-    // Responsive table scroll
-    .ant-card {
-      position: relative;
-      overflow: hidden;
-
-      &::before,
-      &::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 20px;
-        z-index: 2;
-        pointer-events: none;
-        transition: opacity 0.3s;
+      .search-field-select {
+        width: 150px;
       }
 
-      &::before {
-        left: 0;
-        background: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0));
+      .search-input {
+        flex: 1;
+        min-width: 0;
       }
 
-      &::after {
-        right: 0;
-        background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0));
+      .ant-btn {
+        width: auto;
+        padding: 0 20px;
       }
     }
 
     .ant-table-wrapper {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      
-      &::-webkit-scrollbar {
-        height: 6px;
-      }
-
-      &::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 3px;
-      }
-
-      &::-webkit-scrollbar-thumb {
-        background: #888;
-        border-radius: 3px;
-        
-        &:hover {
-          background: #555;
-        }
-      }
     }
 
     .ant-table {
@@ -201,30 +174,21 @@
       .ant-table-tbody > tr > td {
         padding: 12px 10px;
       }
-
     }
   }
 
-  // Mobile
-  @media (max-width: 576px) {
-    padding: 12px;
-
+  @include m.respond-down(t.$screen-sm) {
     .tasks-header {
       gap: 12px;
 
-      h1, h2 {
+      h1,
+      h2 {
         font-size: 20px;
       }
     }
 
-    // Compact statistics cards
-    .ant-row {
-      margin: 0 -6px !important;
-
-      .ant-col {
-        padding: 0 6px !important;
-        margin-bottom: 12px;
-      }
+    .tasks-stats-row {
+      margin-bottom: 12px;
     }
 
     .ant-card {
@@ -235,8 +199,8 @@
       }
 
       .ant-statistic-title {
-        font-size: 11px;
         margin-bottom: 4px;
+        font-size: 11px;
       }
 
       .ant-statistic-content {
@@ -244,24 +208,21 @@
       }
 
       .ant-statistic-content-prefix {
-        font-size: 16px;
         margin-right: 4px;
+        font-size: 16px;
       }
     }
 
-    .tasks-search {
-      .search-container {
-        flex-direction: column;
+    .tasks-search .search-container {
+      flex-direction: column;
 
-        .ant-select,
-        .ant-input,
-        .ant-btn {
-          width: 100% !important;
-        }
+      .search-field-select,
+      .search-input,
+      .ant-btn {
+        width: 100%;
       }
     }
 
-    // Compact table for mobile
     .ant-table {
       min-width: 800px;
       font-size: 12px;
@@ -271,102 +232,38 @@
         padding: 10px 8px;
       }
 
-      // Tiêu đề
       .ant-table-cell:nth-child(1) {
         min-width: 140px;
         max-width: 160px;
       }
 
-      // Mô tả
       .ant-table-cell:nth-child(2) {
         min-width: 180px;
         max-width: 220px;
       }
 
-      // Độ ưu tiên
-      .ant-table-cell:nth-child(3) { 
+      .ant-table-cell:nth-child(3) {
         min-width: 100px;
       }
 
-      // Trạng thái
-      .ant-table-cell:nth-child(4) { 
+      .ant-table-cell:nth-child(4) {
         min-width: 130px;
       }
 
-      // Hạn hoàn thành
-      .ant-table-cell:nth-child(5) {
+      .ant-table-cell:nth-child(5),
+      .ant-table-cell:nth-child(6) {
         min-width: 110px;
       }
 
-      // Ngày hoàn thành
-      .ant-table-cell:nth-child(6) { 
-        min-width: 110px;
-      }
-
-      // Thao tác
       .ant-table-cell:last-child {
-        min-width: 80px;
         width: 80px;
+        min-width: 80px;
       }
 
       .ant-tag {
-        font-size: 11px;
         padding: 2px 6px;
+        font-size: 11px;
       }
     }
-
-    // Scroll hint for mobile
-    .ant-card .ant-table-wrapper::after {
-      content: '← Vuốt để xem thêm →';
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.7);
-      color: white;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 11px;
-      white-space: nowrap;
-      z-index: 10;
-      animation: fadeOut 3s forwards;
-      pointer-events: none;
-    }
-
-    @keyframes fadeOut {
-      0%, 70% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 0;
-      }
-    }
-  }
-
-  // Tablet landscape
-  @media (min-width: 769px) and (max-width: 1024px) {
-    padding: 20px;
-
-    .tasks-header {
-      h1, h2 {
-        font-size: 26px;
-      }
-    }
-
-    .ant-table {
-      font-size: 14px;
-
-      .ant-table-thead > tr > th,
-      .ant-table-tbody > tr > td {
-        padding: 14px 12px;
-      }
-    }
-  }
-
-  // Large desktop
-  @media (min-width: 1400px) {
-    max-width: 1400px;
-    margin: 0 auto;
   }
 }
-

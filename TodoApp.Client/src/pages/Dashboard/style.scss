@@ -1,24 +1,32 @@
+@use '../../scss/tokens' as t;
+@use '../../scss/mixins' as m;
+
 .dashboard-container {
-  .dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 32px;
-    padding: 24px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  .dashboard-loading {
+    min-height: 360px;
+  }
+
+  .dashboard-title-icon {
+    color: t.$color-primary;
+  }
+
+  .dashboard-danger-icon {
+    color: t.$color-danger;
+  }
+
+  .dashboard-filter-button {
+    margin-top: 24px;
   }
 
   .stat-card {
-    border-radius: 12px;
+    border-radius: t.$radius-md;
     transition: all 0.3s ease;
     border: none;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: t.$shadow-card;
 
     &:hover {
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-      transform: translateY(-4px);
+      box-shadow: t.$shadow-card-hover;
+      transform: translateY(-2px);
     }
 
     .ant-card-body {
@@ -26,7 +34,7 @@
     }
 
     &.stat-card-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #2563eb 0%, #0f766e 100%);
       color: white;
 
       .ant-statistic-title {
@@ -35,7 +43,7 @@
     }
 
     &.stat-card-success {
-      background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
       color: white;
 
       .ant-statistic-title {
@@ -44,7 +52,7 @@
     }
 
     &.stat-card-warning {
-      background: linear-gradient(135deg, #faad14 0%, #d48806 100%);
+      background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
       color: white;
 
       .ant-statistic-title {
@@ -53,7 +61,7 @@
     }
 
     &.stat-card-danger {
-      background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
       color: white;
 
       .ant-statistic-title {
@@ -65,13 +73,14 @@
   .productivity-item {
     text-align: center;
     padding: 16px;
-    background: white;
-    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid t.$color-border;
+    border-radius: t.$radius-md;
 
     .productivity-value {
       font-size: 28px;
       font-weight: bold;
-      color: #1890ff;
+      color: t.$color-primary;
       margin-top: 8px;
     }
   }
@@ -79,13 +88,13 @@
   .attention-item {
     text-align: center;
     padding: 20px;
-    border-radius: 8px;
-    border: 2px solid;
+    border-radius: t.$radius-md;
+    border: 1px solid;
     transition: all 0.3s ease;
 
     &:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+      box-shadow: t.$shadow-card;
     }
 
     .attention-value {
@@ -123,13 +132,61 @@
   }
 
   .ant-card {
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border-radius: t.$radius-md;
+    box-shadow: t.$shadow-card;
 
     .ant-card-head {
       border-bottom: 1px solid #f0f0f0;
       padding: 16px 24px;
     }
+  }
+
+  .metric-unit {
+    margin-left: 4px;
+    font-size: 14px;
+  }
+
+  .metric-good {
+    color: t.$color-success;
+  }
+
+  .metric-warning {
+    color: t.$color-warning;
+  }
+
+  .dashboard-summary-box {
+    margin-top: 24px;
+    padding: 16px;
+    background: t.$color-page;
+    border-radius: t.$radius-md;
+  }
+
+  .dashboard-summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .overdue-alert {
+    margin-top: 24px;
+    padding: 12px;
+    color: t.$color-danger;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: t.$radius-md;
+  }
+
+  .overdue-list-icon {
+    color: t.$color-danger;
+    font-size: 18px;
+  }
+
+  .quick-actions-card {
+    margin-top: 24px;
+  }
+
+  .quick-actions {
+    width: 100%;
   }
 
   .ant-list-item {
@@ -147,11 +204,9 @@
     }
   }
 
-  @media (max-width: 768px) {
-    .dashboard-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 16px;
+  @include m.respond-down(t.$screen-md) {
+    .dashboard-filter-button {
+      margin-top: 0;
     }
 
     .stat-card {
@@ -166,6 +221,22 @@
 
     .attention-value {
       font-size: 24px !important;
+    }
+  }
+
+  @include m.respond-down(t.$screen-sm) {
+    .productivity-item,
+    .attention-item {
+      padding: 12px 8px;
+    }
+
+    .dashboard-summary-row {
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .quick-actions .ant-btn {
+      width: 100%;
     }
   }
 }

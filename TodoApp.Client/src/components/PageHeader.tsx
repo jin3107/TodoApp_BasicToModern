@@ -46,21 +46,21 @@ export const PageHeader = ({
     return 'Chào buổi tối';
   };
 
-  const displayTitle = greeting ? `${getGreeting()}! 👋` : title;
+  const displayTitle = greeting ? `${getGreeting()}!` : title;
 
   return (
-    <div className={className} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+    <div className={className}>
       <div>
-        <Title level={2} style={{ margin: 0 }}>
+        <Title level={2} className="page-header__title">
           {displayTitle}
         </Title>
         {subtitle && (
-          <Paragraph style={{ marginTop: 8, marginBottom: 0, fontSize: '16px', color: '#666' }}>
+          <Paragraph className="page-header__subtitle">
             {subtitle}
           </Paragraph>
         )}
       </div>
-      {actions && <div>{actions}</div>}
+      {actions && <div className="page-header__actions">{actions}</div>}
     </div>
   );
 };
