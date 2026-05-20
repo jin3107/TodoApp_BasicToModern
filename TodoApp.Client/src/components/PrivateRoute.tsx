@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { Spin } from "antd";
 import { refreshToken } from "../apis/authenticationAPI";
+import { hasRecentAuthentication, markAuthenticated } from "../commons/auth-session";
 
 const PrivateRoute = () => {
   const location = useLocation();
@@ -13,8 +14,16 @@ const PrivateRoute = () => {
     hasVerified.current = true;
 
     const verify = async () => {
+      if (hasRecentAuthentication()) {
+        setStatus("authenticated");
+        return;
+      }
+
       try {
         const res = await refreshToken();
+        if (res.isSuccess) {
+          markAuthenticated();
+        }
         setStatus(res.isSuccess ? "authenticated" : "unauthenticated");
       } catch {
         setStatus("unauthenticated");

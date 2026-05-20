@@ -13,6 +13,7 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { logout } from '../apis/authenticationAPI';
+import { clearAuthenticated } from '../commons/auth-session';
 import './MainLayout.scss';
 
 const { Header, Content } = Layout;
@@ -47,6 +48,7 @@ const MainLayout = () => {
     } catch {
       message.warning('Phiên đăng nhập đã kết thúc');
     } finally {
+      clearAuthenticated();
       navigate('/login', { replace: true });
     }
   };
