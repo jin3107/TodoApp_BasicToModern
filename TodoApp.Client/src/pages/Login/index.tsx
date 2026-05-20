@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   App,
@@ -15,6 +16,12 @@ import {
 } from "@ant-design/icons";
 import type { LoginRequest } from "../../interfaces";
 import { login } from "../../apis/authenticationAPI";
+import authIllustration from "../../assets/auth-illustration.png";
+import { markAuthenticated } from "../../commons/auth-session";
+import {
+  preloadAuthenticatedRoutes,
+  scheduleAuthenticatedRoutesPreload,
+} from "../../routes/preload";
 import "./style.scss";
 
 const { Text, Title } = Typography;
@@ -24,7 +31,12 @@ const Login = () => {
   const { message } = App.useApp();
   const [form] = Form.useForm<LoginRequest>();
 
+  useEffect(() => {
+    scheduleAuthenticatedRoutesPreload();
+  }, []);
+
   const handleSubmit = async (values: LoginRequest) => {
+    preloadAuthenticatedRoutes();
     const result = await login(values);
 
     if (!result.isSuccess) {
@@ -33,6 +45,7 @@ const Login = () => {
     }
 
     message.success("Đăng nhập thành công");
+    markAuthenticated();
     form.resetFields();
     navigate("/dashboard", { replace: true });
   };
@@ -41,12 +54,17 @@ const Login = () => {
     <main className="login-page">
       <section className="login-page__panel">
         <div className="login-page__intro">
-          <Text className="login-page__eyebrow">Todo App</Text>
           <Title level={1}>Đăng nhập</Title>
           <Text className="login-page__subtitle">
             Quản lý danh sách công việc, tiến độ và báo cáo trong một nơi.
           </Text>
         </div>
+
+        <img
+          className="login-page__image"
+          src={authIllustration}
+          alt="Minh họa quản lý công việc"
+        />
 
         <Card className="login-page__card" variant="borderless">
           <Form

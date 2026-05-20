@@ -5,11 +5,14 @@
   @include m.auth-shell(t.$color-success, t.$color-primary);
 
   &__panel {
-    @include m.auth-panel(480px, 1080px);
+    @include m.auth-panel(600px, 1240px);
+    align-items: start;
   }
 
   &__intro {
     @include m.auth-intro;
+    grid-column: 1 / -1;
+    max-width: 720px;
   }
 
   &__eyebrow {
@@ -24,16 +27,49 @@
     font-size: 17px;
   }
 
+  &__image {
+    width: min(100%, 560px);
+    aspect-ratio: 16 / 10;
+    margin-top: 16px;
+    border-radius: t.$radius-md;
+    object-fit: cover;
+    box-shadow: t.$shadow-card;
+  }
+
   &__card {
     @include m.card-surface;
 
     .ant-card-body {
-      padding: 32px;
+      padding: 28px;
     }
   }
 
   &__steps {
-    margin-bottom: 28px;
+    margin-bottom: 20px;
+  }
+
+  &__form {
+    .ant-form-item {
+      margin-bottom: 16px;
+    }
+
+    .ant-form-item-label {
+      padding-bottom: 4px;
+    }
+
+    .ant-form-item-label > label {
+      height: auto;
+    }
+  }
+
+  &__form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+  }
+
+  &__form-field--wide {
+    grid-column: 1 / -1;
   }
 
   &__notice {
@@ -45,10 +81,14 @@
   &__footer {
     width: 100%;
     justify-content: center;
-    margin-top: 24px;
+    margin-top: 18px;
   }
 
   @include m.respond-down(t.$screen-sm) {
+    &__image {
+      max-height: 220px;
+    }
+
     &__steps .ant-steps-item-title {
       font-size: 13px;
     }
@@ -59,6 +99,10 @@
       .ant-card-body {
         padding: 24px 16px;
       }
+    }
+
+    &__form-grid {
+      grid-template-columns: 1fr;
     }
   }
 }

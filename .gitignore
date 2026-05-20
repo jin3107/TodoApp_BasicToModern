@@ -441,3 +441,8 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Codex agent instructions (personal)
+AGENTS.md
+AGENTS.override.md
+.agents/

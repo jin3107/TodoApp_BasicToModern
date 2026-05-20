@@ -5,11 +5,14 @@
   @include m.auth-shell(t.$color-primary, t.$color-success);
 
   &__panel {
-    @include m.auth-panel(420px, 960px);
+    @include m.auth-panel(420px, 1080px);
+    align-items: start;
   }
 
   &__intro {
     @include m.auth-intro;
+    grid-column: 1 / -1;
+    max-width: 680px;
   }
 
   &__eyebrow {
@@ -23,6 +26,14 @@
     max-width: 520px;
     color: t.$color-text-muted;
     font-size: 17px;
+  }
+
+  &__image {
+    width: min(100%, 560px);
+    aspect-ratio: 16 / 10;
+    border-radius: t.$radius-md;
+    object-fit: cover;
+    box-shadow: t.$shadow-card;
   }
 
   &__card {
@@ -40,6 +51,10 @@
   }
 
   @include m.respond-down(t.$screen-sm) {
+    &__image {
+      max-height: 220px;
+    }
+
     &__card {
       width: 100%;
 

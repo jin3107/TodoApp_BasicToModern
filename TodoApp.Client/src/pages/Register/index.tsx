@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   App,
@@ -21,6 +21,8 @@ import {
 import { OtpPurpose } from "../../commons/enums/OtpPupose";
 import type { RegisterRequest, VerifyOtpRequest } from "../../interfaces";
 import { register, sendOtp, verifyOtp } from "../../apis/authenticationAPI";
+import authIllustration from "../../assets/auth-illustration.png";
+import { scheduleAuthenticatedRoutesPreload } from "../../routes/preload";
 import "./style.scss";
 
 const { Text, Title } = Typography;
@@ -33,6 +35,10 @@ const Register = () => {
   const [step, setStep] = useState(0);
   const [registeredEmail, setRegisteredEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    scheduleAuthenticatedRoutesPreload();
+  }, []);
 
   const handleRegister = async (values: RegisterRequest) => {
     setSubmitting(true);
@@ -91,12 +97,17 @@ const Register = () => {
     <main className="register-page">
       <section className="register-page__panel">
         <div className="register-page__intro">
-          <Text className="register-page__eyebrow">Todo App</Text>
           <Title level={1}>Tạo tài khoản</Title>
           <Text className="register-page__subtitle">
             đăng ký và xác minh email để bắt đầu theo dõi công việc hằng ngày.
           </Text>
         </div>
+
+        <img
+          className="register-page__image"
+          src={authIllustration}
+          alt="Minh họa quản lý công việc"
+        />
 
         <Card className="register-page__card" variant="borderless">
           <Steps
@@ -111,79 +122,80 @@ const Register = () => {
           {step === 0 ? (
             <Form
               form={registerForm}
+              className="register-page__form"
               layout="vertical"
               requiredMark={false}
               onFinish={handleRegister}
             >
-              <Form.Item
-                label="Họ tên"
-                name="name"
-                rules={[{ required: true, message: "Vui lòng nhập họ tên" }]}
-              >
-                <Input size="large" prefix={<UserOutlined />} />
-              </Form.Item>
+              <div className="register-page__form-grid">
+                <Form.Item
+                  label="Họ tên"
+                  name="name"
+                  rules={[{ required: true, message: "Vui lòng nhập họ tên" }]}
+                >
+                  <Input prefix={<UserOutlined />} />
+                </Form.Item>
 
-              <Form.Item
-                label="Email"
-                name="email"
-                rules={[
-                  { required: true, message: "Vui lòn nhập email" },
-                  { type: "email", message: "Email không hợp lệ" },
-                ]}
-              >
-                <Input size="large" prefix={<MailOutlined />} />
-              </Form.Item>
+                <Form.Item
+                  label="Số điện thoại"
+                  name="phoneNumber"
+                  rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
+                >
+                  <Input prefix={<PhoneOutlined />} />
+                </Form.Item>
 
-              <Form.Item
-                label="Số điện thoại"
-                name="phoneNumber"
-                rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
-              >
-                <Input size="large" prefix={<PhoneOutlined />} />
-              </Form.Item>
+                <Form.Item
+                  className="register-page__form-field--wide"
+                  label="Email"
+                  name="email"
+                  rules={[
+                    { required: true, message: "Vui lòn nhập email" },
+                    { type: "email", message: "Email không hợp lệ" },
+                  ]}
+                >
+                  <Input prefix={<MailOutlined />} />
+                </Form.Item>
 
-              <Form.Item
-                label="Mật khẩu"
-                name="password"
-                rules={[
-                  { required: true, message: "Vui lòng nhập mật khẩu" },
-                  { min: 8, message: "Mật khẩu tối thiểu 8 ký tự" },
-                ]}
-              >
-                <Input.Password
-                  size="large"
-                  prefix={<LockOutlined />}
-                  autoComplete="new-password"
-                />
-              </Form.Item>
+                <Form.Item
+                  label="Mật khẩu"
+                  name="password"
+                  rules={[
+                    { required: true, message: "Vui lòng nhập mật khẩu" },
+                    { min: 8, message: "Mật khẩu tối thiểu 8 ký tự" },
+                  ]}
+                >
+                  <Input.Password
+                    prefix={<LockOutlined />}
+                    autoComplete="new-password"
+                  />
+                </Form.Item>
 
-              <Form.Item
-                label="Xác nhận mật khẩu"
-                name="confirmPassword"
-                dependencies={["password"]}
-                rules={[
-                  { required: true, message: "Vui lòng xác nhận mật khẩu" },
-                  ({ getFieldValue }) => ({
-                    validator(_, value: string | undefined) {
-                      if (!value || getFieldValue("password") === value) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject(new Error("Mật khẩu xác nhận không khớp"));
-                    },
-                  }),
-                ]}
-              >
-                <Input.Password
-                  size="large"
-                  prefix={<LockOutlined />}
-                  autoComplete="new-password"
-                />
-              </Form.Item>
+                <Form.Item
+                  label="Xác nhận mật khẩu"
+                  name="confirmPassword"
+                  dependencies={["password"]}
+                  rules={[
+                    { required: true, message: "Vui lòng xác nhận mật khẩu" },
+                    ({ getFieldValue }) => ({
+                      validator(_, value: string | undefined) {
+                        if (!value || getFieldValue("password") === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(new Error("Mật khẩu xác nhận không khớp"));
+                      },
+                    }),
+                  ]}
+                >
+                  <Input.Password
+                    prefix={<LockOutlined />}
+                    autoComplete="new-password"
+                  />
+                </Form.Item>
+              </div>
 
               <Button
                 type="primary"
                 htmlType="submit"
-                size="large"
                 icon={<UserAddOutlined />}
                 loading={submitting}
                 block

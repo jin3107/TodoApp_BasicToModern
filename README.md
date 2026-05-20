@@ -8,7 +8,7 @@
 [![Redis](https://img.shields.io/badge/Redis-cache-DC382D?style=flat-square&logo=redis&logoColor=ffffff)](https://redis.io/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE.txt)
 
-A full-stack Todo application that starts with familiar CRUD workflows and grows into a more production-oriented system: cookie-based authentication, OTP email verification, reporting, Redis caching, background jobs, Docker deployment, and a modern React interface.
+A full-stack Todo application that starts with familiar CRUD workflows and grows into a more production-oriented system: cookie-based authentication, OTP email verification, dashboard reporting, Redis caching, Quartz background jobs, Docker deployment, and a modern React interface.
 
 > This is a personal learning project. It is public for reference, but it is not currently maintained as a community contribution project.
 
@@ -24,7 +24,9 @@ A full-stack Todo application that starts with familiar CRUD workflows and grows
 - [API Overview](#api-overview)
 - [Troubleshooting](#troubleshooting)
 - [What's Changed](#whats-changed)
+- [Security Notes](#security-notes)
 - [License](#license)
+- [Author](#author)
 
 ## Features
 
@@ -33,12 +35,14 @@ A full-stack Todo application that starts with familiar CRUD workflows and grows
 - Dashboard analytics with completion rate, overdue tasks, trends, and priority distribution.
 - Cookie-based authentication using `AuthToken` and `RefreshToken` HttpOnly cookies.
 - Email OTP flows for account verification and password changes.
-- Fixed OTP verification flow and post-login redirect to the dashboard.
+- Fixed OTP verification flow and optimized post-login redirect to the dashboard.
 - Refresh-token rotation and logout support.
 - Role-based authorization for admin-only reports/jobs.
 - Redis-backed caching for expensive report data, with memory-cache fallback.
 - Quartz.NET background jobs for reports, reminders, summaries, and cleanup.
-- Lazy-loaded React routes and a responsive Ant Design UI for mobile, tablet, laptop, and desktop.
+- Lazy-loaded React routes with authenticated-route preloading for a smoother login experience.
+- Responsive Ant Design UI for mobile, tablet, laptop, and desktop.
+- Polished Login/Register pages with auth illustrations, compact registration form layout, and route preload hints.
 - Shared SCSS tokens, mixins, and layout utilities for cleaner frontend styling.
 - Docker-ready backend, frontend, MySQL, Redis, and Nginx setup.
 
@@ -84,13 +88,16 @@ The backend follows a layered structure:
 - `Todo.Models`: EF Core entities, configurations, DbContext, and migrations.
 - `Todo.DTOs`: request and response contracts.
 - `Todo.Commons`: shared enums and helpers.
+- `MayNghien.Infrastructures`: shared infrastructure helpers.
 
 The frontend is feature-oriented:
 
 - `src/routes`: lazy route definitions.
+- `src/routes/preload.ts`: preloads authenticated route chunks from auth pages.
 - `src/pages`: route-level pages.
 - `src/apis`: API wrappers.
 - `src/components`: reusable UI components.
+- `src/commons`: shared frontend utilities and enums.
 - `src/interfaces`: typed request/response contracts.
 - `src/layouts`: shared layout shells.
 
@@ -113,6 +120,7 @@ TodoApp_BasicToModern/
 │   └── vite.config.ts
 ├── TodoApp.Server/
 │   └── src/
+│       ├── MayNghien.Infrastructures/
 │       ├── Todo.API/
 │       ├── Todo.Commons/
 │       ├── Todo.DTOs/
@@ -177,9 +185,10 @@ Start the API:
 dotnet run --project Todo.API
 ```
 
-Default local URLs:
+Default local API URLs:
 
-- API: `https://localhost:7196`
+- HTTP API: `http://localhost:5133`
+- HTTPS API: `https://localhost:7196`
 - Swagger: `https://localhost:7196/swagger`
 
 ### Frontend
@@ -195,6 +204,14 @@ The client defaults to relative API routes. For direct backend calls, create a l
 ```text
 VITE_API_BASE_URL=https://localhost:7196
 ```
+
+During Vite development, `vite.config.ts` proxies these relative routes to `http://localhost:5133`:
+
+- `/authentication`
+- `/todo-items`
+- `/todo-lists`
+- `/reports`
+- `/jobs`
 
 ## Configuration
 
@@ -307,6 +324,8 @@ docker compose down
 | `POST` | `/jobs/trigger/daily-report` | Trigger daily report, admin only |
 | `POST` | `/jobs/trigger/weekly-summary` | Trigger weekly summary, admin only |
 | `POST` | `/jobs/trigger/task-reminder` | Trigger reminder job, admin only |
+| `POST` | `/jobs/pause/{jobName}` | Pause a Quartz job, admin only |
+| `POST` | `/jobs/resume/{jobName}` | Resume a Quartz job, admin only |
 | `GET` | `/jobs/scheduler/info` | Scheduler info, admin only |
 
 ## Troubleshooting
@@ -321,6 +340,15 @@ Also verify:
 - Backend was restarted after cookie configuration changes.
 - Old localhost cookies were cleared.
 - `AllowedOrigins` includes the frontend origin when calling the API directly.
+
+### Login succeeds but redirect feels slow
+
+The client preloads authenticated route chunks from Login/Register and skips an immediate duplicate refresh check right after a successful login. If the redirect still feels slow, check:
+
+- Network latency of `POST /authentication/login`.
+- Whether the dashboard report endpoint is cold and waiting for DB/cache work.
+- Browser DevTools network waterfall for large chunks such as `charts` or `antd`.
+- Redis availability when report caching is enabled.
 
 ### Dashboard report times out
 
@@ -353,7 +381,11 @@ If Redis is only bound to `127.0.0.1` for local development, running without a p
 
 - Added authentication API wrappers on the React client.
 - Added Login, Register, and Change Password pages.
+- Added auth illustrations and aligned Login/Register image/form layout.
+- Compact Register form into a desktop grid while preserving mobile stacking.
 - Added cookie-based private routing and lazy-loaded route boundaries.
+- Added authenticated-route preloading from auth pages for faster post-login navigation.
+- Avoided an unnecessary immediate refresh-token request right after successful login.
 - Added OTP-based registration verification and password-change flow.
 - Fixed OTP handling and login redirect behavior on the React client.
 - Refined the React UI for mobile, tablet, laptop, and desktop breakpoints.
