@@ -28,7 +28,7 @@ builder.Services.AddRepositories();
 builder.Services.AddApplicationServices(); 
 
 // Jobs
-builder.Services.AddQuartzConfiguration();
+builder.Services.AddQuartzConfiguration(builder.Configuration);
 
 // API concerns
 builder.Services.AddSwaggerConfiguration();

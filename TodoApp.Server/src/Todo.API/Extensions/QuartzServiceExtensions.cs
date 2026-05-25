@@ -1,16 +1,30 @@
-﻿using Quartz;
+﻿using Microsoft.Extensions.Configuration;
+using Quartz;
 using Todo.Services.Jobs;
 
 namespace Todo.API.Extensions
 {
     public static class QuartzServiceExtensions
     {
-        public static IServiceCollection AddQuartzConfiguration(this IServiceCollection services)
+        public static IServiceCollection AddQuartzConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddQuartz(q =>
             {
                 q.UseSimpleTypeLoader();
-                q.UseInMemoryStore();
+
+                // Configure persistent store with MySQL for clustering
+                q.UsePersistentStore(store =>
+                {
+                    store.UseProperties = true;
+                    store.UseMySql(configuration.GetConnectionString("DefaultConnection"));
+                    store.UseSystemTextJsonSerializer();
+                    store.UseClustering(cluster =>
+                    {
+                        cluster.CheckinInterval = TimeSpan.FromSeconds(20);
+                        cluster.CheckinMisfireThreshold = TimeSpan.FromSeconds(40);
+                    });
+                });
+
                 q.UseDefaultThreadPool(tp =>
                 {
                     tp.MaxConcurrency = 3;
