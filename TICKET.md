@@ -1,7 +1,7 @@
 # [TICKET-001] Enable Horizontal Scaling for Quartz.NET Background Jobs
 
 **Priority:** High  
-**Status:** In Progress
+**Status:** In Reviewß
 
 ## Summary
 Enable Quartz.NET job clustering to support horizontal scaling across multiple instances without job duplication.
@@ -33,13 +33,10 @@ Enable Quartz.NET job clustering to support horizontal scaling across multiple i
 **Why:**
 - Coordinates job execution across instances through shared database
 - Scales to 100+ instances with 1000+ jobs
-- Industry standard pattern
 - Minimal overhead: 11 database tables, 10-20 queries/min/instance
 
 **Limitations:**
-- At 100+ instances with high frequency jobs, may need connection pool tuning
-- Not suitable for sub-second real-time jobs
-- If scale exceeds limits, consider separate scheduler service with feature flags
+- If scale exceeds limits (ie 150+ instances), consider separate scheduler service with feature flags
 
 ---
 
@@ -53,13 +50,14 @@ Enable Quartz.NET job clustering to support horizontal scaling across multiple i
 **2. QuartzServiceExtensions.cs**
 - Replaced `UseInMemoryStore()` with `UsePersistentStore()`
 - Configured MySQL with clustering (20s checkin interval)
+- Set `SchedulerName` and `SchedulerId: AUTO` in code for unique instance IDs
+- Added stable TriggerKey to ClearExpiredDataJob trigger
 
 **3. Program.cs**
 - Pass configuration to `AddQuartzConfiguration()`
 
 **4. appsettings.json**
-- Removed conflicting Quartz settings
-- Kept `instanceName` and `instanceId: AUTO`
+- Removed Quartz configuration section (now set in code)
 
 **5. ClearExpiredDataJob.cs**
 - Added missing `[DisallowConcurrentExecution]` attribute
@@ -67,13 +65,6 @@ Enable Quartz.NET job clustering to support horizontal scaling across multiple i
 ### Database Setup
 
 **Required:** Run MySQL schema script to create 11 Quartz tables before deployment.
-
-**Key Tables:**
-- `QRTZ_SCHEDULER_STATE` - Instance health and registration
-- `QRTZ_LOCKS` - Distributed lock coordination
-- `QRTZ_JOB_DETAILS` - Job definitions
-- `QRTZ_TRIGGERS` - Trigger information
-- Plus 7 additional support tables
 
 **Script:** https://github.com/quartznet/quartznet/blob/main/database/tables/tables_mysql_innodb.sql
 
@@ -108,7 +99,7 @@ SELECT JOB_NAME, COUNT(*) FROM QRTZ_JOB_DETAILS GROUP BY JOB_NAME HAVING COUNT(*
 
 ## Deployment
 
-**Prerequisites:**
+**Prereqs:**
 1. Run Quartz schema script on MySQL database
 2. Verify MySQL user has SELECT, INSERT, UPDATE, DELETE on QRTZ_* tables
 
@@ -119,7 +110,7 @@ SELECT JOB_NAME, COUNT(*) FROM QRTZ_JOB_DETAILS GROUP BY JOB_NAME HAVING COUNT(*
 
 **Rollback:**
 - Revert to previous deployment
-- In-memory store resumes (duplicates return but app functional)
+- In-memory store resumes (dupes return but app functional)
 
 ---
 

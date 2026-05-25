@@ -1,5 +1,11 @@
 # AI Prompt Log - Quartz Horizontal Scaling Assessment
 
+**Models Used:**
+- Claude Sonnet 4.5 (Prompts 1-6): Analysis and implementation
+- Claude Opus 4.7 (Prompt 7): Final review
+
+---
+
 ## Prompt 1
 
 **Prompt:**
@@ -115,13 +121,61 @@ AI implemented clustering config changes. Added two NuGet packages, updated Quar
 
 ---
 
+## Prompt 7
+
+**Prompt:**
+```
+Review my changes in this branch to implement Quartz horizontal scaling using ADO.NET:
+1. Read TICKET.md for context
+2. Read PROMPT_LOG.md and make sure it accurately represents the work done
+3. Look at git diff for code changes
+
+Look for any issues or improvements needed. If you find something to change or fix, justify that change/fix.
+```
+
+**Reasoning:**
+Final review using better model to catch any issues before ticket submission.
+
+**Outcome:**
+Found two critical bugs: 1) instanceId config in appsettings.json is not being read (needs to be set in code or bound via QuartzOptions), causing all instances to use default "NON_CLUSTERED" ID which breaks clustering. 2) ClearExpiredDataJob trigger has no stable identity, creating duplicate triggers on each restart with persistent store. Also proposed optional improvement to use MySqlConnector instead of MySql.Data to avoid using two seperate MySQL drivers.
+
+---
+
+## Prompt 8
+
+**Prompt:**
+```
+Yes, apply fixes 1 and 2. Set SchedulerName and SchedulerId in code, add stable 
+identity to cleanup trigger, and remove the dead Quartz json section. Don't fix 3 
+(the MySqlConnector)
+```
+
+**Reasoning:**
+Fix critical bugs found in review that would break clustering in prod.
+
+**Outcome:**
+Applied both fixes. Set SchedulerName and SchedulerId in code to enable unique instance IDs for clustering. Added stable TriggerKey to ClearExpiredDataJob trigger to prevent duplicates on restart. Removed dead Quartz JSON section from appsettings.json.
+
+---
+
 ## Manual Changes
 
 ### Change 1: Add DisallowConcurrentExecution Attribute
 **Location:** Todo.Services/Jobs/ClearExpiredDataJob.cs
 
 **What Changed:**
-Added [DisallowConcurrentExecution] attribute to ClearExpiredDataJob class.
+Added DisallowConcurrentExecution attribute to ClearExpiredDataJob class.
 
 **Reasoning:**
-Three other jobs had this attribute but ClearExpiredDataJob was missing it. Added for consistency and to prevent the job from running multiple times on the same instance.
+Three other jobs had this attribute but ClearExpiredDataJob was missing it. Added to prevent the job from running multiple times on the same instance.
+
+---
+
+### Change 2: Add Job Description to ClearExpiredDataJob
+**Location:** Todo.API/Extensions/QuartzServiceExtensions.cs
+
+**What Changed:**
+Added WithDescription() to ClearExpiredDataJob configuration.
+
+**Reasoning:**
+All other jobs had descriptions but ClearExpiredDataJob was missing one. Added for consistency when looking at job details.

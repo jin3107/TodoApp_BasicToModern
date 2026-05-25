@@ -10,6 +10,9 @@ namespace Todo.API.Extensions
         {
             services.AddQuartz(q =>
             {
+                q.SchedulerName = "TodoScheduler";
+                q.SchedulerId = "AUTO";
+
                 q.UseSimpleTypeLoader();
 
                 // Configure persistent store with MySQL for clustering
@@ -67,9 +70,13 @@ namespace Todo.API.Extensions
                     .WithDescription("Trigger for morning task reminder"));
 
                 var clearJobKey = new JobKey("ClearExpiredDataJob", "MaintenanceJobs");
-                q.AddJob<ClearExpiredDataJob>(opts => opts.WithIdentity(clearJobKey));
+                var clearTrigger = new TriggerKey("ClearExpiredDataTrigger", "MaintenanceJobs");
+                q.AddJob<ClearExpiredDataJob>(opts => opts
+                    .WithIdentity(clearJobKey)
+                    .WithDescription("Clear expired blacklisted tokens and OTPs weekly"));
                 q.AddTrigger(opts => opts
                     .ForJob(clearJobKey)
+                    .WithIdentity(clearTrigger)
                     .WithCronSchedule("0 0 3 ? * MON") // 3:00 AM thứ 2
                     .WithDescription("Clear expired blacklisted tokens and OTPs weekly"));
 
