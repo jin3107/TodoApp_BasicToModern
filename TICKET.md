@@ -1,7 +1,7 @@
 # [TICKET-001] Enable Horizontal Scaling for Quartz.NET Background Jobs
 
 **Priority:** High  
-**Status:** In Reviewß
+**Status:** In Review
 
 ## Summary
 Enable Quartz.NET job clustering to support horizontal scaling across multiple instances without job duplication.
