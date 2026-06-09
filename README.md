@@ -377,7 +377,7 @@ If Redis is only bound to `127.0.0.1` for local development, running without a p
 
 ## What's Changed
 
-### Unreleased
+### v1.0.0
 
 - Added authentication API wrappers on the React client.
 - Added Login, Register, and Change Password pages.
