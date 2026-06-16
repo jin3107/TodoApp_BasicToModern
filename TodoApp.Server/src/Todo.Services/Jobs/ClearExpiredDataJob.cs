@@ -9,6 +9,7 @@ using Todo.Services.Interfaces.Background;
 
 namespace Todo.Services.Jobs
 {
+    [DisallowConcurrentExecution]
     public class ClearExpiredDataJob : IJob
     {
         private readonly IClearExpiredDataHandler _handler;
