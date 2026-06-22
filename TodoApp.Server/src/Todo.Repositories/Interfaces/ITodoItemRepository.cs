@@ -1,9 +1,6 @@
 ﻿using MayNghien.Infrastructures.Repository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Todo.Models.Data;
+using Todo.Domain.Entities;
 using Todo.Models.Entities;
 
 namespace Todo.Repositories.Interfaces

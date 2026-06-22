@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MayNghien.Infrastructures\MayNghien.Infrastructures\MayNghien.Infrastructures.csproj" />
     <ProjectReference Include="..\Todo.Commons\Todo.Commons.csproj" />
+    <ProjectReference Include="..\Todo.Domain\Todo.Domain.csproj" />
   </ItemGroup>
 
 </Project>

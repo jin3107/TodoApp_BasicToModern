@@ -11,6 +11,7 @@
     <ProjectReference Include="..\Todo.Commons\Todo.Commons.csproj" />
     <ProjectReference Include="..\Todo.DTOs\Todo.DTOs.csproj" />
     <ProjectReference Include="..\Todo.Models\Todo.Models.csproj" />
+    <ProjectReference Include="..\Todo.Domain\Todo.Domain.csproj" />
   </ItemGroup>
 
 </Project>

@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Todo.Domain.Entities;
 using Todo.Models.Entities;
-using TodoItem = Todo.Models.Entities.TodoItem;
 
 namespace Todo.Models.Data
 {

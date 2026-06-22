@@ -1,4 +1,5 @@
-﻿using MayNghien.Infrastructures.Models;
+﻿using Todo.Domain;
+using MayNghien.Infrastructures.Models;
 using MayNghien.Infrastructures.Models.Requests;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -6,7 +7,7 @@ using System.Linq.Expressions;
 
 namespace MayNghien.Infrastructures.Repository
 {
-    public interface IGenericRepository<T, C, TUser> where T : BaseEntity 
+    public interface IGenericRepository<T, C, TUser> where T : BaseEntity
         where C : BaseContext<TUser> where TUser:IdentityUser
     {
         void ClearTracker();

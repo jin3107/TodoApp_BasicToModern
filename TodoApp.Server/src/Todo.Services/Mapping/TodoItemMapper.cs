@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Todo.DTOs.Requests;
 using Todo.DTOs.Responses;
-using Todo.Models.Entities;
+using Todo.Domain.Entities;
 
 namespace Todo.Services.Mapping
 {

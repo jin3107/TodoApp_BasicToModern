@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Todo.DTOs.Responses;
+using Todo.Domain.Entities;
 using Todo.Models.Entities;
 using Todo.Repositories.Interfaces;
 using Todo.Services.Interfaces.TodoLists;

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Todo.Commons.Enums;
+using Todo.Domain.Enums;
 
 namespace Todo.DTOs.Auth.Requests
 {

@@ -446,3 +446,10 @@ Thumbs.db
 AGENTS.md
 AGENTS.override.md
 .agents/
+
+# Claude agent instructions (personal)
+CLAUDE.md
+.claude/
+.gitnexus/
+
+migration-plan.md
