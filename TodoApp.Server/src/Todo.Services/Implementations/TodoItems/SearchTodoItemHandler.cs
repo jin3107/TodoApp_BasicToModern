@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Todo.DTOs.Responses;
+using Todo.Domain.Entities;
 using Todo.Models.Entities;
 using Todo.Repositories.Interfaces;
 using Todo.Services.Interfaces.TodoItems;

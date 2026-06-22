@@ -1,11 +1,4 @@
-﻿using MayNghien.Infrastructures.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Todo.Models.Entities
+﻿namespace Todo.Domain.Entities
 {
     public class TodoItemProgressReport : BaseEntity
     {
@@ -18,6 +11,6 @@ namespace Todo.Models.Entities
         public decimal CompletionRate { get; set; }
         public decimal AverageCompletionTimeHours { get; set; }
         public int TasksCompletedToday { get; set; }
-        public string Notes { get; set; }
+        public string Notes { get; set; } = string.Empty;
     }
 }
