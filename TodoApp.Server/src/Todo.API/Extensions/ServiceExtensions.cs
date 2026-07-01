@@ -18,7 +18,7 @@ namespace Todo.API.Extensions
 
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            return Todo.Services.DependencyInjection.AddApplicationServices(services);
+            return Todo.Application.DependencyInjection.AddApplicationServices(services);
         }
 
         #endregion

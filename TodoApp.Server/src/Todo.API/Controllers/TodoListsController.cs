@@ -1,11 +1,9 @@
 using MayNghien.Infrastructures.Models.Requests;
 using MayNghien.Infrastructures.Models.Responses;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Todo.DTOs.Requests;
-using Todo.Services.Interfaces;
-using Todo.Services.Interfaces.TodoLists;
+using Todo.Application.Interfaces.TodoLists;
 
 namespace Todo.API.Controllers
 {

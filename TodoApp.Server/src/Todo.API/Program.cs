@@ -3,9 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Todo.API;
 using Todo.Models.Data;
 using Todo.Models.Entities;
-using Quartz;
-using Todo.Services.Implementations;
 using Todo.API.Extensions;
+using Todo.Infrastructure;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,14 +20,11 @@ builder.Services.AddHttpContextAccessor();
 
 // Infrastructure
 builder.Services.AddDatabaseConfiguration(builder.Configuration);
-builder.Services.AddRedisCache(builder.Configuration);
 
 // Business layers
 builder.Services.AddRepositories();
-builder.Services.AddApplicationServices(); 
-
-// Jobs
-builder.Services.AddQuartzConfiguration();
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 // API concerns
 builder.Services.AddSwaggerConfiguration();
