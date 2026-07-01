@@ -1,0 +1,46 @@
+using MayNghien.Infrastructures.Models.Responses;
+using Todo.Repositories.Interfaces;
+using Todo.Application.Interfaces;
+using Todo.Application.Interfaces.TodoLists;
+
+namespace Todo.Application.Implementations.TodoLists
+{
+    public class DeleteTodoListHandler : IDeleteTodoListHandler
+    {
+        private readonly ITodoListRepository _todoListRepository;
+        private readonly IUserService _userService;
+
+        public DeleteTodoListHandler(ITodoListRepository todoListRepository, IUserService userService)
+        {
+            _todoListRepository = todoListRepository;
+            _userService = userService;
+        }
+
+        public async Task<AppResponse<string>> HandleAsync(Guid id)
+        {
+            var result = new AppResponse<string>();
+            try
+            {
+                var user = await _userService.GetCurrentUserAsync();
+                if (user == null)
+                    return result.BuildError("Unauthorized.");
+
+                var entity = await _todoListRepository.GetAsync(id);
+                if (entity == null || entity.IsDeleted == true)
+                    return result.BuildError("Todo list not found or deleted.");
+
+                if (!user.Roles.Contains("SuperAdmin") && entity.CreatedBy != user.Email)
+                    return result.BuildError("Forbidden: you do not own this resource.");
+
+                entity.IsDeleted = true;
+                await _todoListRepository.EditAsync(entity);
+
+                return result.BuildResult("Todo list deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return result.BuildError(ex.Message + " " + ex.StackTrace);
+            }
+        }
+    }
+}

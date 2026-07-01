@@ -1,5 +1,5 @@
 ﻿using Quartz;
-using Todo.Services.Jobs;
+using Todo.Infrastructure.Jobs;
 
 namespace Todo.API.Extensions
 {
