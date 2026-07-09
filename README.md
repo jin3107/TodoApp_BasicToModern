@@ -389,7 +389,7 @@ If Redis is only bound to `127.0.0.1` for local development, running without a p
 
 ## What's Changed
 
-### v2.0.0
+### v1.1.0
 
 - Migrated the backend from Repository Pattern to Clean Architecture: `Todo.Domain`, `Todo.Application`, `Todo.Infrastructure`, `Todo.API`.
 - Redesigned repository interfaces to be domain-focused (no `DbSet<T>` or EF Core types in `Todo.Application`); implementations moved to `Todo.Infrastructure/Persistence/Repositories/`.
