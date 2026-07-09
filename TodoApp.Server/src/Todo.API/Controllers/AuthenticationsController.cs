@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Todo.Commons.Helpers;
 using Todo.DTOs.Auth.Requests;
-using Todo.Services.Interfaces.Authentication;
+using Todo.Application.Interfaces.Authentication;
 
 namespace Todo.API.Controllers
 {
