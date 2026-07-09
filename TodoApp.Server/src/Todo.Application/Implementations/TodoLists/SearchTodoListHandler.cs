@@ -1,10 +1,9 @@
 using LinqKit;
 using MayNghien.Infrastructures.Models.Requests;
 using MayNghien.Infrastructures.Models.Responses;
-using Microsoft.EntityFrameworkCore;
 using Todo.DTOs.Responses;
 using Todo.Domain.Entities;
-using Todo.Repositories.Interfaces;
+using Todo.Application.Interfaces.Repositories;
 using Todo.Application.Interfaces.TodoLists;
 using Todo.Application.Mapping;
 using static MayNghien.Infrastructures.Helpers.SearchHelper;
@@ -35,23 +34,15 @@ namespace Todo.Application.Implementations.TodoLists
                 var isSuperAdmin = user.Roles.Contains("SuperAdmin");
 
                 var query = BuildFilterExpression(request.Filters!, isSuperAdmin ? null : user.Email);
-                var numOfRecords = await _todoListRepository.CountRecordsAsync(query);
-                var todoLists = _todoListRepository.FindByPredicate(query).AsQueryable();
-
-                if (request.SortBy != null)
-                    todoLists = _todoListRepository.AddSort(todoLists, request.SortBy);
-                else
-                    todoLists = todoLists.OrderBy(x => x.Name);
 
                 int pageIndex = request.PageIndex ?? 1;
                 int pageSize = request.PageSize ?? 10;
-                int startIndex = (pageIndex - 1) * pageSize;
-                var list = await todoLists.Skip(startIndex).Take(pageSize).ToListAsync();
-                var dtoList = list.Select(TodoListMapper.ToResponse).ToList();
+                var page = await _todoListRepository.SearchAsync(query, request.SortBy, pageIndex, pageSize);
+                var dtoList = page.Items.Select(TodoListMapper.ToResponse).ToList();
                 var searchResponse = new SearchResponse<TodoListResponse>
                 {
-                    TotalPages = CalculateNumOfPages(numOfRecords, pageSize),
-                    TotalRows = numOfRecords,
+                    TotalPages = CalculateNumOfPages(page.TotalCount, pageSize),
+                    TotalRows = page.TotalCount,
                     CurrentPage = pageIndex,
                     Data = dtoList,
                     RowsPerPage = pageSize,

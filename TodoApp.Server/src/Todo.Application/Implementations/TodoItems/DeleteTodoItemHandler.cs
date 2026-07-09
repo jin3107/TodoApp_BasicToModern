@@ -1,6 +1,6 @@
 using MayNghien.Infrastructures.Models.Responses;
-using Todo.Repositories.Interfaces;
 using Todo.Application.Interfaces;
+using Todo.Application.Interfaces.Repositories;
 using Todo.Application.Interfaces.TodoItems;
 
 namespace Todo.Application.Implementations.TodoItems
@@ -25,7 +25,7 @@ namespace Todo.Application.Implementations.TodoItems
                 if (user == null)
                     return result.BuildError("Unauthorized.");
 
-                var task = await _todoItemRepository.GetAsync(id);
+                var task = await _todoItemRepository.GetByIdAsync(id);
                 if (task == null || task.IsDeleted == true)
                     return result.BuildError("Item not found or deleted.");
 
@@ -33,7 +33,7 @@ namespace Todo.Application.Implementations.TodoItems
                     return result.BuildError("Forbidden: you do not own this resource.");
 
                 task.IsDeleted = true;
-                await _todoItemRepository.EditAsync(task);
+                await _todoItemRepository.UpdateAsync(task);
 
                 return result.BuildResult("Item deleted successfully.");
             }

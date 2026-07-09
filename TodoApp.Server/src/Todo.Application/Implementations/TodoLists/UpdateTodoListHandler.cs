@@ -1,8 +1,8 @@
 using MayNghien.Infrastructures.Models.Responses;
 using Todo.DTOs.Requests;
 using Todo.DTOs.Responses;
-using Todo.Repositories.Interfaces;
 using Todo.Application.Interfaces;
+using Todo.Application.Interfaces.Repositories;
 using Todo.Application.Interfaces.TodoLists;
 using Todo.Application.Mapping;
 
@@ -28,7 +28,7 @@ namespace Todo.Application.Implementations.TodoLists
                 if (user == null)
                     return result.BuildError("Unauthorized.");
 
-                var entity = await _todoListRepository.GetAsync(request.Id);
+                var entity = await _todoListRepository.GetByIdAsync(request.Id);
                 if (entity == null || entity.IsDeleted == true)
                     return result.BuildError("Todo list not found or deleted.");
 
@@ -38,7 +38,7 @@ namespace Todo.Application.Implementations.TodoLists
                 entity.Name = request.Name;
                 entity.Description = request.Description;
                 entity.SetModifiedInfo(user.Email);
-                await _todoListRepository.EditAsync(entity);
+                await _todoListRepository.UpdateAsync(entity);
 
                 var response = TodoListMapper.ToResponse(entity);
                 return result.BuildResult(response, "Todo list updated successfully.");

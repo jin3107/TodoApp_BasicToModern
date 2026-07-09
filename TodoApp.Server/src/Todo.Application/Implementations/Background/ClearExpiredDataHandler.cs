@@ -1,7 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Todo.Repositories.Interfaces;
 using Todo.Application.Interfaces.Background;
+using Todo.Application.Interfaces.Repositories;
 
 namespace Todo.Application.Implementations.Background
 {
@@ -23,17 +22,8 @@ namespace Todo.Application.Implementations.Background
         {
             _logger.LogInformation("Clearing expired tokens and OTPs at {Time}", DateTime.UtcNow);
             await _blacklistRepository.ClearExpiredAsync();
-            await ClearExpiredOtpsAsync();
+            await _otpRepository.ClearExpiredAsync();
             _logger.LogInformation("Cleanup completed");
-        }
-
-        private async Task ClearExpiredOtpsAsync()
-        {
-            var expired = await _otpRepository.AsQueryable()
-                .Where(o => o.ExpiresAt <= DateTime.UtcNow || o.IsUsed)
-                .ToListAsync();
-            foreach (var otp in expired)
-                await _otpRepository.DeleteAsync(otp);
         }
     }
 }

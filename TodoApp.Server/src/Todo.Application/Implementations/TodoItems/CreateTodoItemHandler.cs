@@ -2,8 +2,8 @@ using MayNghien.Infrastructures.Models.Responses;
 using Todo.Domain.Entities;
 using Todo.DTOs.Requests;
 using Todo.DTOs.Responses;
-using Todo.Repositories.Interfaces;
 using Todo.Application.Interfaces;
+using Todo.Application.Interfaces.Repositories;
 using Todo.Application.Interfaces.TodoItems;
 using Todo.Application.Mapping;
 

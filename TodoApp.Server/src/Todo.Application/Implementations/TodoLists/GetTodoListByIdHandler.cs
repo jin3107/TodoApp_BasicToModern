@@ -1,8 +1,7 @@
 using MayNghien.Infrastructures.Models.Responses;
-using Microsoft.EntityFrameworkCore;
 using Todo.DTOs.Responses;
-using Todo.Repositories.Interfaces;
 using Todo.Application.Interfaces;
+using Todo.Application.Interfaces.Repositories;
 using Todo.Application.Interfaces.TodoLists;
 using Todo.Application.Mapping;
 
@@ -28,7 +27,7 @@ namespace Todo.Application.Implementations.TodoLists
                 if (user == null)
                     return result.BuildError("Unauthorized.");
 
-                var entity = await _todoListRepository.FindByAsync(p => p.Id == id).FirstOrDefaultAsync();
+                var entity = await _todoListRepository.GetByIdAsync(id);
                 if (entity == null || entity.IsDeleted == true)
                     return result.BuildError("Todo list not found or deleted.");
 

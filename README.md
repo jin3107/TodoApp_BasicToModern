@@ -80,15 +80,17 @@ A full-stack Todo application that starts with familiar CRUD workflows and grows
 
 ## Architecture
 
-The backend follows a layered structure:
+The backend follows Clean Architecture:
 
-- `Todo.API`: controllers, middleware configuration, CORS, auth, Swagger, Redis, Quartz.
-- `Todo.Services`: business handlers for auth, todos, reports, cache, and background jobs.
-- `Todo.Repositories`: repository abstractions and implementations.
-- `Todo.Models`: EF Core entities, configurations, DbContext, and migrations.
+- `Todo.Domain`: entities, enums, value objects. No dependencies on any other project.
+- `Todo.Application`: use-case handlers (auth, todos, reports, background jobs) and repository interfaces (`Interfaces/Repositories/`). Depends only on `Todo.Domain` and `Todo.DTOs`.
+- `Todo.Infrastructure`: EF Core persistence (`Persistence/`: DbContext, entity configurations, migrations, repository implementations), Identity, Redis cache, Quartz jobs, and email. Implements the interfaces defined in `Todo.Application`.
+- `Todo.API`: controllers, composition root (`Program.cs`), middleware configuration, CORS, auth, Swagger.
 - `Todo.DTOs`: request and response contracts.
 - `Todo.Commons`: shared enums and helpers.
-- `MayNghien.Infrastructures`: shared infrastructure helpers.
+- `MayNghien.Infrastructures`: shared infrastructure helpers (base entity/context, response wrappers, search helpers).
+
+Request flow: Controllers (`Todo.API`) → Handlers (`Todo.Application`) → Repositories (`Todo.Infrastructure`). Repository interfaces stay domain-focused — no `DbSet<T>` or EF Core types leak into `Todo.Application`.
 
 The frontend is feature-oriented:
 
@@ -122,11 +124,11 @@ TodoApp_BasicToModern/
 │   └── src/
 │       ├── MayNghien.Infrastructures/
 │       ├── Todo.API/
+│       ├── Todo.Application/
 │       ├── Todo.Commons/
+│       ├── Todo.Domain/
 │       ├── Todo.DTOs/
-│       ├── Todo.Models/
-│       ├── Todo.Repositories/
-│       ├── Todo.Services/
+│       ├── Todo.Infrastructure/
 │       └── src.sln
 ├── nginx/
 ├── .env.example
@@ -176,7 +178,7 @@ Run migrations:
 
 ```powershell
 cd ..
-dotnet ef database update --project Todo.Models --startup-project Todo.API
+dotnet ef database update --project Todo.Infrastructure --startup-project Todo.API
 ```
 
 Start the API:
@@ -236,6 +238,8 @@ Recommended local secret storage:
 - Backend development: `dotnet user-secrets`
 - Docker deployment: `.env`
 - Production server: environment variables or a secret manager
+
+> `.env` is only read by `docker-compose`. Running the API directly with `dotnet run` never loads it — use `dotnet user-secrets` for local runs, including `EmailSettings:*` (see below).
 
 ### Gmail SMTP
 
@@ -365,6 +369,14 @@ Recommended checks:
 
 Gmail rejected SMTP authentication. Use a Gmail App Password and restart the backend after updating user-secrets.
 
+### Emails silently use placeholder addresses
+
+`appsettings.json` ships with placeholder `EmailSettings` values so the repo has no real secrets in it. If you run the API with `dotnet run` (not Docker) and never set `EmailSettings:*` via `dotnet user-secrets`, the app falls back to those placeholders and SMTP auth fails. Setting values in `.env` has no effect here — see the note in [Configuration](#configuration).
+
+### `Unknown database` on first run
+
+The configured database does not exist yet. Run `dotnet ef database update --project Todo.Infrastructure --startup-project Todo.API` first — EF Core creates the database and applies all migrations.
+
 ### Docker Redis password mismatch
 
 If Redis is started with `--requirepass`, the backend connection string must include:
@@ -376,6 +388,14 @@ password=your_redis_password
 If Redis is only bound to `127.0.0.1` for local development, running without a password is acceptable for this project.
 
 ## What's Changed
+
+### v2.0.0
+
+- Migrated the backend from Repository Pattern to Clean Architecture: `Todo.Domain`, `Todo.Application`, `Todo.Infrastructure`, `Todo.API`.
+- Redesigned repository interfaces to be domain-focused (no `DbSet<T>` or EF Core types in `Todo.Application`); implementations moved to `Todo.Infrastructure/Persistence/Repositories/`.
+- Merged `Todo.Models` (DbContext, Identity entities, EF configurations, migrations) into `Todo.Infrastructure/Persistence/`, preserving existing migration history.
+- Removed `Todo.Repositories` and `Todo.Services` projects; removed unused `IGenericRepository`/`GenericRepository` dead code from `MayNghien.Infrastructures`.
+- Updated `dotnet ef` commands, `Todo.API/Dockerfile`, and project docs to match the new project layout.
 
 ### v1.0.0
 

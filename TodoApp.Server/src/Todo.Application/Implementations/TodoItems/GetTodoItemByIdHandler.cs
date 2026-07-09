@@ -1,8 +1,7 @@
 using MayNghien.Infrastructures.Models.Responses;
-using Microsoft.EntityFrameworkCore;
 using Todo.DTOs.Responses;
-using Todo.Repositories.Interfaces;
 using Todo.Application.Interfaces;
+using Todo.Application.Interfaces.Repositories;
 using Todo.Application.Interfaces.TodoItems;
 using Todo.Application.Mapping;
 
@@ -28,7 +27,7 @@ namespace Todo.Application.Implementations.TodoItems
                 if (user == null)
                     return result.BuildError("Unauthorized");
 
-                var task = await _todoItemRepository.FindByAsync(p => p.Id == id).FirstOrDefaultAsync();
+                var task = await _todoItemRepository.GetByIdAsync(id);
                 if (task == null || task.IsDeleted == true)
                     return result.BuildError("Item not found or deleted.");
 

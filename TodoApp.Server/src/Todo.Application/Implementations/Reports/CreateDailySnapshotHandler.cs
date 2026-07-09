@@ -1,8 +1,8 @@
 using MayNghien.Infrastructures.Models.Responses;
 using Microsoft.Extensions.Logging;
 using Todo.DTOs.Requests;
-using Todo.Repositories.Interfaces;
 using Todo.Application.Interfaces.Cache;
+using Todo.Application.Interfaces.Repositories;
 using Todo.Application.Interfaces.Reports;
 using Todo.Application.Mapping;
 
@@ -11,14 +11,14 @@ namespace Todo.Application.Implementations.Reports
     public class CreateDailySnapshotHandler : ICreateDailySnapshotHandler
     {
         private readonly IGetProgressReportHandler _getReport;
-        private readonly ITodoItemProgressReportReporitory _reportRepository;
+        private readonly ITodoItemProgressReportRepository _reportRepository;
         private readonly ICacheService _cacheService;
         private const string REPORT_CACHE_KEY_PREFIX = "report:progress:";
         private readonly ILogger<CreateDailySnapshotHandler> _logger;
 
         public CreateDailySnapshotHandler(
             IGetProgressReportHandler getReport,
-            ITodoItemProgressReportReporitory reportRepository,
+            ITodoItemProgressReportRepository reportRepository,
             ICacheService cacheService,
             ILogger<CreateDailySnapshotHandler> logger)
         {
