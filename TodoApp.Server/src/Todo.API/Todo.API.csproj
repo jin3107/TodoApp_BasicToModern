@@ -28,8 +28,6 @@
     <ProjectReference Include="..\MayNghien.Infrastructures\MayNghien.Infrastructures\MayNghien.Infrastructures.csproj" />
     <ProjectReference Include="..\Todo.Commons\Todo.Commons.csproj" />
     <ProjectReference Include="..\Todo.DTOs\Todo.DTOs.csproj" />
-    <ProjectReference Include="..\Todo.Models\Todo.Models.csproj" />
-    <ProjectReference Include="..\Todo.Repositories\Todo.Repositories.csproj" />
     <ProjectReference Include="..\Todo.Application\Todo.Application.csproj" />
     <ProjectReference Include="..\Todo.Infrastructure\Todo.Infrastructure.csproj" />
   </ItemGroup>

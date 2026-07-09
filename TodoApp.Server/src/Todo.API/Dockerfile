@@ -13,12 +13,12 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Todo.API/Todo.API.csproj", "Todo.API/"]
-COPY ["Todo.Models/Todo.Models.csproj", "Todo.Models/"]
-COPY ["Todo.Services/Todo.Services.csproj", "Todo.Services/"]
-COPY ["Todo.Repositories/Todo.Repositories.csproj", "Todo.Repositories/"]
+COPY ["Todo.Domain/Todo.Domain.csproj", "Todo.Domain/"]
+COPY ["Todo.Application/Todo.Application.csproj", "Todo.Application/"]
+COPY ["Todo.Infrastructure/Todo.Infrastructure.csproj", "Todo.Infrastructure/"]
 COPY ["Todo.Commons/Todo.Commons.csproj", "Todo.Commons/"]
 COPY ["Todo.DTOs/Todo.DTOs.csproj", "Todo.DTOs/"]
-COPY ["MayNghien.Infrastructures/MayNghien.Infrastructures.csproj", "MayNghien.Infrastructures/"]
+COPY ["MayNghien.Infrastructures/MayNghien.Infrastructures/MayNghien.Infrastructures.csproj", "MayNghien.Infrastructures/MayNghien.Infrastructures/"]
 
 RUN dotnet restore "./Todo.API/Todo.API.csproj"
 COPY . .

@@ -13,8 +13,8 @@ using Role = Todo.Commons.Enums.Role;
 using Todo.DTOs.Auth.Requests;
 using Todo.DTOs.Auth.Responses;
 using Todo.Models.Entities;
-using Todo.Repositories.Interfaces;
 using Todo.Application.Interfaces.Authentication;
+using Todo.Application.Interfaces.Repositories;
 
 namespace Todo.Infrastructure.Implementations.Authentication
 {

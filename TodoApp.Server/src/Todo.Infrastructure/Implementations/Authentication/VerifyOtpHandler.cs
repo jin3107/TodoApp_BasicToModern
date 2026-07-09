@@ -4,8 +4,8 @@ using Microsoft.Extensions.Logging;
 using Todo.Domain.Enums;
 using Todo.DTOs.Auth.Requests;
 using Todo.Models.Entities;
-using Todo.Repositories.Interfaces;
 using Todo.Application.Interfaces.Authentication;
+using Todo.Application.Interfaces.Repositories;
 
 namespace Todo.Infrastructure.Implementations.Authentication
 {
@@ -36,20 +36,20 @@ namespace Todo.Infrastructure.Implementations.Authentication
                 if (otp.AttemptCount >= 5)
                 {
                     otp.IsUsed = true;
-                    await _otpRepository.EditAsync(otp);
+                    await _otpRepository.UpdateAsync(otp);
                     return result.BuildError("The number of attempts has been exceeded. Please request a new OTP.");
                 }
 
                 if (otp.Code != request.Code)
                 {
                     otp.AttemptCount++;
-                    await _otpRepository.EditAsync(otp);
+                    await _otpRepository.UpdateAsync(otp);
                     return result.BuildError($"OTP is incorrect. {5 - otp.AttemptCount} attempts remaining.");
                 }
 
                 otp.IsUsed = true;
                 otp.ModifiedOn = DateTime.UtcNow;
-                await _otpRepository.EditAsync(otp);
+                await _otpRepository.UpdateAsync(otp);
 
                 if (request.Purpose == OtpPurpose.VerifyEmail)
                 {

@@ -22,7 +22,6 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddDatabaseConfiguration(builder.Configuration);
 
 // Business layers
-builder.Services.AddRepositories();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 

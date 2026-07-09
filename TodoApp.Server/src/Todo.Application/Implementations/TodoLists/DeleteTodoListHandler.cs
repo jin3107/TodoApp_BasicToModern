@@ -1,6 +1,6 @@
 using MayNghien.Infrastructures.Models.Responses;
-using Todo.Repositories.Interfaces;
 using Todo.Application.Interfaces;
+using Todo.Application.Interfaces.Repositories;
 using Todo.Application.Interfaces.TodoLists;
 
 namespace Todo.Application.Implementations.TodoLists
@@ -25,7 +25,7 @@ namespace Todo.Application.Implementations.TodoLists
                 if (user == null)
                     return result.BuildError("Unauthorized.");
 
-                var entity = await _todoListRepository.GetAsync(id);
+                var entity = await _todoListRepository.GetByIdAsync(id);
                 if (entity == null || entity.IsDeleted == true)
                     return result.BuildError("Todo list not found or deleted.");
 
@@ -33,7 +33,7 @@ namespace Todo.Application.Implementations.TodoLists
                     return result.BuildError("Forbidden: you do not own this resource.");
 
                 entity.IsDeleted = true;
-                await _todoListRepository.EditAsync(entity);
+                await _todoListRepository.UpdateAsync(entity);
 
                 return result.BuildResult("Todo list deleted successfully.");
             }

@@ -11,11 +11,6 @@ namespace Todo.API.Extensions
     public static class ServiceExtensions
     {
         #region Application Services
-        public static IServiceCollection AddRepositories(this IServiceCollection services)
-        {
-            return Todo.Repositories.DependencyInjection.AddRepositories(services);
-        }
-
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             return Todo.Application.DependencyInjection.AddApplicationServices(services);

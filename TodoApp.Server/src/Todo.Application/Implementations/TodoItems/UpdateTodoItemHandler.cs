@@ -1,8 +1,8 @@
 using MayNghien.Infrastructures.Models.Responses;
 using Todo.DTOs.Requests;
 using Todo.DTOs.Responses;
-using Todo.Repositories.Interfaces;
 using Todo.Application.Interfaces;
+using Todo.Application.Interfaces.Repositories;
 using Todo.Application.Interfaces.TodoItems;
 using Todo.Application.Mapping;
 
@@ -28,7 +28,7 @@ namespace Todo.Application.Implementations.TodoItems
                 if (user == null)
                     return result.BuildError("Unauthorized.");
 
-                var task = await _todoItemRepository.GetAsync(request.Id);
+                var task = await _todoItemRepository.GetByIdAsync(request.Id);
                 if (task == null || task.IsDeleted == true)
                     return result.BuildError("Item not found or deleted.");
 
@@ -42,7 +42,7 @@ namespace Todo.Application.Implementations.TodoItems
                 task.Priority = request.Priority;
                 task.CompletedOn = request.IsCompleted ? request.CompletedOn ?? DateTime.UtcNow : null;
                 task.SetModifiedInfo(user.Email);
-                await _todoItemRepository.EditAsync(task);
+                await _todoItemRepository.UpdateAsync(task);
 
                 var response = TodoItemMapper.ToResponse(task);
                 return result.BuildResult(response, "Item updated successfully.");

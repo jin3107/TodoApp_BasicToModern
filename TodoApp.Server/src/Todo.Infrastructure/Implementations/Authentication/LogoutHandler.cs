@@ -3,8 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Todo.Domain.Entities;
 using Todo.Models.Entities;
-using Todo.Repositories.Interfaces;
 using Todo.Application.Interfaces.Authentication;
+using Todo.Application.Interfaces.Repositories;
 
 namespace Todo.Infrastructure.Implementations.Authentication
 {
@@ -33,7 +33,7 @@ namespace Todo.Infrastructure.Implementations.Authentication
                 if (tokenEntity != null && !tokenEntity.IsRevoked)
                 {
                     tokenEntity.IsRevoked = true;
-                    await _refreshTokenRepository.EditAsync(tokenEntity);
+                    await _refreshTokenRepository.UpdateAsync(tokenEntity);
                 }
             }
 

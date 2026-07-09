@@ -1,13 +1,12 @@
 using MayNghien.Infrastructures.Models.Responses;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Todo.Domain.Enums;
 using Todo.DTOs.Auth.Requests;
 using Todo.DTOs.Auth.Responses;
 using Todo.Models.Entities;
-using Todo.Repositories.Interfaces;
 using Todo.Application.Interfaces.Authentication;
+using Todo.Application.Interfaces.Repositories;
 
 namespace Todo.Infrastructure.Implementations.Authentication
 {
@@ -38,15 +37,7 @@ namespace Todo.Infrastructure.Implementations.Authentication
                 if (user == null)
                     return result.BuildError("User not found.");
 
-                var verifiedOtp = await _otpRepository.AsQueryable()
-                    .Where(o => !o.IsDeleted
-                                 && o.Email == email
-                                 && o.Purpose == OtpPurpose.ChangePassword
-                                 && o.IsUsed
-                                 && o.ModifiedOn != null
-                                 && o.ModifiedOn >= DateTime.UtcNow.AddMinutes(-10))
-                    .OrderByDescending(o => o.ModifiedOn)
-                    .FirstOrDefaultAsync();
+                var verifiedOtp = await _otpRepository.FindRecentlyVerifiedAsync(email, OtpPurpose.ChangePassword);
 
                 if (verifiedOtp == null)
                     return result.BuildError("The OTP has not been verified, or the verification session has expired.");
@@ -60,7 +51,7 @@ namespace Todo.Infrastructure.Implementations.Authentication
 
                 verifiedOtp.IsDeleted = true;
                 verifiedOtp.ModifiedOn = DateTime.UtcNow;
-                await _otpRepository.EditAsync(verifiedOtp);
+                await _otpRepository.UpdateAsync(verifiedOtp);
 
                 return result.BuildResult(new ChangePasswordResponse
                 {

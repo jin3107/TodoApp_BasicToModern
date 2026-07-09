@@ -6,11 +6,13 @@ using Todo.Application.Interfaces;
 using Todo.Application.Interfaces.Authentication;
 using Todo.Application.Interfaces.Background;
 using Todo.Application.Interfaces.Cache;
+using Todo.Application.Interfaces.Repositories;
 using Todo.Infrastructure.Implementations;
 using Todo.Infrastructure.Implementations.Authentication;
 using Todo.Infrastructure.Implementations.Background;
 using Todo.Infrastructure.Implementations.Cache;
 using Todo.Infrastructure.Jobs;
+using Todo.Infrastructure.Persistence.Repositories;
 
 namespace Todo.Infrastructure
 {
@@ -48,6 +50,14 @@ namespace Todo.Infrastructure
                 services.AddDistributedMemoryCache();
                 services.AddScoped<ICacheService, MemoryCacheService>();
             }
+
+            // Repositories
+            services.AddScoped<ITodoItemRepository, TodoItemRepository>();
+            services.AddScoped<ITodoListRepository, TodoListRepository>();
+            services.AddScoped<ITodoItemProgressReportRepository, TodoItemProgressReportRepository>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddScoped<IBlacklistedTokenRepository, BlacklistedTokenRepository>();
+            services.AddScoped<IOtpCodeRepository, OtpCodeRepository>();
 
             // Email
             services.AddScoped<IEmailService, EmailService>();

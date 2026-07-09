@@ -10,9 +10,9 @@ using System.Text;
 using Todo.DTOs.Auth.Responses;
 using Todo.Domain.Entities;
 using Todo.Models.Entities;
-using Todo.Repositories.Interfaces;
 using Todo.Application.Interfaces.Authentication;
 using Todo.Application.Interfaces.Background;
+using Todo.Application.Interfaces.Repositories;
 
 namespace Todo.Infrastructure.Implementations.Authentication
 {
@@ -65,7 +65,7 @@ namespace Todo.Infrastructure.Implementations.Authentication
                 }
 
                 tokenEntity.IsRevoked = true;
-                await _refreshTokenRepository.EditAsync(tokenEntity);
+                await _refreshTokenRepository.UpdateAsync(tokenEntity);
 
                 user.LastLoginIp = ipAddress;
                 await _userManager.UpdateAsync(user);
