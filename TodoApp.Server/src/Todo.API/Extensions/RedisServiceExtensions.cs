@@ -1,6 +1,6 @@
 ﻿using StackExchange.Redis;
-using Todo.Services.Implementations;
-using Todo.Services.Interfaces;
+using Todo.Application.Interfaces.Cache;
+using Todo.Infrastructure.Implementations.Cache;
 
 namespace Todo.API.Extensions
 {

@@ -15,8 +15,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
-    <PackageReference Include="Quartz" Version="3.18.0" />
-    <PackageReference Include="Quartz.Extensions.Hosting" Version="3.18.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
@@ -30,9 +28,8 @@
     <ProjectReference Include="..\MayNghien.Infrastructures\MayNghien.Infrastructures\MayNghien.Infrastructures.csproj" />
     <ProjectReference Include="..\Todo.Commons\Todo.Commons.csproj" />
     <ProjectReference Include="..\Todo.DTOs\Todo.DTOs.csproj" />
-    <ProjectReference Include="..\Todo.Models\Todo.Models.csproj" />
-    <ProjectReference Include="..\Todo.Repositories\Todo.Repositories.csproj" />
-    <ProjectReference Include="..\Todo.Services\Todo.Services.csproj" />
+    <ProjectReference Include="..\Todo.Application\Todo.Application.csproj" />
+    <ProjectReference Include="..\Todo.Infrastructure\Todo.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
