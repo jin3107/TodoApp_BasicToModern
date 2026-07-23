@@ -25,6 +25,8 @@ services:
       EmailSettings__FromEmail: ${SMTP_USERNAME}
       EmailSettings__FromName: TodoApp
       EmailSettings__RecipientEmail: ${RECIPIENT_EMAIL}
+      Bootstrap__AdminEmail: ${BOOTSTRAP_ADMIN_EMAIL}
+      Bootstrap__AdminPassword: ${BOOTSTRAP_ADMIN_PASSWORD}
     restart: unless-stopped
     depends_on:
       - mysql
