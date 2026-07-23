@@ -20,8 +20,6 @@ namespace Todo.Infrastructure.Implementations.Authentication
 {
     public class LoginHandler : ILoginHandler
     {
-        private const string BootstrapAdminEmail = "tanchuonghuynh3@gmail.com";
-
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
@@ -102,7 +100,9 @@ namespace Todo.Infrastructure.Implementations.Authentication
                 Role = Role.SuperAdmin,
                 LastLoginIp = string.Empty
             };
-            var createUserResult = await _userManager.CreateAsync(admin, "Admin@123");
+            var bootstrapAdminPassword = _configuration["Bootstrap:AdminPassword"]
+                ?? throw new InvalidOperationException("Bootstrap:AdminPassword is not configured.");
+            var createUserResult = await _userManager.CreateAsync(admin, bootstrapAdminPassword);
             if (!createUserResult.Succeeded)
                 throw new InvalidOperationException(string.Join(", ", createUserResult.Errors.Select(e => e.Description)));
 
@@ -113,8 +113,12 @@ namespace Todo.Infrastructure.Implementations.Authentication
             return admin;
         }
 
-        private static bool IsBootstrapAdmin(string userName)
-            => string.Equals(userName, BootstrapAdminEmail, StringComparison.OrdinalIgnoreCase);
+        private bool IsBootstrapAdmin(string userName)
+        {
+            var bootstrapAdminEmail = _configuration["Bootstrap:AdminEmail"];
+            return !string.IsNullOrEmpty(bootstrapAdminEmail)
+                && string.Equals(userName, bootstrapAdminEmail, StringComparison.OrdinalIgnoreCase);
+        }
 
         private async Task<IdentityResult> EnsureRoleAssignedAsync(ApplicationUser user, string roleName, Role appRole)
         {
