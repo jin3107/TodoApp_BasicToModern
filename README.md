@@ -165,6 +165,8 @@ dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost;
 dotnet user-secrets set "Jwt:Key" "replace-with-a-long-random-secret"
 dotnet user-secrets set "Jwt:Issuer" "https://localhost:7196"
 dotnet user-secrets set "Jwt:Audience" "https://localhost:7196"
+dotnet user-secrets set "Bootstrap:AdminEmail" "your-admin-email@example.com"
+dotnet user-secrets set "Bootstrap:AdminPassword" "your-secure-admin-password"
 ```
 
 Optional Redis cache for development:
@@ -240,6 +242,10 @@ Recommended local secret storage:
 - Production server: environment variables or a secret manager
 
 > `.env` is only read by `docker-compose`. Running the API directly with `dotnet run` never loads it — use `dotnet user-secrets` for local runs, including `EmailSettings:*` (see below).
+
+### Bootstrap Admin
+
+On first login with the email set in `Bootstrap:AdminEmail`, the app auto-creates a `SuperAdmin` account using `Bootstrap:AdminPassword`. Neither value ships in `appsettings.json` or Git — set both via `dotnet user-secrets` locally or `BOOTSTRAP_ADMIN_EMAIL`/`BOOTSTRAP_ADMIN_PASSWORD` in `.env` for Docker. If `Bootstrap:AdminEmail` is unset, bootstrap admin creation is disabled entirely.
 
 ### Gmail SMTP
 
@@ -389,6 +395,10 @@ If Redis is only bound to `127.0.0.1` for local development, running without a p
 
 ## What's Changed
 
+### Unreleased
+
+- Removed hardcoded bootstrap admin email/password from `LoginHandler`; now configured via `Bootstrap:AdminEmail`/`Bootstrap:AdminPassword` (user secrets, `.env`/Docker, or a secret manager in production).
+
 ### v1.1.0
 
 - Migrated the backend from Repository Pattern to Clean Architecture: `Todo.Domain`, `Todo.Application`, `Todo.Infrastructure`, `Todo.API`.
@@ -428,7 +438,7 @@ If Redis is only bound to `127.0.0.1` for local development, running without a p
 
 ## Security Notes
 
-- Do not commit `.env`, `docker-compose.yml`, `appsettings.Development.json`, SMTP credentials, JWT secrets, or database passwords.
+- Do not commit `.env`, `docker-compose.yml`, `appsettings.Development.json`, SMTP credentials, JWT secrets, database passwords, or bootstrap admin credentials.
 - Rotate any credential that was pasted into chat, terminal logs, or committed history.
 - Use Gmail App Passwords for SMTP.
 - Keep admin-only endpoints behind role checks and network controls.
