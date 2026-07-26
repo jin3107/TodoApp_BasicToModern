@@ -49,19 +49,25 @@ namespace Todo.Infrastructure.Implementations.Authentication
                 if (user == null && isBootstrapAdmin)
                     user = await CreateAdminAsync(request.UserName);
 
+                const string invalidCredentialsMessage = "Invalid username or password.";
+
                 if (user == null)
-                    return result.BuildError("User not found.");
+                    return result.BuildError(invalidCredentialsMessage);
+
+                if (await _userManager.IsLockedOutAsync(user))
+                    return result.BuildError("Account is temporarily locked due to too many failed login attempts. Please try again later.");
+
                 if (!await _userManager.CheckPasswordAsync(user, request.Password))
-                    return result.BuildError("Invalid credentials.");
+                {
+                    await _userManager.AccessFailedAsync(user);
+                    return result.BuildError(invalidCredentialsMessage);
+                }
+
+                if (await _userManager.GetAccessFailedCountAsync(user) > 0)
+                    await _userManager.ResetAccessFailedCountAsync(user);
+
                 if (!user.EmailConfirmed)
                     return result.BuildError("Email not verified. Please verify your email first.");
-
-                if (isBootstrapAdmin)
-                {
-                    var ensureRoleResult = await EnsureRoleAssignedAsync(user, Role.SuperAdmin.ToString(), Role.SuperAdmin);
-                    if (!ensureRoleResult.Succeeded)
-                        return result.BuildError(string.Join(", ", ensureRoleResult.Errors.Select(e => e.Description)));
-                }
 
                 var roles = await _userManager.GetRolesAsync(user);
                 if (!roles.Any())
