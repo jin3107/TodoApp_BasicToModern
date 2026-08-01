@@ -399,7 +399,7 @@ If Redis is only bound to `127.0.0.1` for local development, running without a p
 
 - Removed hardcoded bootstrap admin email/password from `LoginHandler`; now configured via `Bootstrap:AdminEmail`/`Bootstrap:AdminPassword` (user secrets, `.env`/Docker, or a secret manager in production).
 
-### v1.1.0
+### v2.0.0
 
 - Migrated the backend from Repository Pattern to Clean Architecture: `Todo.Domain`, `Todo.Application`, `Todo.Infrastructure`, `Todo.API`.
 - Redesigned repository interfaces to be domain-focused (no `DbSet<T>` or EF Core types in `Todo.Application`); implementations moved to `Todo.Infrastructure/Persistence/Repositories/`.
