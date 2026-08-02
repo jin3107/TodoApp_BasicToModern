@@ -1,108 +1,79 @@
 @use '../../scss/tokens' as t;
 @use '../../scss/mixins' as m;
 
-.register-page {
-  @include m.auth-shell(t.$color-success, t.$color-primary);
+.register-page__card {
+  width: min(560px, 92vw);
+  @include m.card-surface;
 
-  &__panel {
-    @include m.auth-panel(600px, 1240px);
-    align-items: start;
+  .ant-card-body {
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
   }
+}
 
-  &__intro {
-    @include m.auth-intro;
-    grid-column: 1 / -1;
-    max-width: 720px;
+.register-page__header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  h2 {
+    margin: 0;
   }
+}
 
-  &__eyebrow {
-    color: t.$color-primary;
+.register-page__subtitle {
+  color: t.$color-text-muted;
+  font-size: 13.5px;
+}
+
+.register-page__steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: t.$color-text-muted;
+
+  span.active {
     font-weight: 700;
-    text-transform: uppercase;
+    color: t.$color-primary-hover;
   }
 
-  &__subtitle {
-    max-width: 520px;
-    color: t.$color-text-muted;
-    font-size: 17px;
+  .register-page__steps-sep {
+    opacity: 0.4;
   }
+}
 
-  &__image {
-    width: min(100%, 560px);
-    aspect-ratio: 16 / 10;
-    margin-top: 16px;
-    border-radius: t.$radius-md;
-    object-fit: cover;
-    box-shadow: t.$shadow-card;
-  }
+.register-page__form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
-  &__card {
-    @include m.card-surface;
-
-    .ant-card-body {
-      padding: 28px;
-    }
-  }
-
-  &__steps {
-    margin-bottom: 20px;
-  }
-
-  &__form {
-    .ant-form-item {
-      margin-bottom: 16px;
-    }
-
-    .ant-form-item-label {
-      padding-bottom: 4px;
-    }
-
-    .ant-form-item-label > label {
-      height: auto;
-    }
-  }
-
-  &__form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 16px;
-  }
-
-  &__form-field--wide {
-    grid-column: 1 / -1;
-  }
-
-  &__notice {
-    display: block;
-    margin-bottom: 20px;
-    color: t.$color-text-muted;
-  }
-
-  &__footer {
-    width: 100%;
-    justify-content: center;
-    margin-top: 18px;
-  }
+.register-page__form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
 
   @include m.respond-down(t.$screen-sm) {
-    &__image {
-      max-height: 220px;
-    }
-
-    &__steps .ant-steps-item-title {
-      font-size: 13px;
-    }
-
-    &__card {
-      width: 100%;
-
-      .ant-card-body {
-        padding: 24px 16px;
-      }
-    }
-
-    &__form-grid {
-      grid-template-columns: 1fr;
-    }
+    grid-template-columns: 1fr;
   }
+}
+
+.register-page__form-field--wide {
+  grid-column: 1 / -1;
+}
+
+.register-page__notice {
+  display: block;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.register-page__footer {
+  width: 100%;
+  justify-content: center;
 }

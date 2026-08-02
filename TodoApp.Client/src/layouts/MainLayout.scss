@@ -3,16 +3,16 @@
 
 .main-layout {
   min-height: 100vh;
+  background: t.$color-page;
 
   .header {
     height: 60px;
     padding: 0 22px 0 28px;
-    background: t.$color-sidebar;
+    background: t.$color-page;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid rgba(242, 240, 238, 0.16);
-    box-shadow: t.$shadow-card;
+    border-bottom: 1px solid t.$color-border;
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -20,151 +20,128 @@
     .header-left {
       display: flex;
       align-items: center;
+      gap: 18.4px;
       min-width: 0;
       flex: 1;
 
       .brand {
         flex-shrink: 0;
-        min-width: 164px;
-        margin-right: 18px;
-        padding-right: 22px;
-        border-right: 1px solid rgba(242, 240, 238, 0.18);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+
+        svg {
+          display: block;
+          flex: none;
+        }
 
         .brand-icon {
-          width: 28px;
-          height: 28px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          border: 1px solid rgba(182, 130, 53, 0.75);
-          border-radius: t.$radius-md;
           color: t.$color-primary;
-          font-size: 16px;
-          background: rgba(182, 130, 53, 0.1);
+          font-size: 18px;
         }
 
         .brand-text {
-          color: white;
+          color: t.$color-text;
           font-family: t.$font-heading;
           font-weight: 600;
-          font-size: 18px;
+          font-size: 19px;
           letter-spacing: 0;
           white-space: nowrap;
         }
       }
 
-      .main-menu {
-        flex: 1;
-        border: none;
-        background: transparent;
-        line-height: 60px;
-        min-width: 0;
+      .main-nav {
+        display: flex;
+        align-items: center;
+        gap: 30px;
 
-        &.ant-menu-horizontal {
-          display: flex;
+        .main-nav-item {
+          display: inline-flex;
           align-items: center;
-          gap: 6px;
-        }
-
-        &.ant-menu-dark {
-          color: rgba(255, 255, 255, 0.68);
-        }
-
-        .ant-menu-item {
-          height: 38px;
-          margin: 0;
-          padding-inline: 14px;
-          line-height: 38px;
-          border-radius: t.$radius-md;
-          color: rgba(255, 255, 255, 0.68);
-          transition:
-            background-color 0.2s ease,
-            color 0.2s ease;
-
-          &::after {
-            display: none;
-          }
-
-          .anticon {
-            color: currentColor;
-            font-size: 15px;
-          }
-
-          a {
-            color: inherit;
-          }
+          line-height: 1;
+          font-size: 14px;
+          color: t.$color-text;
+          padding-bottom: 4px;
+          border-bottom: 2px solid transparent;
+          transition: color 0.2s ease, border-color 0.2s ease;
 
           &:hover {
-            color: #ffffff;
-            background: rgba(255, 255, 255, 0.08);
+            color: t.$color-primary;
+          }
+
+          &.active {
+            font-weight: 600;
+            color: t.$color-primary-hover;
+            border-bottom-color: t.$color-primary;
           }
         }
+      }
+    }
 
-        .ant-menu-item-selected {
-          color: #ffffff;
-          background: rgba(182, 130, 53, 0.22);
-          box-shadow: inset 0 0 0 1px rgba(182, 130, 53, 0.45);
-        }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .theme-toggle {
+      color: t.$color-text;
+
+      &:hover {
+        color: t.$color-primary;
+        background: color-mix(in srgb, t.$color-text 7%, transparent);
       }
     }
 
     .menu-button {
-      flex: 0 0 auto;
-      margin-right: 8px;
-      color: white;
+      color: t.$color-text;
 
       &:hover {
-        color: t.$color-primary-hover;
-        background: rgba(255, 255, 255, 0.12);
+        color: t.$color-primary;
+        background: color-mix(in srgb, t.$color-text 7%, transparent);
       }
     }
 
     .user-menu-button {
-      flex-shrink: 0;
       height: 40px;
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      padding-left: 18px;
-      padding-right: 6px;
-      border-left: 1px solid rgba(242, 240, 238, 0.18);
-      border-top: 0;
-      border-right: 0;
-      border-bottom: 0;
-      color: white;
+      gap: 8px;
+      padding: 0 6px;
+      border: 0;
+      color: t.$color-text;
       background: transparent;
       border-radius: t.$radius-md;
       cursor: pointer;
-      transition:
-        background-color 0.2s ease,
-        color 0.2s ease;
+      transition: background-color 0.2s ease, color 0.2s ease;
 
       .user-avatar {
         background-color: t.$color-primary;
-        box-shadow: 0 0 0 3px rgba(182, 130, 53, 0.18);
       }
 
       .user-name {
-        color: white;
+        color: t.$color-text;
         font-weight: 600;
       }
 
       .user-menu-caret {
-        color: rgba(255, 255, 255, 0.58);
+        color: t.$color-text-muted;
         font-size: 11px;
         transition: transform 0.2s ease;
       }
 
       &:hover,
       &:focus-visible {
-        color: #ffffff;
-        background: rgba(255, 255, 255, 0.08);
+        color: t.$color-primary;
+        background: color-mix(in srgb, t.$color-text 7%, transparent);
         outline: none;
       }
 
       &:hover .user-menu-caret,
       &:focus-visible .user-menu-caret {
-        color: t.$color-primary-hover;
+        color: t.$color-primary;
         transform: translateY(1px);
       }
     }
@@ -172,31 +149,13 @@
 
   .content {
     min-height: calc(100vh - 60px);
+    padding-top: 40px;
     background: t.$color-page;
   }
 
   @include m.respond-down(t.$screen-md) {
     .header {
       padding: 0 12px;
-
-      .header-left {
-        .brand {
-          min-width: auto;
-          margin-right: 12px;
-          padding-right: 0;
-          border-right: none;
-        }
-      }
-
-      .user-menu-button {
-        padding-left: 0;
-        padding-right: 0;
-        border-left: none;
-
-        .user-name {
-          display: none;
-        }
-      }
     }
   }
 
@@ -214,12 +173,16 @@
   .ant-drawer-body {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 8px;
     padding: 12px;
   }
 
   .ant-menu {
     border-inline-end: none;
+  }
+
+  .drawer-change-password {
+    text-align: left;
   }
 
   .drawer-logout {

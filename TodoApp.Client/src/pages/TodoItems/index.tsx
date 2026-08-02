@@ -541,7 +541,7 @@ const TodoItems = ({ todoListId, todoListName, onItemsChange }: TodoItemsProps) 
           <button
             type="button"
             className="cl-date-trigger"
-            style={overdue ? { color: "var(--cl-accent-700)", fontWeight: 600 } : undefined}
+            style={overdue ? { color: "var(--color-accent-700)", fontWeight: 600 } : undefined}
             onClick={() => setOpenDateId(record.id)}
           >
             <CalendarOutlined /> {formatDate(record.dueDate)}
@@ -701,7 +701,7 @@ const TodoItems = ({ todoListId, todoListName, onItemsChange }: TodoItemsProps) 
                   <StatusTag isCompleted={item.isCompleted} isOverdue={isOverdue(item.dueDate, item.isCompleted)} />
                   <span
                     className="text-muted cl-item-card-date"
-                    style={isOverdue(item.dueDate, item.isCompleted) ? { color: "var(--cl-accent-700)", fontWeight: 600 } : undefined}
+                    style={isOverdue(item.dueDate, item.isCompleted) ? { color: "var(--color-accent-700)", fontWeight: 600 } : undefined}
                   >
                     {formatDate(item.dueDate)}
                   </span>

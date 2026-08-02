@@ -1,39 +1,18 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { App, Button, Tag } from 'antd';
 import {
-  App,
-  Card,
-  Row,
-  Col,
-  Typography,
-  List,
-  Tag,
-  Button,
-  Space,
-  Empty,
-  Spin,
-  DatePicker,
-} from 'antd';
-import {
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  ExclamationCircleOutlined,
-  WarningOutlined,
   ArrowRightOutlined,
-  TrophyOutlined,
-  RocketOutlined,
-  LineChartOutlined,
-  CalendarOutlined,
+  WarningOutlined,
 } from '@ant-design/icons';
-import { Line } from '@ant-design/charts';
 import dayjs, { Dayjs } from 'dayjs';
 import './style.scss';
 import type { TodoItemReportResponse } from '../../interfaces/Responses';
 import { getProgressReport } from '../../apis/todoItemReportAPI';
-import { PageHeader, StatsCard, PriorityTag } from '../../components';
+import { PriorityTag, MiniLineChart } from '../../components';
+import { buildTrailingWeekTrend } from '../../commons/trend';
 
-const { Text } = Typography;
-const { RangePicker } = DatePicker;
+const RANGE_OPTIONS = [7, 30, 90] as const;
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -41,17 +20,16 @@ const Dashboard = () => {
   const didLoadInitialData = useRef(false);
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState<TodoItemReportResponse | null>(null);
-  const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([
-    dayjs().subtract(29, 'day'),
-    dayjs()
-  ]);
+  const [rangeDays, setRangeDays] = useState<number>(30);
 
-  const fetchDashboardData = useCallback(async (range: [Dayjs, Dayjs]) => {
+  const fetchDashboardData = useCallback(async (days: number) => {
     try {
       setLoading(true);
+      const endDate: Dayjs = dayjs();
+      const startDate: Dayjs = dayjs().subtract(days - 1, 'day');
       const progressResponse = await getProgressReport({
-        startDate: range[0].format('YYYY-MM-DD'),
-        endDate: range[1].format('YYYY-MM-DD'),
+        startDate: startDate.format('YYYY-MM-DD'),
+        endDate: endDate.format('YYYY-MM-DD'),
       });
       if (progressResponse.isSuccess && progressResponse.data) {
         setReportData(progressResponse.data);
@@ -69,372 +47,182 @@ const Dashboard = () => {
   useEffect(() => {
     if (didLoadInitialData.current) return;
     didLoadInitialData.current = true;
-    fetchDashboardData(dateRange);
-  }, [dateRange, fetchDashboardData]);
+    fetchDashboardData(rangeDays);
+  }, [rangeDays, fetchDashboardData]);
 
-  const handleDateChange = (dates: null | [Dayjs | null, Dayjs | null]) => {
-    if (dates && dates[0] && dates[1]) {
-      setDateRange([dates[0], dates[1]]);
-    }
-  };
-
-  const applyFilters = () => {
-    fetchDashboardData(dateRange);
+  const changeRange = (days: number) => {
+    setRangeDays(days);
+    fetchDashboardData(days);
   };
 
   if (loading && !reportData) {
     return (
       <div className="loading-state dashboard-loading">
-        <Spin size="large" />
+        <span>Đang tải...</span>
       </div>
     );
   }
 
-  const completionRate = reportData 
+  const completionRate = reportData
     ? Math.round((reportData.completedTasks / Math.max(reportData.totalTasks, 1)) * 100)
     : 0;
 
+  const trendData = buildTrailingWeekTrend(reportData?.completionTrend || []);
+
   return (
-    <div className="dashboard-container page-shell section-stack">
-      <PageHeader
-        title="Dashboard"
-        greeting
-        subtitle="Đây là tổng quan về công việc của bạn"
-        actions={
-          <Button 
-            type="primary" 
-            icon={<ArrowRightOutlined />}
-            onClick={() => navigate('/todo-lists')}
-            size="large"
-          >
-            Xem tất cả công việc
-          </Button>
-        }
-      />
+    <div className="dashboard-container page-shell">
+      <div className="dashboard-header">
+        <div>
+          <h1>Trang chủ</h1>
+          <p className="text-muted">Đây là tổng quan về công việc của bạn.</p>
+        </div>
+        <Button type="primary" icon={<ArrowRightOutlined />} onClick={() => navigate('/todo-lists')}>
+          Xem tất cả công việc
+        </Button>
+      </div>
 
-      <Card
-        className="dashboard-filter-card content-card"
-        title={
-          <Space>
-            <CalendarOutlined className="dashboard-title-icon" />
-            <span>Bộ lọc thời gian</span>
-          </Space>
-        }
-      >
-        <Row gutter={[16, 16]} align="middle">
-          <Col xs={24} md={20}>
-            <Space direction="vertical" className="full-width-field">
-              <Text strong>Chọn khoảng thời gian xem báo cáo:</Text>
-              <RangePicker
-                value={dateRange}
-                onChange={handleDateChange}
-                format="DD/MM/YYYY"
-                className="full-width-field"
-                placeholder={['Từ ngày', 'Đến ngày']}
-              />
-            </Space>
-          </Col>
-          <Col xs={24} md={4}>
-            <Button 
-              type="primary" 
-              block 
-              onClick={applyFilters}
-              loading={loading}
-              className="dashboard-filter-button"
+      <div className="dashboard-range">
+        <span className="text-muted">Khoảng thời gian:</span>
+        <div className="cls-seg">
+          {RANGE_OPTIONS.map((d) => (
+            <button
+              key={d}
+              className={`cls-seg-opt ${rangeDays === d ? 'active' : ''}`}
+              onClick={() => changeRange(d)}
             >
-              Áp dụng
-            </Button>
-          </Col>
-        </Row>
-      </Card>
+              {d} ngày
+            </button>
+          ))}
+        </div>
+      </div>
 
-      <Spin spinning={loading}>
-        <Row gutter={[16, 16]} className="card-grid">
-          <Col xs={24} sm={12} lg={6}>
-            <StatsCard
-              title="Tổng số công việc"
-              value={reportData?.totalTasks || 0}
-              prefix={<TrophyOutlined />}
-              className="stat-card stat-card-primary"
-            />
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <StatsCard
-              title="Đã hoàn thành"
-              value={reportData?.completedTasks || 0}
-              suffix={`/ ${reportData?.totalTasks || 0}`}
-              prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: '#ffffffbe', fontSize: '32px', fontWeight: 'bold' }}
-              className="stat-card stat-card-success"
-              showProgress
-              progressPercent={completionRate}
-            />
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <StatsCard
-              title="Đang thực hiện"
-              value={reportData?.inProgressTasks || 0}
-              prefix={<ClockCircleOutlined />}
-              valueStyle={{ color: '#ffffffbe', fontSize: '32px', fontWeight: 'bold' }}
-              className="stat-card stat-card-warning"
-            />
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <StatsCard
-              title="Quá hạn"
-              value={reportData?.overdueTasks || 0}
-              prefix={<WarningOutlined />}
-              valueStyle={{ color: '#ffffffbe', fontSize: '32px', fontWeight: 'bold' }}
-              className="stat-card stat-card-danger"
-            />
-          </Col>
-        </Row>
+      <div className="dashboard-stats-grid">
+        <div className="cls-card">
+          <span className="cls-card-kicker">Tổng công việc</span>
+          <span className="cls-card-title">{reportData?.totalTasks ?? 0}</span>
+        </div>
+        <div className="cls-card">
+          <span className="cls-card-kicker">Đã hoàn thành</span>
+          <span className="cls-card-title">{reportData?.completedTasks ?? 0}</span>
+          <span className="text-muted dashboard-stat-sub">{completionRate}% tỷ lệ hoàn thành</span>
+        </div>
+        <div className="cls-card">
+          <span className="cls-card-kicker">Đang thực hiện</span>
+          <span className="cls-card-title">{reportData?.inProgressTasks ?? 0}</span>
+        </div>
+        <div className="cls-card">
+          <span className="cls-card-kicker">Quá hạn</span>
+          <span className="cls-card-title dashboard-overdue-value">{reportData?.overdueTasks ?? 0}</span>
+        </div>
+      </div>
 
-        <Card
-          className="dashboard-chart-card content-card"
-          title={
-            <Space>
-              <LineChartOutlined className="dashboard-title-icon" />
-              <span>Biểu đồ hoàn thành</span>
-              <Tag color="#b68235">
-                {dateRange[0].format('DD/MM')} - {dateRange[1].format('DD/MM/YYYY')}
-              </Tag>
-            </Space>
-          }
-        >
-          {!reportData?.completionTrend || reportData.completionTrend.length === 0 ? (
-            <Empty 
-              description="Chưa có dữ liệu xu hướng"
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-            />
-          ) : (
-            <Line
-              data={reportData.completionTrend.map((item: { date: string; completedCount: number }) => ({
-                date: dayjs(item.date).format('DD/MM'),
-                value: item.completedCount,
-                type: 'Hoàn thành'
-              }))}
-              xField="date"
-              yField="value"
-              seriesField="type"
-              smooth={true}
-              yAxis={{
-                label: {
-                  formatter: (v: string) => `${Math.round(Number(v))}`,
-                },
-                tickCount: 5,
-                nice: true,
-              }}
-              animation={{
-                appear: {
-                  animation: 'path-in',
-                  duration: 1000,
-                },
-              }}
-              tooltip={{
-                formatter: (datum: { value: number }) => {
-                  return {
-                    name: 'Số lượng',
-                    value: `${datum.value} tasks`,
-                  };
-                },
-              }}
-              point={{
-                size: 5,
-                shape: 'circle',
-                style: {
-                  fill: 'white',
-                  stroke: '#b68235',
-                  lineWidth: 2,
-                },
-              }}
-              color="#b68235"
-              height={300}
-            />
-          )}
-        </Card>
+      <div className="cls-card dashboard-chart-card">
+        <div className="dashboard-card-header">
+          <h3>Biểu đồ hoàn thành</h3>
+          <Tag>{rangeDays} ngày gần nhất</Tag>
+        </div>
+        {trendData.some((d) => d.value > 0) ? (
+          <MiniLineChart data={trendData} height={160} />
+        ) : (
+          <p className="text-muted">Chưa có dữ liệu xu hướng</p>
+        )}
+      </div>
 
-        <Row gutter={[16, 16]} className="card-grid">
-          <Col xs={24} lg={12}>
-            <Card
-              className="content-card"
-              title={
-                <Space>
-                  <RocketOutlined className="dashboard-title-icon" />
-                  <span>Năng suất của bạn</span>
-                </Space>
-              }
-            >
-              <Row gutter={16}>
-                <Col span={8}>
-                  <div className="productivity-item">
-                    <Text type="secondary">Hôm nay</Text>
-                    <div className="productivity-value">
-                      {reportData?.tasksCompletedThisToday || 0}
-                      <Text type="secondary" className="metric-unit">tasks</Text>
-                    </div>
-                  </div>
-                </Col>
-                <Col span={8}>
-                  <div className="productivity-item">
-                    <Text type="secondary">Tuần này</Text>
-                    <div className="productivity-value">
-                      {reportData?.tasksCompletedThisWeek || 0}
-                      <Text type="secondary" className="metric-unit">tasks</Text>
-                    </div>
-                  </div>
-                </Col>
-                <Col span={8}>
-                  <div className="productivity-item">
-                    <Text type="secondary">Tháng này</Text>
-                    <div className="productivity-value">
-                      {reportData?.tasksCompletedThisMonth || 0}
-                      <Text type="secondary" className="metric-unit">tasks</Text>
-                    </div>
-                  </div>
-                </Col>
-              </Row>
-              <div className="dashboard-summary-box">
-                <Space direction="vertical" className="full-width-field">
-                  <div className="dashboard-summary-row">
-                    <Text strong>Thời gian hoàn thành TB:</Text>
-                    <Text>{reportData?.averageCompletionTimeHours.toFixed(1) || 0} giờ</Text>
-                  </div>
-                  <div className="dashboard-summary-row">
-                    <Text strong>Tỷ lệ hoàn thành:</Text>
-                    <Text className={completionRate >= 70 ? 'metric-good' : 'metric-warning'}>
-                      {completionRate}%
-                    </Text>
-                  </div>
-                </Space>
+      <div className="dashboard-two-col">
+        <div className="cls-card">
+          <h3>Năng suất của bạn</h3>
+          <div className="dashboard-productivity-row">
+            <div className="dashboard-productivity-item">
+              <span className="text-muted">Hôm nay</span>
+              <div className="dashboard-productivity-value">{reportData?.tasksCompletedThisToday ?? 0}</div>
+            </div>
+            <div className="dashboard-productivity-item">
+              <span className="text-muted">Tuần này</span>
+              <div className="dashboard-productivity-value">{reportData?.tasksCompletedThisWeek ?? 0}</div>
+            </div>
+            <div className="dashboard-productivity-item">
+              <span className="text-muted">Tháng này</span>
+              <div className="dashboard-productivity-value">{reportData?.tasksCompletedThisMonth ?? 0}</div>
+            </div>
+          </div>
+          <div className="dashboard-summary-box">
+            <div className="dashboard-summary-row">
+              <span>Thời gian hoàn thành TB</span>
+              <strong>{reportData?.averageCompletionTimeHours?.toFixed(1) ?? 0} giờ</strong>
+            </div>
+            <div className="dashboard-summary-row">
+              <span>Tỷ lệ hoàn thành</span>
+              <strong>{completionRate}%</strong>
+            </div>
+          </div>
+        </div>
+
+        <div className="cls-card">
+          <h3>Cần chú ý</h3>
+          <div className="dashboard-productivity-row">
+            <div className="dashboard-productivity-item">
+              <span className="text-muted">Ưu tiên cao</span>
+              <div className="dashboard-productivity-value dashboard-overdue-value">
+                {reportData?.highPriorityPendingTasks ?? 0}
               </div>
-            </Card>
-          </Col>
+            </div>
+            <div className="dashboard-productivity-item">
+              <span className="text-muted">Ưu tiên TB</span>
+              <div className="dashboard-productivity-value">{reportData?.mediumPriorityPendingTasks ?? 0}</div>
+            </div>
+            <div className="dashboard-productivity-item">
+              <span className="text-muted">Ưu tiên thấp</span>
+              <div className="dashboard-productivity-value">{reportData?.lowPriorityPendingTasks ?? 0}</div>
+            </div>
+          </div>
+          {(reportData?.overdueTasks ?? 0) > 0 && (
+            <div className="dashboard-alert">
+              <WarningOutlined />
+              Bạn có {reportData?.overdueTasks} công việc quá hạn!
+            </div>
+          )}
+        </div>
+      </div>
 
-          <Col xs={24} lg={12}>
-            <Card
-              className="content-card"
-              title={
-                <Space>
-                  <ExclamationCircleOutlined className="dashboard-danger-icon" />
-                  <span>Cần chú ý</span>
-                </Space>
-              }
-            >
-              <Row gutter={16}>
-                <Col span={8}>
-                  <div className="attention-item attention-high">
-                    <Text type="secondary">Ưu tiên cao</Text>
-                    <div className="attention-value">
-                      {reportData?.highPriorityPendingTasks || 0}
-                    </div>
+      <div className="cls-card">
+        <div className="dashboard-card-header">
+          <h3>Quá hạn</h3>
+          <a href="#" onClick={(e) => { e.preventDefault(); navigate('/todo-lists'); }}>
+            Xem tất cả →
+          </a>
+        </div>
+        {reportData?.mostOverdueTasks && reportData.mostOverdueTasks.length > 0 ? (
+          <div className="dashboard-overdue-list">
+            {reportData.mostOverdueTasks.slice(0, 5).map((item) => {
+              const dueDateDayjs = typeof item.dueDate === 'string' ? dayjs(item.dueDate) : item.dueDate;
+              const daysOverdue = dayjs().diff(dueDateDayjs, 'day');
+              return (
+                <div key={item.id} className="dashboard-overdue-row">
+                  <div className="dashboard-overdue-row-text">
+                    <span className="dashboard-overdue-row-title">{item.title}</span>
+                    <PriorityTag priority={item.priority} />
                   </div>
-                </Col>
-                <Col span={8}>
-                  <div className="attention-item attention-medium">
-                    <Text type="secondary">Ưu tiên TB</Text>
-                    <div className="attention-value">
-                      {reportData?.mediumPriorityPendingTasks || 0}
-                    </div>
-                  </div>
-                </Col>
-                <Col span={8}>
-                  <div className="attention-item attention-low">
-                    <Text type="secondary">Ưu tiên thấp</Text>
-                    <div className="attention-value">
-                      {reportData?.lowPriorityPendingTasks || 0}
-                    </div>
-                  </div>
-                </Col>
-              </Row>
-              {(reportData?.overdueTasks || 0) > 0 && (
-                <div className="overdue-alert">
-                  <Space>
-                    <WarningOutlined />
-                    <Text strong>
-                      Bạn có {reportData?.overdueTasks} công việc quá hạn!
-                    </Text>
-                  </Space>
+                  <span className="cls-tag cls-tag-outline">{daysOverdue} ngày</span>
                 </div>
-              )}
-            </Card>
-          </Col>
-        </Row>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-muted dashboard-empty-note">Tuyệt vời! Không có công việc quá hạn.</p>
+        )}
+      </div>
 
-        <Row gutter={[16, 16]}>
-          <Col xs={24}>
-            <Card
-              className="content-card"
-              title={
-                <Space>
-                  <WarningOutlined className="dashboard-danger-icon" />
-                  <span>Quá hạn</span>
-                </Space>
-              }
-              extra={
-                <Button type="link" onClick={() => navigate('/todo-lists')}>
-                  Xem tất cả →
-                </Button>
-              }
-            >
-              {!reportData?.mostOverdueTasks || reportData.mostOverdueTasks.length === 0 ? (
-                <Empty 
-                  description="Tuyệt vời! Không có công việc quá hạn"
-                  image={Empty.PRESENTED_IMAGE_SIMPLE}
-                />
-              ) : (
-                <List
-                  dataSource={reportData.mostOverdueTasks.slice(0, 5)}
-                  renderItem={(item: { title: string; priority: number; dueDate: string | dayjs.Dayjs }) => {
-                    const dueDateDayjs = typeof item.dueDate === 'string' ? dayjs(item.dueDate) : item.dueDate;
-                    const daysOverdue = dayjs().diff(dueDateDayjs, 'day');
-                    
-                    return (
-                      <List.Item
-                        extra={
-                          <Tag color="#7d5411">
-                            {daysOverdue} ngày
-                          </Tag>
-                        }
-                      >
-                        <List.Item.Meta
-                          avatar={<WarningOutlined className="overdue-list-icon" />}
-                          title={<Text strong>{item.title}</Text>}
-                          description={
-                            <Space>
-                              <PriorityTag priority={item.priority} />
-                              <Text type="secondary" delete>Hạn: {dueDateDayjs.format('DD/MM/YYYY')}</Text>
-                            </Space>
-                          }
-                        />
-                      </List.Item>
-                    );
-                  }}
-                />
-              )}
-            </Card>
-          </Col>
-        </Row>
-
-        <Card title="Hành động nhanh" className="quick-actions-card content-card">
-          <Space size="middle" wrap className="quick-actions">
-            <Button 
-              type="primary" 
-              size="large"
-              onClick={() => navigate('/todo-lists')}
-            >
-              Quản lý công việc
-            </Button>
-            <Button 
-              size="large"
-              onClick={() => fetchDashboardData(dateRange)}
-              loading={loading}
-            >
-              Làm mới dữ liệu
-            </Button>
-          </Space>
-        </Card>
-      </Spin>
+      <div className="cls-card">
+        <h3>Hành động nhanh</h3>
+        <div className="dashboard-quick-actions">
+          <Button type="primary" onClick={() => navigate('/todo-lists')}>
+            Quản lý công việc
+          </Button>
+          <Button onClick={() => fetchDashboardData(rangeDays)} loading={loading}>
+            Làm mới dữ liệu
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };
