@@ -12,6 +12,8 @@ A full-stack Todo application that starts with familiar CRUD workflows and grows
 
 > This is a personal learning project. It is public for reference, but it is not currently maintained as a community contribution project.
 
+Full release history: [CHANGELOG.md](CHANGELOG.md). Common issues and fixes: [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
+
 ## Table Of Contents
 
 - [Features](#features)
@@ -22,8 +24,6 @@ A full-stack Todo application that starts with familiar CRUD workflows and grows
 - [Configuration](#configuration)
 - [Docker](#docker)
 - [API Overview](#api-overview)
-- [Troubleshooting](#troubleshooting)
-- [What's Changed](#whats-changed)
 - [Security Notes](#security-notes)
 - [License](#license)
 - [Author](#author)
@@ -42,6 +42,10 @@ A full-stack Todo application that starts with familiar CRUD workflows and grows
 - Quartz.NET background jobs for reports, reminders, summaries, and cleanup.
 - Lazy-loaded React routes with authenticated-route preloading for a smoother login experience.
 - Responsive Ant Design UI for mobile, tablet, laptop, and desktop.
+- "Classical" design system: serif headings (Cormorant Garamond) + Lora body text, a single warm-gold accent with a tonal ramp, small consistent border radii, and hairline dividers, applied across the entire app.
+- App-wide light/dark theme toggle.
+- Inline create/edit for todo lists and items (no modals), internal scroll instead of pagination, and undo toasts for item/list deletion.
+- Dashboard and Reports pages rebuilt with lightweight SVG/CSS charts (line, donut, bar) instead of a charting library.
 - Polished Login/Register pages with auth illustrations, compact registration form layout, and route preload hints.
 - Shared SCSS tokens, mixins, and layout utilities for cleaner frontend styling.
 - Docker-ready backend, frontend, MySQL, Redis, and Nginx setup.
@@ -337,104 +341,6 @@ docker compose down
 | `POST` | `/jobs/pause/{jobName}` | Pause a Quartz job, admin only |
 | `POST` | `/jobs/resume/{jobName}` | Resume a Quartz job, admin only |
 | `GET` | `/jobs/scheduler/info` | Scheduler info, admin only |
-
-## Troubleshooting
-
-### Login succeeds but the app returns to `/login`
-
-Check whether `RefreshToken` is stored and sent by the browser. In development, cookie settings depend on whether requests are made through HTTP proxy or direct HTTPS backend calls.
-
-Also verify:
-
-- `withCredentials: true` is enabled in Axios.
-- Backend was restarted after cookie configuration changes.
-- Old localhost cookies were cleared.
-- `AllowedOrigins` includes the frontend origin when calling the API directly.
-
-### Login succeeds but redirect feels slow
-
-The client preloads authenticated route chunks from Login/Register and skips an immediate duplicate refresh check right after a successful login. If the redirect still feels slow, check:
-
-- Network latency of `POST /authentication/login`.
-- Whether the dashboard report endpoint is cold and waiting for DB/cache work.
-- Browser DevTools network waterfall for large chunks such as `charts` or `antd`.
-- Redis availability when report caching is enabled.
-
-### Dashboard report times out
-
-`/reports/progress` is an expensive endpoint on cache miss.
-
-Recommended checks:
-
-- Ensure Redis is running if `RedisSettings:Enabled=true`.
-- Ensure the Redis connection string matches whether Redis uses a password.
-- Restart backend after changing user-secrets.
-- Check API logs for slow DB queries or Redis connection errors.
-
-### Gmail OTP fails with `535 5.7.8`
-
-Gmail rejected SMTP authentication. Use a Gmail App Password and restart the backend after updating user-secrets.
-
-### Emails silently use placeholder addresses
-
-`appsettings.json` ships with placeholder `EmailSettings` values so the repo has no real secrets in it. If you run the API with `dotnet run` (not Docker) and never set `EmailSettings:*` via `dotnet user-secrets`, the app falls back to those placeholders and SMTP auth fails. Setting values in `.env` has no effect here — see the note in [Configuration](#configuration).
-
-### `Unknown database` on first run
-
-The configured database does not exist yet. Run `dotnet ef database update --project Todo.Infrastructure --startup-project Todo.API` first — EF Core creates the database and applies all migrations.
-
-### Docker Redis password mismatch
-
-If Redis is started with `--requirepass`, the backend connection string must include:
-
-```text
-password=your_redis_password
-```
-
-If Redis is only bound to `127.0.0.1` for local development, running without a password is acceptable for this project.
-
-## What's Changed
-
-### Unreleased
-
-- Removed hardcoded bootstrap admin email/password from `LoginHandler`; now configured via `Bootstrap:AdminEmail`/`Bootstrap:AdminPassword` (user secrets, `.env`/Docker, or a secret manager in production).
-
-### v2.0.0
-
-- Migrated the backend from Repository Pattern to Clean Architecture: `Todo.Domain`, `Todo.Application`, `Todo.Infrastructure`, `Todo.API`.
-- Redesigned repository interfaces to be domain-focused (no `DbSet<T>` or EF Core types in `Todo.Application`); implementations moved to `Todo.Infrastructure/Persistence/Repositories/`.
-- Merged `Todo.Models` (DbContext, Identity entities, EF configurations, migrations) into `Todo.Infrastructure/Persistence/`, preserving existing migration history.
-- Removed `Todo.Repositories` and `Todo.Services` projects; removed unused `IGenericRepository`/`GenericRepository` dead code from `MayNghien.Infrastructures`.
-- Updated `dotnet ef` commands, `Todo.API/Dockerfile`, and project docs to match the new project layout.
-
-### v1.0.0
-
-- Added authentication API wrappers on the React client.
-- Added Login, Register, and Change Password pages.
-- Added auth illustrations and aligned Login/Register image/form layout.
-- Compact Register form into a desktop grid while preserving mobile stacking.
-- Added cookie-based private routing and lazy-loaded route boundaries.
-- Added authenticated-route preloading from auth pages for faster post-login navigation.
-- Avoided an unnecessary immediate refresh-token request right after successful login.
-- Added OTP-based registration verification and password-change flow.
-- Fixed OTP handling and login redirect behavior on the React client.
-- Refined the React UI for mobile, tablet, laptop, and desktop breakpoints.
-- Extracted shared SCSS tokens, mixins, page shells, cards, and utility classes.
-- Replaced deprecated Sass `@import` usage and split large frontend vendor chunks.
-- Added Redis-backed progress report caching with memory fallback.
-- Optimized progress report generation to reduce in-memory work.
-- Improved local development cookie behavior for direct HTTPS API calls and proxy-based HTTP calls.
-- Updated Docker example configuration for Redis password and localhost port exposure.
-- Stopped tracking local `docker-compose.yml`; use `docker-compose.yml.example` as the template.
-- Cleaned up Ant Design warnings for `Spin`, `Card`, and static `message` usage.
-
-### Earlier
-
-- Todo list and todo item CRUD.
-- Dashboard analytics and progress reporting.
-- Quartz.NET background jobs for reports, reminders, summaries, and cleanup.
-- MySQL persistence with EF Core migrations.
-- Docker and Nginx deployment templates.
 
 ## Security Notes
 

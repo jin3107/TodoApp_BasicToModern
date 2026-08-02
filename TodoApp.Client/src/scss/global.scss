@@ -1,7 +1,9 @@
+@use './classical-vars';
 @use './tokens' as t;
+@use './classical-components';
 @use './shared';
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Lora:wght@400;600&display=swap');
 
 * {
   box-sizing: border-box;
@@ -14,11 +16,16 @@ html {
 
 body {
   margin: 0;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: t.$font-body, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color: t.$color-text;
   background: t.$color-page;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: t.$font-heading, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-weight: 600;
 }
 
 button,
@@ -44,16 +51,16 @@ a {
 }
 
 ::-webkit-scrollbar-track {
-  background: #eef2f7;
+  background: t.$color-page;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c8d2df;
+  background: t.$color-border;
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a9b7c8;
+  background: color-mix(in srgb, t.$color-text 35%, transparent);
 }
 
 .ant-card {
@@ -72,7 +79,7 @@ a {
 
 .ant-modal-header,
 .ant-modal-footer {
-  border-color: #eef0f4;
+  border-color: t.$color-border;
 }
 
 @media (max-width: t.$screen-md) {

@@ -1,0 +1,68 @@
+@use './tokens' as t;
+
+// Shared plain-HTML component classes matching the Classical design system's
+// styles.css (.card / .tag / .seg), for pages that need the exact
+// kicker+title card shape or the segmented range control that AntD's own
+// Card/Statistic/Segmented don't quite reproduce.
+
+.cls-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border-radius: t.$radius-md;
+  background: transparent;
+  border: 1px solid t.$color-border;
+}
+
+.cls-card-kicker {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: t.$color-primary;
+}
+
+.cls-card-title {
+  font-family: t.$font-heading;
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.cls-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  padding: 3px 10px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.cls-tag-accent { background: t.$color-primary; color: #fff; }
+.cls-tag-accent-2 { background: t.$accent-300; color: t.$color-text; }
+.cls-tag-neutral { background: color-mix(in srgb, t.$color-text 8%, transparent); color: t.$color-text; }
+.cls-tag-outline { border: 1px solid t.$color-primary; color: t.$color-primary; }
+
+.cls-seg {
+  display: inline-flex;
+  gap: 2px;
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-md;
+  padding: 2px;
+}
+.cls-seg-opt {
+  border: none;
+  border-radius: 3px;
+  padding: 5px 11px;
+  font-size: 13px;
+  cursor: pointer;
+  background: transparent;
+  color: t.$color-text;
+  font-family: t.$font-body;
+
+  &.active {
+    background: t.$color-primary;
+    color: t.$color-surface;
+  }
+}
