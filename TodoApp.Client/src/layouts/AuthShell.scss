@@ -1,0 +1,74 @@
+@use '../scss/tokens' as t;
+@use '../scss/mixins' as m;
+
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 36px 18px;
+  position: relative;
+  background: t.$color-page;
+
+  &__theme-toggle {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    color: t.$color-text;
+
+    &:hover {
+      color: t.$color-primary;
+    }
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: t.$font-heading;
+    font-weight: 600;
+    font-size: 24px;
+    color: t.$color-text;
+  }
+
+  &__row {
+    width: min(100%, 1140px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+
+    @include m.respond-down(t.$screen-lg) {
+      flex-direction: column;
+      gap: 24px;
+    }
+  }
+
+  &__image {
+    flex: 1;
+    min-width: 0;
+    max-width: 560px;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: t.$radius-md;
+    box-shadow: t.$shadow-card;
+
+    @include m.respond-down(t.$screen-lg) {
+      max-width: 420px;
+    }
+
+    @include m.respond-down(t.$screen-sm) {
+      max-height: 240px;
+      aspect-ratio: auto;
+    }
+  }
+
+  &__panel {
+    flex: none;
+    display: flex;
+    justify-content: center;
+  }
+}

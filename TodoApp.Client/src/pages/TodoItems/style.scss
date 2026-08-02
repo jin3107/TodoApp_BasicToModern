@@ -1,269 +1,176 @@
-@use '../../scss/tokens' as t;
-@use '../../scss/mixins' as m;
+/* Relies on the CSS custom properties declared on the ancestor .todo-classical
+   wrapper (see ../TodoLists/style.scss) — TodoItems always renders nested
+   inside it. */
 
-.tasks-container {
-  min-height: 100%;
-  background-color: transparent;
-
-  .tasks-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 24px;
-
-    h1,
-    h2 {
-      margin: 0;
-      color: t.$color-text;
-      font-size: 28px;
-      font-weight: 600;
+.todo-classical {
+  .cl-items-panel {
+    .cl-panel-header h2 {
+      font-size: 24px;
     }
   }
 
-  .tasks-stats-row {
-    margin-bottom: 24px;
-  }
-
-  .tasks-search {
-    margin-bottom: 16px;
+  .cl-stats-row {
     display: flex;
-    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
 
-    .search-container {
+    .cl-stat-card {
+      min-width: 130px;
+      flex: 1;
       display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 4px;
+      padding: 12px 14px;
+      border: 1px solid var(--color-divider);
+      border-radius: 4px;
+    }
+
+    .cl-stat-kicker {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+    }
+
+    .cl-stat-value {
+      font-family: var(--font-heading, "Cormorant Garamond", system-ui, sans-serif);
+      font-weight: 600;
+      font-size: 26px;
+      font-variant-numeric: tabular-nums;
     }
   }
 
-  .search-field-select {
-    width: 120px;
+  .cl-items-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
   }
 
-  .search-input {
-    width: 300px;
+  .cl-inline-form-row {
+    display: flex;
+    gap: 8px;
   }
 
-  .task-title-cell {
-    max-width: 150px;
+  .cl-date-input {
+    height: 32px;
+    padding: 4px 10px;
+    border: 1px solid var(--color-divider);
+    border-radius: 4px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-body, "Lora", system-ui, sans-serif);
+    font-size: 13px;
   }
 
-  .task-description-cell {
-    max-width: 200px;
+  .cl-date-trigger {
+    all: unset;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+    opacity: 0.9;
+
+    .anticon { opacity: 0.6; }
   }
 
-  .high-priority-icon {
-    color: t.$color-danger;
+  .cl-priority-popover {
+    display: flex;
+    flex-direction: column;
+    min-width: 110px;
+
+    button {
+      all: unset;
+      cursor: pointer;
+      padding: 7px 10px;
+      font-size: 13px;
+      border-radius: 2px;
+
+      &:hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
+    }
   }
 
-  .ant-table-wrapper {
-    background: white;
-    border-radius: t.$radius-md;
-    overflow: hidden;
-  }
-
-  .ant-card {
-    border-radius: t.$radius-md;
-    box-shadow: t.$shadow-card;
-  }
-
-  .ant-statistic-title {
-    color: t.$color-text-muted;
-    font-size: 14px;
-  }
-
-  .ant-statistic-content {
-    font-size: 24px;
+  .cl-item-title {
     font-weight: 600;
   }
 
-  .ant-table {
+  /* — desktop table — */
+  .cl-table-wrap {
+    flex: 1;
+    min-height: 0;
+    border: 1px solid var(--color-divider);
+    border-radius: 7px;
+    overflow: hidden;
+  }
+
+  .cl-table {
     .ant-table-thead > tr > th {
-      background-color: #fafafa;
-      color: t.$color-text;
-      font-weight: 600;
-      white-space: nowrap;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: color-mix(in srgb, var(--color-text) 60%, transparent);
     }
 
-    .ant-table-tbody > tr > td {
-      padding: 16px;
-    }
+    .column-header {
+      all: unset;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
 
-    .ant-table-cell {
-      vertical-align: middle;
+      &:hover { color: var(--color-accent); }
     }
   }
 
-  .column-header {
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-    user-select: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
+  /* — mobile / tablet card list — */
+  .cl-item-cards {
+    max-height: 500px;
+  }
+
+  .cl-item-card {
+    border: 1px solid var(--color-divider);
+    border-radius: 4px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--color-bg);
+  }
+
+  .cl-item-card-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .cl-item-card-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .cl-item-card-desc {
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
-
-    &:hover {
-      color: t.$color-primary;
-    }
   }
 
-  .ant-dropdown-menu {
-    min-width: 140px;
-
-    .ant-dropdown-menu-item {
-      padding: 8px 12px;
-
-      .anticon {
-        margin-right: 8px;
-      }
-    }
+  .cl-item-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-left: 26px;
   }
 
-  @include m.respond-down(t.$screen-md) {
-    .tasks-header {
-      flex-direction: column;
-      align-items: stretch;
-
-      h1,
-      h2 {
-        text-align: center;
-        font-size: 24px;
-      }
-
-      .ant-btn {
-        width: 100%;
-      }
-    }
-
-    .tasks-search .search-container {
-      width: 100%;
-      gap: 8px;
-
-      .search-field-select {
-        width: 150px;
-      }
-
-      .search-input {
-        flex: 1;
-        min-width: 0;
-      }
-
-      .ant-btn {
-        width: auto;
-        padding: 0 20px;
-      }
-    }
-
-    .ant-table-wrapper {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .ant-table {
-      min-width: 900px;
-      font-size: 13px;
-
-      .ant-table-thead > tr > th,
-      .ant-table-tbody > tr > td {
-        padding: 12px 10px;
-      }
-    }
-  }
-
-  @include m.respond-down(t.$screen-sm) {
-    .tasks-header {
-      gap: 12px;
-
-      h1,
-      h2 {
-        font-size: 20px;
-      }
-    }
-
-    .tasks-stats-row {
-      margin-bottom: 12px;
-    }
-
-    .ant-card {
-      margin-bottom: 12px;
-
-      .ant-card-body {
-        padding: 16px 12px;
-      }
-
-      .ant-statistic-title {
-        margin-bottom: 4px;
-        font-size: 11px;
-      }
-
-      .ant-statistic-content {
-        font-size: 20px;
-      }
-
-      .ant-statistic-content-prefix {
-        margin-right: 4px;
-        font-size: 16px;
-      }
-    }
-
-    .tasks-search .search-container {
-      flex-direction: column;
-
-      .search-field-select,
-      .search-input,
-      .ant-btn {
-        width: 100%;
-      }
-    }
-
-    .ant-table {
-      min-width: 800px;
-      font-size: 12px;
-
-      .ant-table-thead > tr > th,
-      .ant-table-tbody > tr > td {
-        padding: 10px 8px;
-      }
-
-      .ant-table-cell:nth-child(1) {
-        min-width: 140px;
-        max-width: 160px;
-      }
-
-      .ant-table-cell:nth-child(2) {
-        min-width: 180px;
-        max-width: 220px;
-      }
-
-      .ant-table-cell:nth-child(3) {
-        min-width: 100px;
-      }
-
-      .ant-table-cell:nth-child(4) {
-        min-width: 130px;
-      }
-
-      .ant-table-cell:nth-child(5),
-      .ant-table-cell:nth-child(6) {
-        min-width: 110px;
-      }
-
-      .ant-table-cell:last-child {
-        width: 80px;
-        min-width: 80px;
-      }
-
-      .ant-tag {
-        padding: 2px 6px;
-        font-size: 11px;
-      }
-    }
+  .cl-item-card-date {
+    font-size: 11.5px;
+    white-space: nowrap;
   }
 }

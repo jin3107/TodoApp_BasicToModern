@@ -16,12 +16,12 @@ import {
 } from "@ant-design/icons";
 import type { LoginRequest } from "../../interfaces";
 import { login } from "../../apis/authenticationAPI";
-import authIllustration from "../../assets/auth-illustration.png";
 import { markAuthenticated } from "../../commons/auth-session";
 import {
   preloadAuthenticatedRoutes,
   scheduleAuthenticatedRoutesPreload,
 } from "../../routes/preload";
+import AuthShell from "../../layouts/AuthShell";
 import "./style.scss";
 
 const { Text, Title } = Typography;
@@ -51,74 +51,66 @@ const Login = () => {
   };
 
   return (
-    <main className="login-page">
-      <section className="login-page__panel">
-        <div className="login-page__intro">
-          <Title level={1}>Đăng nhập</Title>
+    <AuthShell>
+      <Card className="login-page__card" variant="borderless">
+        <div className="login-page__header">
+          <Title level={2}>Đăng nhập</Title>
           <Text className="login-page__subtitle">
             Quản lý danh sách công việc, tiến độ và báo cáo trong một nơi.
           </Text>
         </div>
 
-        <img
-          className="login-page__image"
-          src={authIllustration}
-          alt="Minh họa quản lý công việc"
-        />
-
-        <Card className="login-page__card" variant="borderless">
-          <Form
-            form={form}
-            layout="vertical"
-            requiredMark={false}
-            onFinish={handleSubmit}
+        <Form
+          form={form}
+          layout="vertical"
+          requiredMark={false}
+          onFinish={handleSubmit}
+        >
+          <Form.Item
+            label="Email hoặc tên đăng nhập"
+            name="userName"
+            rules={[
+              { required: true, message: "Vui lòng nhập email hoặc tên đăng nhập" },
+            ]}
           >
-            <Form.Item
-              label="Email hoặc tên đăng nhập"
-              name="userName"
-              rules={[
-                { required: true, message: "Vui lòng nhập email hoặc tên đăng nhập" },
-              ]}
-            >
-              <Input
-                size="large"
-                prefix={<UserOutlined />}
-                placeholder="you@example.com"
-                autoComplete="username"
-              />
-            </Form.Item>
-
-            <Form.Item
-              label="Mật khẩu"
-              name="password"
-              rules={[{ required: true, message: "Vui lòng nhập mật khẩu" }]}
-            >
-              <Input.Password
-                size="large"
-                prefix={<LockOutlined />}
-                placeholder="Nhập mật khẩu"
-                autoComplete="current-password"
-              />
-            </Form.Item>
-
-            <Button
-              type="primary"
-              htmlType="submit"
+            <Input
               size="large"
-              icon={<LoginOutlined />}
-              block
-            >
-              Đăng nhập
-            </Button>
-          </Form>
+              prefix={<UserOutlined />}
+              placeholder="you@example.com"
+              autoComplete="username"
+            />
+          </Form.Item>
 
-          <Space className="login-page__footer">
-            <Text type="secondary">Chưa có tài khoản?</Text>
-            <Link to="/register">Đăng ký ngay</Link>
-          </Space>
-        </Card>
-      </section>
-    </main>
+          <Form.Item
+            label="Mật khẩu"
+            name="password"
+            rules={[{ required: true, message: "Vui lòng nhập mật khẩu" }]}
+          >
+            <Input.Password
+              size="large"
+              prefix={<LockOutlined />}
+              placeholder="Nhập mật khẩu"
+              autoComplete="current-password"
+            />
+          </Form.Item>
+
+          <Button
+            type="primary"
+            htmlType="submit"
+            size="large"
+            icon={<LoginOutlined />}
+            block
+          >
+            Đăng nhập
+          </Button>
+        </Form>
+
+        <Space className="login-page__footer">
+          <Text type="secondary">Chưa có tài khoản?</Text>
+          <Link to="/register">Đăng ký ngay</Link>
+        </Space>
+      </Card>
+    </AuthShell>
   );
 };
 
