@@ -36,7 +36,7 @@
     justify-content: center;
     border-radius: t.$radius-md;
     color: t.$color-primary;
-    background: #e6f4ff;
+    background: color-mix(in srgb, t.$color-primary 12%, transparent);
     font-size: 24px;
   }
 

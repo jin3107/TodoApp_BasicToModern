@@ -3,43 +3,38 @@ import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
 import { App, Avatar, Button, Drawer, Dropdown, Grid, Layout, Menu, Space, Typography } from 'antd';
 import type { MenuProps } from 'antd';
 import {
-  CheckSquareOutlined,
   DownOutlined,
-  HomeOutlined,
   KeyOutlined,
   LogoutOutlined,
   MenuOutlined,
-  UnorderedListOutlined,
+  MoonOutlined,
+  SunOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import { logout } from '../apis/authenticationAPI';
 import { clearAuthenticated } from '../commons/auth-session';
+import { useAppTheme } from '../commons/ThemeContext';
+import { ChecklistLogo } from '../components';
 import './MainLayout.scss';
 
 const { Header, Content } = Layout;
 const { Text } = Typography;
 const { useBreakpoint } = Grid;
 
+const NAV_ITEMS = [
+  { key: '/dashboard', label: 'Trang chủ' },
+  { key: '/todo-lists', label: 'Quản lý công việc' },
+  { key: '/reports', label: 'Báo cáo' },
+];
+
 const MainLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { message } = App.useApp();
+  const { theme, toggleTheme } = useAppTheme();
   const screens = useBreakpoint();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isDesktop = Boolean(screens.md);
-
-  const menuItems = [
-    {
-      key: '/dashboard',
-      label: <Link to="/dashboard">Trang chủ</Link>,
-      icon: <HomeOutlined />,
-    },
-    {
-      key: '/todo-lists',
-      label: <Link to="/todo-lists">Quản lý công việc</Link>,
-      icon: <UnorderedListOutlined />,
-    },
-  ];
 
   const handleLogout = async () => {
     try {
@@ -74,6 +69,11 @@ const MainLayout = () => {
 
   const closeDrawer = () => setDrawerOpen(false);
 
+  const drawerMenuItems = NAV_ITEMS.map((item) => ({
+    key: item.key,
+    label: <Link to={item.key}>{item.label}</Link>,
+  }));
+
   return (
     <Layout className="main-layout">
       <Header className="header">
@@ -87,40 +87,55 @@ const MainLayout = () => {
               onClick={() => setDrawerOpen(true)}
             />
           )}
-          <Space className="brand">
-            <CheckSquareOutlined className="brand-icon" />
+          <div className="brand" onClick={() => navigate('/dashboard')}>
+            <ChecklistLogo size={20} />
             <Text strong className="brand-text">
-              Todo App
+              TodoApp
             </Text>
-          </Space>
+          </div>
           {isDesktop && (
-            <Menu
-              theme="dark"
-              mode="horizontal"
-              selectedKeys={[location.pathname]}
-              items={menuItems}
-              className="main-menu"
-            />
+            <nav className="main-nav">
+              {NAV_ITEMS.map((item) => (
+                <Link
+                  key={item.key}
+                  to={item.key}
+                  className={`main-nav-item ${location.pathname === item.key ? 'active' : ''}`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
           )}
         </div>
-        <Dropdown
-          menu={{ items: accountMenuItems }}
-          trigger={isDesktop ? ['hover'] : ['click']}
-          placement="bottomRight"
-          arrow
-        >
-          <button className="user-menu-button" type="button" aria-label="Tài khoản">
-            <Avatar icon={<UserOutlined />} className="user-avatar" />
-            <Text className="user-name">Admin</Text>
-            <DownOutlined className="user-menu-caret" />
-          </button>
-        </Dropdown>
+        <div className="header-right">
+          <Button
+            type="text"
+            className="theme-toggle"
+            aria-label="Chuyển giao diện sáng/tối"
+            icon={theme === 'dark' ? <SunOutlined /> : <MoonOutlined />}
+            onClick={toggleTheme}
+          />
+          {isDesktop && (
+            <Dropdown
+              menu={{ items: accountMenuItems }}
+              trigger={['hover']}
+              placement="bottomRight"
+              arrow
+            >
+              <button className="user-menu-button" type="button" aria-label="Tài khoản">
+                <Avatar icon={<UserOutlined />} className="user-avatar" />
+                <Text className="user-name">Admin</Text>
+                <DownOutlined className="user-menu-caret" />
+              </button>
+            </Dropdown>
+          )}
+        </div>
       </Header>
       <Drawer
         title={
           <Space className="drawer-brand">
-            <CheckSquareOutlined />
-            <Text strong>Todo App</Text>
+            <ChecklistLogo size={18} />
+            <Text strong>TodoApp</Text>
           </Space>
         }
         placement="left"
@@ -132,9 +147,21 @@ const MainLayout = () => {
         <Menu
           mode="inline"
           selectedKeys={[location.pathname]}
-          items={menuItems}
+          items={drawerMenuItems}
           onClick={closeDrawer}
         />
+        <Button
+          type="text"
+          icon={<KeyOutlined />}
+          block
+          className="drawer-change-password"
+          onClick={() => {
+            closeDrawer();
+            navigate('/change-password');
+          }}
+        >
+          Đổi mật khẩu
+        </Button>
         <Button
           icon={<LogoutOutlined />}
           danger

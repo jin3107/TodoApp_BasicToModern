@@ -7,7 +7,6 @@ import {
   Form,
   Input,
   Space,
-  Steps,
   Typography,
 } from "antd";
 import {
@@ -21,8 +20,8 @@ import {
 import { OtpPurpose } from "../../commons/enums/OtpPupose";
 import type { RegisterRequest, VerifyOtpRequest } from "../../interfaces";
 import { register, sendOtp, verifyOtp } from "../../apis/authenticationAPI";
-import authIllustration from "../../assets/auth-illustration.png";
 import { scheduleAuthenticatedRoutesPreload } from "../../routes/preload";
+import AuthShell from "../../layouts/AuthShell";
 import "./style.scss";
 
 const { Text, Title } = Typography;
@@ -94,161 +93,150 @@ const Register = () => {
   };
 
   return (
-    <main className="register-page">
-      <section className="register-page__panel">
-        <div className="register-page__intro">
-          <Title level={1}>Tạo tài khoản</Title>
+    <AuthShell>
+      <Card className="register-page__card" variant="borderless">
+        <div className="register-page__header">
+          <Title level={2}>Tạo tài khoản</Title>
           <Text className="register-page__subtitle">
-            đăng ký và xác minh email để bắt đầu theo dõi công việc hằng ngày.
+            Đăng ký và xác minh email để bắt đầu theo dõi công việc hằng ngày.
           </Text>
         </div>
 
-        <img
-          className="register-page__image"
-          src={authIllustration}
-          alt="Minh họa quản lý công việc"
-        />
+        <div className="register-page__steps">
+          <span className={step === 0 ? "active" : ""}>1. Thông tin</span>
+          <span className="register-page__steps-sep">──</span>
+          <span className={step === 1 ? "active" : ""}>2. Xác minh email</span>
+        </div>
 
-        <Card className="register-page__card" variant="borderless">
-          <Steps
-            current={step}
-            items={[
-              { title: "Thông tin" },
-              { title: "Xác minh email" },
-            ]}
-            className="register-page__steps"
-          />
-
-          {step === 0 ? (
-            <Form
-              form={registerForm}
-              className="register-page__form"
-              layout="vertical"
-              requiredMark={false}
-              onFinish={handleRegister}
-            >
-              <div className="register-page__form-grid">
-                <Form.Item
-                  label="Họ tên"
-                  name="name"
-                  rules={[{ required: true, message: "Vui lòng nhập họ tên" }]}
-                >
-                  <Input prefix={<UserOutlined />} />
-                </Form.Item>
-
-                <Form.Item
-                  label="Số điện thoại"
-                  name="phoneNumber"
-                  rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
-                >
-                  <Input prefix={<PhoneOutlined />} />
-                </Form.Item>
-
-                <Form.Item
-                  className="register-page__form-field--wide"
-                  label="Email"
-                  name="email"
-                  rules={[
-                    { required: true, message: "Vui lòn nhập email" },
-                    { type: "email", message: "Email không hợp lệ" },
-                  ]}
-                >
-                  <Input prefix={<MailOutlined />} />
-                </Form.Item>
-
-                <Form.Item
-                  label="Mật khẩu"
-                  name="password"
-                  rules={[
-                    { required: true, message: "Vui lòng nhập mật khẩu" },
-                    { min: 8, message: "Mật khẩu tối thiểu 8 ký tự" },
-                  ]}
-                >
-                  <Input.Password
-                    prefix={<LockOutlined />}
-                    autoComplete="new-password"
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  label="Xác nhận mật khẩu"
-                  name="confirmPassword"
-                  dependencies={["password"]}
-                  rules={[
-                    { required: true, message: "Vui lòng xác nhận mật khẩu" },
-                    ({ getFieldValue }) => ({
-                      validator(_, value: string | undefined) {
-                        if (!value || getFieldValue("password") === value) {
-                          return Promise.resolve();
-                        }
-                        return Promise.reject(new Error("Mật khẩu xác nhận không khớp"));
-                      },
-                    }),
-                  ]}
-                >
-                  <Input.Password
-                    prefix={<LockOutlined />}
-                    autoComplete="new-password"
-                  />
-                </Form.Item>
-              </div>
-
-              <Button
-                type="primary"
-                htmlType="submit"
-                icon={<UserAddOutlined />}
-                loading={submitting}
-                block
-              >
-                Đăng ký
-              </Button>
-            </Form>
-          ) : (
-            <Form
-              form={otpForm}
-              layout="vertical"
-              requiredMark={false}
-              onFinish={handleVerify}
-            >
-              <Text className="register-page__notice">
-                Mã OTP đã được gửi đến {registeredEmail}.
-              </Text>
-
+        {step === 0 ? (
+          <Form
+            form={registerForm}
+            className="register-page__form"
+            layout="vertical"
+            requiredMark={false}
+            onFinish={handleRegister}
+          >
+            <div className="register-page__form-grid">
               <Form.Item
-                label="Mã OTP"
-                name="code"
-                rules={[
-                  { required: true, message: "Vui lòng nhập OTP" },
-                  { len: 6, message: "OTP gồm 6 ký tự" },
-                ]}
+                label="Họ tên"
+                name="name"
+                rules={[{ required: true, message: "Vui lòng nhập họ tên" }]}
               >
-                <Input size="large" maxLength={6} inputMode="numeric" />
+                <Input prefix={<UserOutlined />} />
               </Form.Item>
 
-              <Button
-                type="primary"
-                htmlType="submit"
-                size="large"
-                icon={<CheckCircleOutlined />}
-                loading={submitting}
-                block
+              <Form.Item
+                label="Số điện thoại"
+                name="phoneNumber"
+                rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
               >
-                Xác minh tài khoản
-              </Button>
+                <Input prefix={<PhoneOutlined />} />
+              </Form.Item>
 
-              <Button type="link" block onClick={handleResendOtp}>
-                Gửi lại OTP
-              </Button>
-            </Form>
-          )}
+              <Form.Item
+                className="register-page__form-field--wide"
+                label="Email"
+                name="email"
+                rules={[
+                  { required: true, message: "Vui lòn nhập email" },
+                  { type: "email", message: "Email không hợp lệ" },
+                ]}
+              >
+                <Input prefix={<MailOutlined />} />
+              </Form.Item>
 
-          <Space className="register-page__footer">
-            <Text type="secondary">Đã có tài khoản?</Text>
-            <Link to="/login">Đăng nhập</Link>
-          </Space>
-        </Card>
-      </section>
-    </main>
+              <Form.Item
+                label="Mật khẩu"
+                name="password"
+                rules={[
+                  { required: true, message: "Vui lòng nhập mật khẩu" },
+                  { min: 8, message: "Mật khẩu tối thiểu 8 ký tự" },
+                ]}
+              >
+                <Input.Password
+                  prefix={<LockOutlined />}
+                  autoComplete="new-password"
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="Xác nhận mật khẩu"
+                name="confirmPassword"
+                dependencies={["password"]}
+                rules={[
+                  { required: true, message: "Vui lòng xác nhận mật khẩu" },
+                  ({ getFieldValue }) => ({
+                    validator(_, value: string | undefined) {
+                      if (!value || getFieldValue("password") === value) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(new Error("Mật khẩu xác nhận không khớp"));
+                    },
+                  }),
+                ]}
+              >
+                <Input.Password
+                  prefix={<LockOutlined />}
+                  autoComplete="new-password"
+                />
+              </Form.Item>
+            </div>
+
+            <Button
+              type="primary"
+              htmlType="submit"
+              icon={<UserAddOutlined />}
+              loading={submitting}
+              block
+            >
+              Đăng ký
+            </Button>
+          </Form>
+        ) : (
+          <Form
+            form={otpForm}
+            layout="vertical"
+            requiredMark={false}
+            onFinish={handleVerify}
+          >
+            <Text className="register-page__notice">
+              Mã OTP đã được gửi đến {registeredEmail}.
+            </Text>
+
+            <Form.Item
+              label="Mã OTP"
+              name="code"
+              rules={[
+                { required: true, message: "Vui lòng nhập OTP" },
+                { len: 6, message: "OTP gồm 6 ký tự" },
+              ]}
+            >
+              <Input size="large" maxLength={6} inputMode="numeric" />
+            </Form.Item>
+
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              icon={<CheckCircleOutlined />}
+              loading={submitting}
+              block
+            >
+              Xác minh tài khoản
+            </Button>
+
+            <Button type="text" block onClick={handleResendOtp}>
+              Gửi lại OTP
+            </Button>
+          </Form>
+        )}
+
+        <Space className="register-page__footer">
+          <Text type="secondary">Đã có tài khoản?</Text>
+          <Link to="/login">Đăng nhập</Link>
+        </Space>
+      </Card>
+    </AuthShell>
   );
 };
 

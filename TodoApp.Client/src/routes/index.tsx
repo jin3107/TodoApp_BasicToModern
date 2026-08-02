@@ -8,6 +8,7 @@ const Login = lazy(() => import("../pages/Login"));
 const Register = lazy(() => import("../pages/Register"));
 const Dashboard = lazy(() => import("../pages/Dashboard"));
 const TodoLists = lazy(() => import("../pages/TodoLists"));
+const TodoItemsReports = lazy(() => import("../pages/TodoItemsReports"));
 const ChangePassword = lazy(() => import("../pages/ChangePassword"));
 
 const PageLoader = () => (
@@ -29,6 +30,7 @@ const AppRoutes = () => {
           <Route element={<MainLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/todo-lists" element={<TodoLists />} />
+            <Route path="/reports" element={<TodoItemsReports />} />
             <Route path="/change-password" element={<ChangePassword />} />
           </Route>
         </Route>

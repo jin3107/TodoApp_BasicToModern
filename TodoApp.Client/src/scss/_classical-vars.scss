@@ -1,0 +1,58 @@
+// Classical design system — runtime CSS custom properties (light default,
+// dark override via [data-theme="dark"] on <html>). Ported 1:1 from the
+// design handoff's styles.css + the dark override block in TodoApp.dc.html.
+// SCSS variables in _tokens.scss alias into these so every page that already
+// consumes `t.$color-*` becomes theme-reactive for free.
+
+:root {
+  --color-bg: #ece7dc;
+  --color-surface: #e4ddcd;
+  --color-text: #201f1d;
+  --color-text-muted: rgba(32, 31, 29, 0.55);
+  --color-accent: #b68235;
+  --color-accent-2: #ac803e;
+  --color-divider: rgba(32, 31, 29, 0.16);
+
+  --color-neutral-100: #f8f4f4;
+  --color-neutral-200: #eae7e7;
+  --color-neutral-300: #d7d3d3;
+  --color-neutral-800: #444141;
+
+  --color-accent-100: #fff3e4;
+  --color-accent-300: #facb8d;
+  --color-accent-500: #c28d41;
+  --color-accent-700: #7d5411;
+  --color-accent-800: #5a3b0a;
+
+  --shadow-sm: 0 1px 2px rgba(45, 43, 43, 0.14);
+  --shadow-md: 0 3px 10px rgba(45, 43, 43, 0.16);
+  --shadow-lg: 0 12px 32px rgba(45, 43, 43, 0.22);
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #1a1817;
+  --color-surface: #242220;
+  --color-text: #f2f0ee;
+  --color-text-muted: rgba(242, 240, 238, 0.55);
+  --color-divider: rgba(242, 240, 238, 0.16);
+
+  --color-neutral-100: #2c2926;
+  --color-neutral-200: #34302c;
+  --color-neutral-300: #3d3833;
+  --color-neutral-800: #d8d5d5;
+
+  --color-accent-100: #3a3020;
+  --color-accent-300: #5c4a2c;
+  --color-accent-500: #dbaf70;
+  --color-accent-700: #f0cf99;
+  --color-accent-800: #f3dfb8;
+  --color-accent: #dbaf70;
+  --color-accent-2: #dbaf70;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 3px 10px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 14px 34px rgba(0, 0, 0, 0.6);
+}
