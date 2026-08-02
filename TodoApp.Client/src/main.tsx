@@ -16,15 +16,26 @@ createRoot(document.getElementById("root")!).render(
       locale={viVN}
       theme={{
         token: {
-          colorPrimary: "#1890ff",
-          borderRadius: 8,
+          colorPrimary: "#b68235",
+          colorPrimaryHover: "#e1ad66",
+          colorPrimaryActive: "#7d5411",
+          colorLink: "#b68235",
+          colorText: "#201f1d",
+          colorBorder: "rgba(32, 31, 29, 0.16)",
+          colorBorderSecondary: "rgba(32, 31, 29, 0.16)",
+          colorBgLayout: "#f3f2f2",
+          colorBgContainer: "#ffffff",
+          borderRadius: 4,
+          borderRadiusSM: 2,
+          borderRadiusLG: 7,
           fontFamily:
-            '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+            '"Lora", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial',
         },
         components: {
+          Button: { fontFamily: '"Cormorant Garamond", sans-serif', fontWeight: 600 },
           Layout: {
-            headerBg: "#ffffff",
-            siderBg: "#001529",
+            headerBg: "#1a1817",
+            siderBg: "#1a1817",
           },
         },
       }}

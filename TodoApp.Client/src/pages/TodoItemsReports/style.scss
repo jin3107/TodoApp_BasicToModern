@@ -1,7 +1,8 @@
+@use '../../scss/tokens' as t;
 
 .report-container {
   padding: 24px;
-  background: #f0f2f5;
+  background: t.$color-page;
   min-height: 100vh;
 
   .report-header {
