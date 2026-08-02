@@ -1,38 +1,33 @@
-// Classical design tokens — ported from the "Claude Design" handoff
-// (D:\Downloads\Apps\Redesign Todo app screens\design_handoff_todo_redesign\_ds\...\styles.css)
-// Applied app-wide: most pages already consume these via `@use '.../tokens' as t;`
-// so updating the values here re-themes the whole UI without touching every file.
+// Classical design tokens — SCSS aliases into the runtime CSS custom
+// properties declared in _classical-vars.scss (imported once, first, in
+// global.scss). Aliasing to var(--color-x) instead of static hex makes every
+// page that consumes `t.$color-*` reactive to the light/dark toggle for free.
 
-$color-primary: #b68235;
-$color-primary-hover: #e1ad66;
-$color-success: #16a34a;
-$color-warning: #d97706;
-$color-danger: #dc2626;
+$color-primary: var(--color-accent);
+$color-primary-hover: var(--color-accent-700);
+$color-success: var(--color-accent-500);
+$color-warning: var(--color-accent-700);
+$color-danger: var(--color-accent-800);
 
 // Single-accent tonal ramp (mono scheme, per the Classical design system —
 // differentiate by shade/lightness, not by hue).
-$accent-100: #fff3e4;
-$accent-200: #ffe3bf;
-$accent-300: #facb8d;
-$accent-400: #e1ad66;
-$accent-500: #c28d41;
-$accent-600: #a06f24;
-$accent-700: #7d5411;
-$accent-800: #5a3b0a;
-$accent-900: #3a270d;
+$accent-100: var(--color-accent-100);
+$accent-300: var(--color-accent-300);
+$accent-500: var(--color-accent-500);
+$accent-700: var(--color-accent-700);
+$accent-800: var(--color-accent-800);
 
-$color-text: #201f1d;
-$color-text-muted: rgba(32, 31, 29, 0.55);
-$color-border: rgba(32, 31, 29, 0.16);
-$color-surface: #eae9e9;
-$color-page: #f3f2f2;
-$color-sidebar: #1a1817;
+$color-text: var(--color-text);
+$color-text-muted: var(--color-text-muted);
+$color-border: var(--color-divider);
+$color-surface: var(--color-surface);
+$color-page: var(--color-bg);
 
 $radius-sm: 2px;
 $radius-md: 4px;
 $radius-lg: 7px;
-$shadow-card: 0 3px 10px rgba(45, 43, 43, 0.16);
-$shadow-card-hover: 0 6px 16px rgba(45, 43, 43, 0.22);
+$shadow-card: var(--shadow-md);
+$shadow-card-hover: var(--shadow-lg);
 
 $font-heading: "Cormorant Garamond", system-ui, sans-serif;
 $font-body: "Lora", system-ui, sans-serif;

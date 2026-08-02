@@ -1,14 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
-import { ConfigProvider, App as AntdApp, Button, Input } from "antd";
+import { App, Button, Input } from "antd";
 import {
   PlusOutlined,
   FolderOutlined,
   EditOutlined,
   DeleteOutlined,
   SearchOutlined,
-  SunOutlined,
-  MoonOutlined,
-  CheckSquareOutlined,
   UndoOutlined,
 } from "@ant-design/icons";
 import type { TodoListRequest, SearchRequest, SearchResponse } from "../../interfaces";
@@ -19,7 +16,6 @@ import {
   deleteTodoList,
 } from "../../apis/todoListAPI";
 import TodoItems from "../TodoItems";
-import { getClassicalTheme } from "./classicalTheme";
 import "./style.scss";
 
 const LISTS_PAGE_SIZE = 200;
@@ -70,14 +66,8 @@ const ListInlineForm = ({ draft, onChange, onCancel, onSave, submitting, autoFoc
   </div>
 );
 
-const TodoListsPanel = ({
-  theme,
-  onToggleTheme,
-}: {
-  theme: "light" | "dark";
-  onToggleTheme: () => void;
-}) => {
-  const { modal, message: messageApi, notification } = AntdApp.useApp();
+const TodoLists = () => {
+  const { modal, message: messageApi, notification } = App.useApp();
   const [loading, setLoading] = useState(false);
   const [todoLists, setTodoLists] = useState<TodoListData[]>([]);
   const [searchInput, setSearchInput] = useState("");
@@ -235,20 +225,7 @@ const TodoListsPanel = ({
   };
 
   return (
-    <div className="todo-classical" data-theme={theme}>
-      <div className="cl-toolbar">
-        <div className="cl-toolbar-brand">
-          <CheckSquareOutlined />
-          <span>Việc Cần Làm</span>
-        </div>
-        <Button
-          className="btn-icon-28"
-          onClick={onToggleTheme}
-          icon={theme === "dark" ? <SunOutlined /> : <MoonOutlined />}
-          aria-label="Chuyển giao diện sáng/tối"
-        />
-      </div>
-
+    <div className="todo-classical">
       <div className="cl-grid">
         <div className="cl-panel">
           <div className="cl-panel-header">
@@ -379,25 +356,6 @@ const TodoListsPanel = ({
         </div>
       </div>
     </div>
-  );
-};
-
-const TodoLists = () => {
-  const [theme, setTheme] = useState<"light" | "dark">(() =>
-    typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light",
-  );
-
-  return (
-    <ConfigProvider theme={getClassicalTheme(theme === "dark")}>
-      <AntdApp>
-        <TodoListsPanel
-          theme={theme}
-          onToggleTheme={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
-        />
-      </AntdApp>
-    </ConfigProvider>
   );
 };
 

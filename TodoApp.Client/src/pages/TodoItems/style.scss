@@ -21,19 +21,19 @@
       flex-direction: column;
       gap: 4px;
       padding: 12px 14px;
-      border: 1px solid var(--cl-divider);
-      border-radius: var(--cl-radius-md);
+      border: 1px solid var(--color-divider);
+      border-radius: 4px;
     }
 
     .cl-stat-kicker {
       font-size: 10px;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--cl-accent);
+      color: var(--color-accent);
     }
 
     .cl-stat-value {
-      font-family: var(--cl-font-heading);
+      font-family: var(--font-heading, "Cormorant Garamond", system-ui, sans-serif);
       font-weight: 600;
       font-size: 26px;
       font-variant-numeric: tabular-nums;
@@ -55,11 +55,11 @@
   .cl-date-input {
     height: 32px;
     padding: 4px 10px;
-    border: 1px solid var(--cl-divider);
-    border-radius: var(--cl-radius-md);
-    background: var(--cl-surface);
-    color: var(--cl-text);
-    font-family: var(--cl-font-body);
+    border: 1px solid var(--color-divider);
+    border-radius: 4px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-body, "Lora", system-ui, sans-serif);
     font-size: 13px;
   }
 
@@ -87,9 +87,9 @@
       cursor: pointer;
       padding: 7px 10px;
       font-size: 13px;
-      border-radius: var(--cl-radius-sm);
+      border-radius: 2px;
 
-      &:hover { background: color-mix(in srgb, var(--cl-text) 7%, transparent); }
+      &:hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
     }
   }
 
@@ -101,8 +101,8 @@
   .cl-table-wrap {
     flex: 1;
     min-height: 0;
-    border: 1px solid var(--cl-divider);
-    border-radius: var(--cl-radius-lg);
+    border: 1px solid var(--color-divider);
+    border-radius: 7px;
     overflow: hidden;
   }
 
@@ -111,7 +111,7 @@
       font-size: 11px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: color-mix(in srgb, var(--cl-text) 60%, transparent);
+      color: color-mix(in srgb, var(--color-text) 60%, transparent);
     }
 
     .column-header {
@@ -121,7 +121,7 @@
       align-items: center;
       gap: 5px;
 
-      &:hover { color: var(--cl-accent); }
+      &:hover { color: var(--color-accent); }
     }
   }
 
@@ -131,13 +131,13 @@
   }
 
   .cl-item-card {
-    border: 1px solid var(--cl-divider);
-    border-radius: var(--cl-radius-md);
+    border: 1px solid var(--color-divider);
+    border-radius: 4px;
     padding: 14px;
     display: flex;
     flex-direction: column;
     gap: 6px;
-    background: var(--cl-bg);
+    background: var(--color-bg);
   }
 
   .cl-item-card-top {

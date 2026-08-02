@@ -1,4 +1,6 @@
+@use './classical-vars';
 @use './tokens' as t;
+@use './classical-components';
 @use './shared';
 
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Lora:wght@400;600&display=swap');

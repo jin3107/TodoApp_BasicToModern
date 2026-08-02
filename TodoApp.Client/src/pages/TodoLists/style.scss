@@ -1,106 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Lora:wght@400;600&display=swap');
-
-/* ==========================================================================
-   Classical design system — scoped entirely under .todo-classical so it
-   never leaks into the rest of the app (MainLayout, Dashboard, Login, ...).
-   Tokens ported 1:1 from the design handoff's styles.css / dark override.
-   ========================================================================== */
+/* Layout-only classes — colors/fonts now come from the app-wide Classical
+   theme (scss/_classical-vars.scss + main.tsx ConfigProvider), so this file
+   only needs structure, not its own token block. */
 
 @keyframes cl-shimmer {
   0% { background-position: -220px 0; }
   100% { background-position: 220px 0; }
 }
-@keyframes cl-toast-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
 
 .todo-classical {
-  --cl-bg: #f3f2f2;
-  --cl-surface: #eae9e9;
-  --cl-text: #201f1d;
-  --cl-accent: #b68235;
-  --cl-accent-2: #ac803e;
-  --cl-divider: rgba(32, 31, 29, 0.16);
-
-  --cl-neutral-100: #f8f4f4;
-  --cl-neutral-200: #eae7e7;
-  --cl-neutral-800: #444141;
-
-  --cl-accent-100: #fff3e4;
-  --cl-accent-700: #7d5411;
-  --cl-accent-800: #5a3b0a;
-
-  --cl-accent2-100: #fff3e4;
-  --cl-accent2-800: #573d14;
-
-  --cl-font-heading: "Cormorant Garamond", system-ui, sans-serif;
-  --cl-font-body: "Lora", system-ui, sans-serif;
-
-  --cl-radius-sm: 2px;
-  --cl-radius-md: 4px;
-  --cl-radius-lg: 7px;
-
-  --cl-shadow-sm: 0 1px 2px rgba(45, 43, 43, 0.14);
-  --cl-shadow-md: 0 3px 10px rgba(45, 43, 43, 0.16);
-  --cl-shadow-lg: 0 12px 32px rgba(45, 43, 43, 0.22);
-
-  color-scheme: light;
-  background: var(--cl-bg);
-  color: var(--cl-text);
-  font-family: var(--cl-font-body);
-  min-height: calc(100vh - 60px);
-
-  &[data-theme="dark"] {
-    color-scheme: dark;
-    --cl-bg: #1a1817;
-    --cl-surface: #242220;
-    --cl-text: #f2f0ee;
-    --cl-accent: #dbaf70;
-    --cl-accent-2: #dbaf70;
-    --cl-divider: rgba(242, 240, 238, 0.16);
-    --cl-neutral-100: #2c2926;
-    --cl-neutral-200: #34302c;
-    --cl-neutral-800: #d8d5d5;
-    --cl-accent-100: #3a3020;
-    --cl-accent-700: #f3dfb8;
-    --cl-accent-800: #f3dfb8;
-    --cl-accent2-100: #3a3020;
-    --cl-accent2-800: #f3dfb8;
-    --cl-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-    --cl-shadow-md: 0 3px 10px rgba(0, 0, 0, 0.55);
-    --cl-shadow-lg: 0 14px 34px rgba(0, 0, 0, 0.6);
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--cl-font-heading);
-    font-weight: 600;
-    margin: 0;
-  }
+  font-family: var(--font-body, "Lora", system-ui, sans-serif);
 
   .text-muted {
-    color: color-mix(in srgb, var(--cl-text) 55%, transparent);
-  }
-
-  /* — page toolbar (title + theme toggle) — */
-  .cl-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 10px 4px 20px;
-
-    .cl-toolbar-brand {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-family: var(--cl-font-heading);
-      font-weight: 600;
-      font-size: 19px;
-      color: var(--cl-accent);
-
-      span { color: var(--cl-text); }
-    }
+    color: var(--color-text-muted);
   }
 
   /* — layout grid — */
@@ -113,7 +24,7 @@
       display: grid;
       grid-template-columns: 340px 1fr;
       align-items: stretch;
-      height: calc(100vh - 130px);
+      height: calc(100vh - 230px);
     }
   }
 
@@ -130,9 +41,9 @@
 
   /* — bordered panel shared by lists + items — */
   .cl-panel {
-    border: 1px solid var(--cl-divider);
-    border-radius: var(--cl-radius-lg);
-    background: var(--cl-surface);
+    border: 1px solid var(--color-divider);
+    border-radius: 7px;
+    background: var(--color-surface);
     padding: 16px;
     display: flex;
     flex-direction: column;
@@ -162,7 +73,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
 
-      .anticon { color: var(--cl-accent); flex: none; }
+      .anticon { color: var(--color-accent); flex: none; }
     }
   }
 
@@ -186,13 +97,13 @@
 
   /* — inline create/edit form (lists + items) — */
   .cl-inline-form {
-    border: 1px solid var(--cl-accent);
-    border-radius: var(--cl-radius-md);
+    border: 1px solid var(--color-accent);
+    border-radius: 4px;
     padding: 14px;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    background: var(--cl-surface);
+    background: var(--color-surface);
 
     .cl-inline-form-actions {
       display: flex;
@@ -221,8 +132,8 @@
   .cl-list-row {
     cursor: pointer;
     padding: 14px;
-    border: 1px solid var(--cl-divider);
-    border-radius: var(--cl-radius-md);
+    border: 1px solid var(--color-divider);
+    border-radius: 4px;
     background: transparent;
     display: flex;
     flex-direction: column;
@@ -230,8 +141,8 @@
     transition: border-color 0.15s ease, background 0.15s ease;
 
     &.selected {
-      border-color: var(--cl-accent);
-      background: color-mix(in srgb, var(--cl-accent) 12%, transparent);
+      border-color: var(--color-accent);
+      background: color-mix(in srgb, var(--color-accent) 12%, transparent);
     }
 
     .cl-row-title {
@@ -281,20 +192,20 @@
       flex: 1;
       height: 6px;
       border-radius: 3px;
-      background: var(--cl-neutral-200);
+      background: var(--color-neutral-200);
       overflow: hidden;
     }
 
     .cl-progress-bar {
       height: 100%;
-      background: var(--cl-accent);
+      background: var(--color-accent);
       border-radius: 3px;
     }
 
     .cl-progress-count {
       font-size: 11px;
       white-space: nowrap;
-      color: color-mix(in srgb, var(--cl-text) 55%, transparent);
+      color: var(--color-text-muted);
     }
   }
 
@@ -310,8 +221,8 @@
 
   /* — skeleton loading — */
   .cl-skeleton-block {
-    border-radius: var(--cl-radius-md);
-    background: linear-gradient(90deg, var(--cl-neutral-100) 0%, var(--cl-neutral-200) 50%, var(--cl-neutral-100) 100%);
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--color-neutral-100) 0%, var(--color-neutral-200) 50%, var(--color-neutral-100) 100%);
     background-size: 440px 100%;
     animation: cl-shimmer 1.3s infinite linear;
   }
@@ -330,8 +241,8 @@
   }
 
   .cl-no-selection {
-    border: 1px solid var(--cl-divider);
-    border-radius: var(--cl-radius-lg);
+    border: 1px solid var(--color-divider);
+    border-radius: 7px;
     padding: 54px 18px;
     text-align: center;
     display: flex;
@@ -348,9 +259,9 @@
   /* — native controls must track the theme explicitly (handoff bug note) — */
   select,
   input[type="date"] {
-    background: var(--cl-surface);
-    color: var(--cl-text);
-    font-family: var(--cl-font-body);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-body, "Lora", system-ui, sans-serif);
   }
 }
 
