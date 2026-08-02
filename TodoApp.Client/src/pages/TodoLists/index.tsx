@@ -1,44 +1,28 @@
-import { useEffect, useCallback, useReducer } from "react";
-import {
-  Row,
-  Col,
-  Card,
-  List,
-  Button,
-  Modal,
-  Form,
-  Input,
-  App,
-  Typography,
-  Progress,
-  Empty,
-  Space,
-  Spin,
-  Pagination,
-} from "antd";
+import { useEffect, useState, useCallback } from "react";
+import { ConfigProvider, App as AntdApp, Button, Input } from "antd";
 import {
   PlusOutlined,
   FolderOutlined,
   EditOutlined,
   DeleteOutlined,
+  SearchOutlined,
+  SunOutlined,
+  MoonOutlined,
+  CheckSquareOutlined,
+  UndoOutlined,
 } from "@ant-design/icons";
-import type {
-  TodoListRequest,
-  SearchRequest,
-  SearchResponse,
-} from "../../interfaces";
+import type { TodoListRequest, SearchRequest, SearchResponse } from "../../interfaces";
 import {
   searchTodoLists,
   createTodoList,
   updateTodoList,
   deleteTodoList,
-  getTodoListById,
 } from "../../apis/todoListAPI";
 import TodoItems from "../TodoItems";
+import { getClassicalTheme } from "./classicalTheme";
 import "./style.scss";
 
-const { TextArea } = Input;
-const { Text } = Typography;
+const LISTS_PAGE_SIZE = 200;
 
 interface TodoListData {
   id: string;
@@ -46,506 +30,374 @@ interface TodoListData {
   description?: string;
   totalItems: number;
   completedItems: number;
-  createdOn?: string;
-  modifiedOn?: string;
 }
 
-interface TodoListsQueryState {
-  currentPage: number;
-  pageSize: number;
-  total: number;
-  searchText: string;
+interface ListDraft {
+  name: string;
+  description: string;
 }
 
-type TodoListsQueryAction =
-  | { type: "setPage"; page: number }
-  | { type: "setPageSize"; page: number; pageSize: number }
-  | { type: "setTotal"; total: number }
-  | { type: "setSearchText"; searchText: string }
-  | { type: "resetSearch" };
-
-const initialQueryState: TodoListsQueryState = {
-  currentPage: 1,
-  pageSize: 5,
-  total: 0,
-  searchText: "",
-};
-
-const queryReducer = (
-  state: TodoListsQueryState,
-  action: TodoListsQueryAction,
-): TodoListsQueryState => {
-  switch (action.type) {
-    case "setPage":
-      return { ...state, currentPage: action.page };
-    case "setPageSize":
-      return { ...state, currentPage: action.page, pageSize: action.pageSize };
-    case "setTotal":
-      return { ...state, total: action.total };
-    case "setSearchText":
-      return { ...state, searchText: action.searchText };
-    case "resetSearch":
-      return { ...state, currentPage: 1, searchText: "" };
-    default:
-      return state;
-  }
-};
-
-interface TodoListsViewState {
-  loading: boolean;
-  todoLists: TodoListData[];
-  selectedList?: TodoListData;
-  open: boolean;
-  editingId?: string;
+interface ListInlineFormProps {
+  draft: ListDraft;
+  onChange: (draft: ListDraft) => void;
+  onCancel: () => void;
+  onSave: () => void;
   submitting: boolean;
-  detailLoading: boolean;
+  autoFocus?: boolean;
 }
 
-type TodoListsViewAction =
-  | { type: "setLoading"; loading: boolean }
-  | { type: "setTodoLists"; todoLists: TodoListData[] }
-  | { type: "selectList"; list: TodoListData }
-  | { type: "clearSelection"; id: string }
-  | { type: "openCreate" }
-  | { type: "openEdit"; id: string }
-  | { type: "closeModal" }
-  | { type: "setSubmitting"; submitting: boolean }
-  | { type: "setDetailLoading"; detailLoading: boolean };
+const ListInlineForm = ({ draft, onChange, onCancel, onSave, submitting, autoFocus }: ListInlineFormProps) => (
+  <div className="cl-inline-form">
+    <Input
+      placeholder="Tên danh sách"
+      value={draft.name}
+      autoFocus={autoFocus}
+      onChange={(e) => onChange({ ...draft, name: e.target.value })}
+      onPressEnter={onSave}
+    />
+    <Input.TextArea
+      placeholder="Mô tả (không bắt buộc)"
+      rows={2}
+      value={draft.description}
+      onChange={(e) => onChange({ ...draft, description: e.target.value })}
+    />
+    <div className="cl-inline-form-actions">
+      <Button onClick={onCancel}>Hủy</Button>
+      <Button type="primary" loading={submitting} onClick={onSave}>
+        Lưu
+      </Button>
+    </div>
+  </div>
+);
 
-const initialViewState: TodoListsViewState = {
-  loading: false,
-  todoLists: [],
-  selectedList: undefined,
-  open: false,
-  editingId: undefined,
-  submitting: false,
-  detailLoading: false,
-};
-
-const viewReducer = (
-  state: TodoListsViewState,
-  action: TodoListsViewAction,
-): TodoListsViewState => {
-  switch (action.type) {
-    case "setLoading":
-      return { ...state, loading: action.loading };
-    case "setTodoLists":
-      return { ...state, todoLists: action.todoLists };
-    case "selectList":
-      return { ...state, selectedList: action.list };
-    case "clearSelection":
-      return state.selectedList?.id === action.id
-        ? { ...state, selectedList: undefined }
-        : state;
-    case "openCreate":
-      return { ...state, open: true, editingId: undefined };
-    case "openEdit":
-      return { ...state, open: true, editingId: action.id };
-    case "closeModal":
-      return { ...state, open: false };
-    case "setSubmitting":
-      return { ...state, submitting: action.submitting };
-    case "setDetailLoading":
-      return { ...state, detailLoading: action.detailLoading };
-    default:
-      return state;
-  }
-};
-
-const TodoLists = () => {
-  const { modal, message: messageApi } = App.useApp();
-  const [query, dispatchQuery] = useReducer(queryReducer, initialQueryState);
-  const [view, dispatchView] = useReducer(viewReducer, initialViewState);
-  const [form] = Form.useForm<{ name: string; description?: string }>();
-
-  const loadTodoLists = useCallback(async (page: number = 1, search: string = "") => {
-    try {
-      dispatchView({ type: "setLoading", loading: true });
-      const filters = [];
-      if (search) {
-        filters.push({
-          fieldName: "Name",
-          value: search,
-          operation: "Contains",
-        });
-      }
-
-      const searchRequest: SearchRequest = {
-        filters,
-        pageIndex: page,
-        pageSize: query.pageSize,
-      };
-
-      const response = await searchTodoLists(searchRequest);
-      if (response.isSuccess) {
-        const searchResponse =
-          response as unknown as SearchResponse<TodoListData>;
-        let todoListData: TodoListData[] = [];
-        if (searchResponse.data && searchResponse.data.data) {
-          todoListData = searchResponse.data.data.map(
-            (item: TodoListData | { data: TodoListData }) =>
-              "data" in item ? item.data : item,
-          );
-        }
-
-        dispatchView({ type: "setTodoLists", todoLists: todoListData });
-        dispatchQuery({ type: "setTotal", total: searchResponse.data.totalRows });
-      } else {
-        messageApi.error(response.message || "Không thể tải danh sách todos");
-      }
-    } catch {
-      messageApi.error("An error occurred while loading todo lists");
-    } finally {
-      dispatchView({ type: "setLoading", loading: false });
-    }
-  }, [messageApi, query.pageSize]);
+const TodoListsPanel = ({
+  theme,
+  onToggleTheme,
+}: {
+  theme: "light" | "dark";
+  onToggleTheme: () => void;
+}) => {
+  const { modal, message: messageApi, notification } = AntdApp.useApp();
+  const [loading, setLoading] = useState(false);
+  const [todoLists, setTodoLists] = useState<TodoListData[]>([]);
+  const [searchInput, setSearchInput] = useState("");
+  const [searchText, setSearchText] = useState("");
+  const [selectedListId, setSelectedListId] = useState<string | undefined>();
+  const [editingListId, setEditingListId] = useState<string | "new" | null>(null);
+  const [listDraft, setListDraft] = useState<ListDraft>({ name: "", description: "" });
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    loadTodoLists(query.currentPage, query.searchText);
-  }, [loadTodoLists, query.currentPage, query.searchText]);
+    const t = setTimeout(() => setSearchText(searchInput.trim()), 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
-  const handleSelectList = (list: TodoListData) => {
-    dispatchView({ type: "selectList", list });
+  const loadTodoLists = useCallback(
+    async (search: string) => {
+      try {
+        setLoading(true);
+        const filters = search
+          ? [{ fieldName: "Name", value: search, operation: "Contains" }]
+          : [];
+        const searchRequest: SearchRequest = { filters, pageIndex: 1, pageSize: LISTS_PAGE_SIZE };
+        const response = await searchTodoLists(searchRequest);
+        if (response.isSuccess) {
+          const searchResponse = response as unknown as SearchResponse<TodoListData>;
+          let data: TodoListData[] = [];
+          if (searchResponse.data?.data) {
+            data = searchResponse.data.data.map((item: TodoListData | { data: TodoListData }) =>
+              "data" in item ? item.data : item,
+            );
+          }
+          setTodoLists(data);
+        } else {
+          messageApi.error(response.message || "Không thể tải danh sách");
+        }
+      } catch {
+        messageApi.error("Có lỗi xảy ra khi tải danh sách");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [messageApi],
+  );
+
+  useEffect(() => {
+    loadTodoLists(searchText);
+  }, [loadTodoLists, searchText]);
+
+  const selectedList = todoLists.find((l) => l.id === selectedListId);
+
+  const startCreate = () => {
+    setEditingListId("new");
+    setListDraft({ name: "", description: "" });
   };
 
-  const handleCreateList = () => {
-    dispatchView({ type: "openCreate" });
+  const startEdit = (list: TodoListData) => {
+    setEditingListId(list.id);
+    setListDraft({ name: list.name, description: list.description || "" });
   };
 
-  const handleEditList = (list: TodoListData) => {
-    dispatchView({ type: "openEdit", id: list.id });
-  };
+  const cancelEdit = () => setEditingListId(null);
 
-  const loadDetail = async (id: string) => {
-    dispatchView({ type: "setDetailLoading", detailLoading: true });
-    const response = await getTodoListById(id);
-    dispatchView({ type: "setDetailLoading", detailLoading: false });
-
-    if (!response.isSuccess) {
-      messageApi.error(response.message || "Failed to load todo list");
+  const saveEdit = async () => {
+    if (!listDraft.name.trim()) {
+      messageApi.warning("Vui lòng nhập tên danh sách");
       return;
     }
+    setSubmitting(true);
+    try {
+      const request: TodoListRequest = {
+        name: listDraft.name.trim(),
+        description: listDraft.description.trim() || undefined,
+      };
 
-    const todoListData = response.data;
-    form.setFieldsValue({
-      name: todoListData.name,
-      description: todoListData.description,
-    });
+      if (editingListId && editingListId !== "new") {
+        request.id = editingListId;
+        const result = await updateTodoList(request);
+        if (!result.isSuccess) {
+          messageApi.error(result.message || "Cập nhật danh sách thất bại");
+          return;
+        }
+        messageApi.success(result.message || "Cập nhật danh sách thành công");
+      } else {
+        const result = await createTodoList(request);
+        if (!result.isSuccess) {
+          messageApi.error(result.message || "Tạo danh sách thất bại");
+          return;
+        }
+        messageApi.success(result.message || "Tạo danh sách thành công");
+        if (result.data?.id) setSelectedListId(result.data.id);
+      }
+
+      setEditingListId(null);
+      await loadTodoLists(searchText);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleDeleteList = (list: TodoListData) => {
+  const requestDelete = (list: TodoListData) => {
     modal.confirm({
-      title: "Delete Todo List",
+      title: "Xoá danh sách",
       content: (
-        <div>
-          <p>Are you sure you want to delete "<strong>{list.name}</strong>"?</p>
-          <p className="danger-note">
-            This will permanently delete ALL {list.totalItems} todo item(s) in this list!
-          </p>
-          <p className="muted-note">
-            This action cannot be undone.
-          </p>
-        </div>
+        <p style={{ margin: 0 }}>
+          Bạn có chắc muốn xoá "<strong>{list.name}</strong>"? Thao tác này sẽ xoá vĩnh viễn{" "}
+          {list.totalItems} công việc bên trong và không thể hoàn tác.
+        </p>
       ),
-      okText: "Delete",
+      okText: "Xoá",
       okType: "danger",
-      width: 450,
+      cancelText: "Hủy",
       onOk: async () => {
-        try {
-          console.log('Deleting todo list with ID:', list.id);
-          const result = await deleteTodoList(list.id);
-          console.log('Delete response:', result);
-          
-          if (result.isSuccess) {
-            messageApi.success(result.message || "Todo list deleted successfully");
-            
-            // Clear selection if deleted item was selected
-            dispatchView({ type: "clearSelection", id: list.id });
-            
-            // Handle pagination after delete
-            const newTotal = query.total - 1;
-            const maxPage = Math.ceil(newTotal / query.pageSize);
-            const targetPage = query.currentPage > maxPage ? Math.max(1, maxPage) : query.currentPage;
-            
-            if (targetPage !== query.currentPage) {
-              dispatchQuery({ type: "setPage", page: targetPage }); // useEffect will trigger reload
-            } else {
-              // Force re-fetch if staying on same page
-              loadTodoLists(targetPage, query.searchText);
-            }
-          } else {
-            console.error('Delete failed:', result);
-            messageApi.error(result.message || "Failed to delete todo list");
-          }
-        } catch (error) {
-          console.error('Delete error:', error);
-          messageApi.error("An error occurred while deleting the todo list");
+        const result = await deleteTodoList(list.id);
+        if (!result.isSuccess) {
+          messageApi.error(result.message || "Xoá danh sách thất bại");
+          return;
         }
+
+        if (selectedListId === list.id) setSelectedListId(undefined);
+        await loadTodoLists(searchText);
+
+        const key = `undo-list-${list.id}-${Date.now()}`;
+        notification.open({
+          key,
+          message: `Đã xoá danh sách "${list.name}"`,
+          description: "Công việc bên trong danh sách đã xoá không thể khôi phục.",
+          duration: 6,
+          placement: "bottomRight",
+          className: "cl-toast-notification",
+          btn: (
+            <Button
+              size="small"
+              type="link"
+              icon={<UndoOutlined />}
+              onClick={async () => {
+                notification.destroy(key);
+                const recreate = await createTodoList({
+                  name: list.name,
+                  description: list.description,
+                });
+                if (recreate.isSuccess) {
+                  messageApi.success("Đã khôi phục danh sách");
+                  await loadTodoLists(searchText);
+                } else {
+                  messageApi.error(recreate.message || "Không thể khôi phục danh sách");
+                }
+              }}
+            >
+              Hoàn tác
+            </Button>
+          ),
+        });
       },
     });
   };
 
-  const handleSubmit = async () => {
-    try {
-      const values = await form.validateFields();
-      dispatchView({ type: "setSubmitting", submitting: true });
-
-      const request: TodoListRequest = {
-        name: values.name,
-        description: values.description, // Always include, can be undefined
-      };
-
-      // Only add id for update requests
-      if (view.editingId) {
-        request.id = view.editingId;
-      }
-
-      if (view.editingId) {
-        // Update existing todo list
-        const result = await updateTodoList(request);
-        if (result.isSuccess) {
-          messageApi.success(result.message || "Todo list updated successfully");
-          dispatchView({ type: "closeModal" });
-          form.resetFields();
-          // Reload current page to update data
-          await loadTodoLists(query.currentPage, query.searchText);
-        } else {
-          messageApi.error(result.message || "Failed to update todo list");
-        }
-      } else {
-        // Create new todo list
-        const result = await createTodoList(request);
-        if (result.isSuccess) {
-          messageApi.success(result.message || "Todo list created successfully");
-          dispatchView({ type: "closeModal" });
-          form.resetFields();
-          
-          // Reset to page 1 and clear search to show all items including new one
-          dispatchQuery({ type: "resetSearch" });
-          if (query.currentPage === 1 && query.searchText === "") {
-            // If already on page 1 and no search, force reload
-            await loadTodoLists(1, '');
-          }
-        } else {
-          messageApi.error(result.message || "Failed to create todo list");
-        }
-      }
-    } catch (error) {
-      console.error('Submit error:', error);
-      messageApi.error("An error occurred while saving the todo list");
-    } finally {
-      dispatchView({ type: "setSubmitting", submitting: false });
-    }
-  };
-
-  const onTodoItemsChange = () => {
-    // Refresh current page to update progress counts
-    loadTodoLists(query.currentPage, query.searchText);
-  };
-
-  const handleSearch = () => {
-    dispatchQuery({ type: "setPage", page: 1 });
-  };
-
-  const handlePageChange = (page: number, size?: number) => {
-    if (size) {
-      dispatchQuery({ type: "setPageSize", page, pageSize: size });
-      return;
-    }
-
-    dispatchQuery({ type: "setPage", page });
-  };
-
   return (
-    <div className="todo-lists-management page-shell">
-      <Row gutter={[16, 16]} className="todo-lists-grid">
-        {/* Left Column - Todo Lists */}
-        <Col xs={24} lg={8} className="todo-lists-column">
-          <Card
-            title={
-              <Space>
-                <FolderOutlined />
-                <span>Todo Lists</span>
-              </Space>
-            }
-            extra={
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={handleCreateList}
-              >
-                Add List
-              </Button>
-            }
-            className="todo-lists-card"
-          >
-            {/* Search Box */}
-            <div className="todo-list-search">
-              <Input.Search
-                placeholder="Search todo lists..."
-                value={query.searchText}
-                onChange={(e) =>
-                  dispatchQuery({
-                    type: "setSearchText",
-                    searchText: e.target.value,
-                  })
-                }
-                onSearch={handleSearch}
-              />
+    <div className="todo-classical" data-theme={theme}>
+      <div className="cl-toolbar">
+        <div className="cl-toolbar-brand">
+          <CheckSquareOutlined />
+          <span>Việc Cần Làm</span>
+        </div>
+        <Button
+          className="btn-icon-28"
+          onClick={onToggleTheme}
+          icon={theme === "dark" ? <SunOutlined /> : <MoonOutlined />}
+          aria-label="Chuyển giao diện sáng/tối"
+        />
+      </div>
+
+      <div className="cl-grid">
+        <div className="cl-panel">
+          <div className="cl-panel-header">
+            <h3>
+              <FolderOutlined /> Danh sách
+            </h3>
+            <Button type="primary" icon={<PlusOutlined />} onClick={startCreate}>
+              Thêm danh sách
+            </Button>
+          </div>
+
+          <div className="cl-search">
+            <SearchOutlined />
+            <Input
+              placeholder="Tìm danh sách..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              allowClear
+            />
+          </div>
+
+          {editingListId === "new" && (
+            <ListInlineForm
+              draft={listDraft}
+              onChange={setListDraft}
+              onCancel={cancelEdit}
+              onSave={saveEdit}
+              submitting={submitting}
+              autoFocus
+            />
+          )}
+
+          {loading ? (
+            <div className="cl-rows">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="cl-skeleton-block" style={{ height: 62 }} />
+              ))}
             </div>
+          ) : todoLists.length === 0 ? (
+            <div className="cl-empty">
+              <FolderOutlined style={{ fontSize: 30 }} />
+              <p>
+                {searchText
+                  ? "Không tìm thấy danh sách phù hợp."
+                  : "Chưa có danh sách nào. Tạo danh sách đầu tiên để bắt đầu."}
+              </p>
+            </div>
+          ) : (
+            <div className="cl-rows">
+              {todoLists.map((list) => {
+                if (editingListId === list.id) {
+                  return (
+                    <ListInlineForm
+                      key={list.id}
+                      draft={listDraft}
+                      onChange={setListDraft}
+                      onCancel={cancelEdit}
+                      onSave={saveEdit}
+                      submitting={submitting}
+                      autoFocus
+                    />
+                  );
+                }
 
-            <Spin spinning={view.loading}>
-              {view.todoLists.length === 0 ? (
-                <Empty
-                  description="No todo lists yet"
-                  image={Empty.PRESENTED_IMAGE_SIMPLE}
-                />
-              ) : (
-                <List
-                  dataSource={view.todoLists}
-                  renderItem={(list) => (
-                    <List.Item
-                      className={`todo-list-item ${
-                        view.selectedList?.id === list.id ? "selected" : ""
-                      }`}
-                      onClick={() => handleSelectList(list)}
-                      actions={[
+                const pct = list.totalItems > 0 ? Math.round((list.completedItems / list.totalItems) * 100) : 0;
+
+                return (
+                  <div
+                    key={list.id}
+                    className={`cl-list-row ${selectedListId === list.id ? "selected" : ""}`}
+                    onClick={() => setSelectedListId(list.id)}
+                  >
+                    <div className="cl-row-title">
+                      <h5>{list.name}</h5>
+                      <div className="cl-row-actions">
                         <Button
-                          key="edit"
+                          className="btn-icon-28"
                           type="text"
-                          size="small"
                           icon={<EditOutlined />}
+                          aria-label="Sửa danh sách"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleEditList(list);
+                            startEdit(list);
                           }}
-                        />,
+                        />
                         <Button
-                          key="delete"
+                          className="btn-icon-28"
                           type="text"
-                          size="small"
-                          danger
                           icon={<DeleteOutlined />}
+                          aria-label="Xoá danh sách"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDeleteList(list);
+                            requestDelete(list);
                           }}
-                        />,
-                      ]}
-                    >
-                      <List.Item.Meta
-                        title={list.name}
-                        description={
-                          <Space direction="vertical" size="small">
-                            {list.description && (
-                              <Text type="secondary">{list.description}</Text>
-                            )}
-                            <Progress
-                              percent={
-                                list.totalItems > 0
-                                  ? Math.round(
-                                      (list.completedItems / list.totalItems) *
-                                        100,
-                                    )
-                                  : 0
-                              }
-                              size="small"
-                              format={() =>
-                                `${list.completedItems}/${list.totalItems}`
-                              }
-                            />
-                          </Space>
-                        }
-                      />
-                    </List.Item>
-                  )}
-                />
-              )}
+                        />
+                      </div>
+                    </div>
+                    {list.description && <p className="cl-row-desc text-muted">{list.description}</p>}
+                    <div className="cl-progress">
+                      <div className="cl-progress-track">
+                        <div className="cl-progress-bar" style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className="cl-progress-count">
+                        {list.completedItems}/{list.totalItems}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
-              {/* Pagination */}
-              {query.total > 0 && (
-                <div className="todo-list-pagination">
-                  <Pagination
-                    current={query.currentPage}
-                    total={query.total}
-                    pageSize={query.pageSize}
-                    showSizeChanger
-                    showTotal={(t, range) =>
-                      `${range[0]}-${range[1]} of ${t} todo lists`
-                    }
-                    pageSizeOptions={["5", "10", "20"]}
-                    responsive
-                    onChange={handlePageChange}
-                  />
-                </div>
-              )}
-            </Spin>
-          </Card>
-        </Col>
-
-        {/* Right Column - Todo Items */}
-        <Col xs={24} lg={16} className="todo-items-column">
-          {view.selectedList ? (
+        <div className="cl-items-column">
+          {selectedList ? (
             <TodoItems
-              key={view.selectedList.id} // Force re-render when todoListId changes
-              todoListId={view.selectedList.id}
-              todoListName={view.selectedList.name}
-              onItemsChange={onTodoItemsChange}
+              key={selectedList.id}
+              todoListId={selectedList.id}
+              todoListName={selectedList.name}
+              onItemsChange={() => loadTodoLists(searchText)}
             />
           ) : (
-            <Card className="empty-selection">
-              <Empty
-                description="Select a todo list to view its items"
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-              />
-            </Card>
+            <div className="cl-panel cl-no-selection">
+              <FolderOutlined style={{ fontSize: 32 }} />
+              <p>Chọn một danh sách bên trái để xem công việc.</p>
+            </div>
           )}
-        </Col>
-      </Row>
-
-      {/* Create/Edit Modal */}
-      <Modal
-        title={`${view.editingId ? "Edit" : "Create"} Todo List`}
-        open={view.open}
-        onOk={handleSubmit}
-        onCancel={() => dispatchView({ type: "closeModal" })}
-        confirmLoading={view.submitting}
-        destroyOnHidden
-        afterOpenChange={async (isOpen) => {
-          if (isOpen && view.editingId) {
-            // Load detail data when editing
-            await loadDetail(view.editingId);
-          }
-        }}
-      >
-        <Spin spinning={view.detailLoading}>
-          <Form form={form} layout="vertical" preserve={false}>
-            <Form.Item
-              label="Name"
-              name="name"
-              rules={[
-                { required: true, message: "Please enter a name" },
-                { max: 100, message: "Name must be less than 100 characters" },
-              ]}
-            >
-              <Input placeholder="Enter todo list name" />
-            </Form.Item>
-            <Form.Item
-              label="Description"
-              name="description"
-              rules={[
-                {
-                  max: 500,
-                  message: "Description must be less than 500 characters",
-                },
-              ]}
-            >
-              <TextArea rows={3} placeholder="Enter description (optional)" />
-            </Form.Item>
-          </Form>
-        </Spin>
-      </Modal>
+        </div>
+      </div>
     </div>
+  );
+};
+
+const TodoLists = () => {
+  const [theme, setTheme] = useState<"light" | "dark">(() =>
+    typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light",
+  );
+
+  return (
+    <ConfigProvider theme={getClassicalTheme(theme === "dark")}>
+      <AntdApp>
+        <TodoListsPanel
+          theme={theme}
+          onToggleTheme={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+        />
+      </AntdApp>
+    </ConfigProvider>
   );
 };
 

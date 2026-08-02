@@ -196,7 +196,7 @@ const Dashboard = () => {
             <Space>
               <LineChartOutlined className="dashboard-title-icon" />
               <span>Biểu đồ hoàn thành</span>
-              <Tag color="blue">
+              <Tag color="#b68235">
                 {dateRange[0].format('DD/MM')} - {dateRange[1].format('DD/MM/YYYY')}
               </Tag>
             </Space>
@@ -244,11 +244,11 @@ const Dashboard = () => {
                 shape: 'circle',
                 style: {
                   fill: 'white',
-                  stroke: '#1890ff',
+                  stroke: '#b68235',
                   lineWidth: 2,
                 },
               }}
-              color="#1890ff"
+              color="#b68235"
               height={300}
             />
           )}
@@ -392,7 +392,7 @@ const Dashboard = () => {
                     return (
                       <List.Item
                         extra={
-                          <Tag color="red">
+                          <Tag color="#7d5411">
                             {daysOverdue} ngày
                           </Tag>
                         }

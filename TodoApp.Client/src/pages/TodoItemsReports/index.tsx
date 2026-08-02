@@ -81,7 +81,7 @@ const TasksReports = () => {
       width: '40%',
       render: (text: string, record: TodoItemReportItemResponse) => (
         <Space>
-          {record.priority === 2 && <ExclamationCircleOutlined style={{ color: 'red' }} />}
+          {record.priority === 2 && <ExclamationCircleOutlined style={{ color: '#5a3b0a' }} />}
           <Text strong>{text}</Text>
         </Space>
       ),
@@ -106,7 +106,7 @@ const TasksReports = () => {
       width: '20%',
       render: (_: unknown, record: TodoItemReportItemResponse) => {
         const days = dayjs(record.dueDate).diff(dayjs(), 'day');
-        const color = days <= 1 ? 'red' : days <= 3 ? 'orange' : 'green';
+        const color = days <= 1 ? '#5a3b0a' : days <= 3 ? '#a06f24' : '#e1ad66';
         return <Tag color={color}>{days} ngày</Tag>;
       },
     },
@@ -120,7 +120,7 @@ const TasksReports = () => {
       width: '40%',
       render: (text: string) => (
         <Space>
-          <WarningOutlined style={{ color: 'red' }} />
+          <WarningOutlined style={{ color: '#5a3b0a' }} />
           <Text strong>{text}</Text>
         </Space>
       ),
@@ -167,7 +167,7 @@ const TasksReports = () => {
     xField: 'date',
     yField: 'value',
     smooth: true,
-    color: '#1890ff',
+    color: '#b68235',
     point: {
       size: 4,
       shape: 'circle',
@@ -198,10 +198,10 @@ const TasksReports = () => {
       content: '{name} {percentage}',
     },
     color: ({ type }: { type: string }) => {
-      if (type === 'Cao') return '#ff4d4f';
-      if (type === 'Trung bình') return '#faad14';
-      if (type === 'Thấp') return '#52c41a';
-      return '#1890ff';
+      if (type === 'Cao') return "#5a3b0a";
+      if (type === 'Trung bình') return "#a06f24";
+      if (type === 'Thấp') return "#e1ad66";
+      return "#b68235";
     },
     interactions: [
       { type: 'pie-legend-active' },
@@ -226,7 +226,7 @@ const TasksReports = () => {
         opacity: 0.6,
       },
     },
-    color: '#1890ff',
+    color: '#b68235',
     meta: {
       period: { alias: 'Thời gian' },
       count: { alias: 'Số lượng' },
@@ -267,7 +267,7 @@ const TasksReports = () => {
               title="Đã hoàn thành"
               value={reportData.completedTasks}
               prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: '#a06f24' }}
               showProgress
               progressPercent={completionRate}
             />
@@ -277,7 +277,7 @@ const TasksReports = () => {
               title="Đang thực hiện"
               value={reportData.inProgressTasks}
               prefix={<ClockCircleOutlined />}
-              valueStyle={{ color: '#faad14' }}
+              valueStyle={{ color: '#a06f24' }}
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
@@ -285,7 +285,7 @@ const TasksReports = () => {
               title="Quá hạn"
               value={reportData.overdueTasks}
               prefix={<WarningOutlined />}
-              valueStyle={{ color: '#ff4d4f' }}
+              valueStyle={{ color: '#5a3b0a' }}
             />
           </Col>
         </Row>
@@ -296,7 +296,7 @@ const TasksReports = () => {
               title="Ưu tiên cao (chưa hoàn thành)"
               value={reportData.highPriorityPendingTasks}
               prefix={<ExclamationCircleOutlined />}
-              valueStyle={{ color: '#ff4d4f' }}
+              valueStyle={{ color: '#5a3b0a' }}
             />
           </Col>
           <Col xs={24} sm={8}>
@@ -304,7 +304,7 @@ const TasksReports = () => {
               title="Ưu tiên trung bình"
               value={reportData.mediumPriorityPendingTasks}
               prefix={<RiseOutlined />}
-              valueStyle={{ color: '#faad14' }}
+              valueStyle={{ color: '#a06f24' }}
             />
           </Col>
           <Col xs={24} sm={8}>
@@ -312,7 +312,7 @@ const TasksReports = () => {
               title="Ưu tiên thấp"
               value={reportData.lowPriorityPendingTasks}
               prefix={<FallOutlined />}
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: '#a06f24' }}
             />
           </Col>
         </Row>
@@ -324,7 +324,7 @@ const TasksReports = () => {
                 value={reportData.averageCompletionTimeHours}
                 suffix="giờ"
                 precision={1}
-                valueStyle={{ color: '#1890ff' }}
+                valueStyle={{ color: '#b68235' }}
               />
               <Text type="secondary">
                 Thời gian trung bình từ lúc tạo đến khi hoàn thành task
@@ -336,15 +336,15 @@ const TasksReports = () => {
               <Space direction="vertical" style={{ width: '100%' }}>
                 <div>
                   <Text strong>Hôm nay: </Text>
-                  <Tag color="blue">{reportData.tasksCompletedThisToday} tasks</Tag>
+                  <Tag color="#b68235">{reportData.tasksCompletedThisToday} tasks</Tag>
                 </div>
                 <div>
                   <Text strong>Tuần này: </Text>
-                  <Tag color="cyan">{reportData.tasksCompletedThisWeek} tasks</Tag>
+                  <Tag color="#c28d41">{reportData.tasksCompletedThisWeek} tasks</Tag>
                 </div>
                 <div>
                   <Text strong>Tháng này: </Text>
-                  <Tag color="geekblue">{reportData.tasksCompletedThisMonth} tasks</Tag>
+                  <Tag color="#7d5411">{reportData.tasksCompletedThisMonth} tasks</Tag>
                 </div>
               </Space>
             </Card>
@@ -379,7 +379,7 @@ const TasksReports = () => {
             <Card
               title={
                 <Space>
-                  <ClockCircleOutlined style={{ color: '#faad14' }} />
+                  <ClockCircleOutlined style={{ color: '#a06f24' }} />
                   <span>Tasks sắp đến hạn (3 ngày tới)</span>
                 </Space>
               }
@@ -398,7 +398,7 @@ const TasksReports = () => {
             <Card
               title={
                 <Space>
-                  <WarningOutlined style={{ color: '#ff4d4f' }} />
+                  <WarningOutlined style={{ color: '#5a3b0a' }} />
                   <span>Top 5 tasks quá hạn lâu nhất</span>
                 </Space>
               }

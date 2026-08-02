@@ -11,7 +11,7 @@
   }
 
   .dashboard-danger-icon {
-    color: t.$color-danger;
+    color: t.$accent-800;
   }
 
   .dashboard-filter-button {
@@ -34,7 +34,7 @@
     }
 
     &.stat-card-primary {
-      background: linear-gradient(135deg, #2563eb 0%, #0f766e 100%);
+      background: linear-gradient(135deg, t.$accent-500 0%, t.$accent-700 100%);
       color: white;
 
       .ant-statistic-title {
@@ -43,7 +43,7 @@
     }
 
     &.stat-card-success {
-      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+      background: linear-gradient(135deg, t.$accent-400 0%, t.$accent-600 100%);
       color: white;
 
       .ant-statistic-title {
@@ -52,7 +52,7 @@
     }
 
     &.stat-card-warning {
-      background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+      background: linear-gradient(135deg, t.$accent-600 0%, t.$accent-800 100%);
       color: white;
 
       .ant-statistic-title {
@@ -61,7 +61,7 @@
     }
 
     &.stat-card-danger {
-      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+      background: linear-gradient(135deg, t.$accent-700 0%, t.$accent-900 100%);
       color: white;
 
       .ant-statistic-title {
@@ -73,7 +73,7 @@
   .productivity-item {
     text-align: center;
     padding: 16px;
-    background: #f8fafc;
+    background: t.$color-page;
     border: 1px solid t.$color-border;
     border-radius: t.$radius-md;
 
@@ -104,29 +104,29 @@
     }
 
     &.attention-high {
-      border-color: #ff4d4f;
-      background: #fff1f0;
+      border-color: t.$accent-700;
+      background: t.$accent-100;
 
       .attention-value {
-        color: #ff4d4f;
+        color: t.$accent-800;
       }
     }
 
     &.attention-medium {
-      border-color: #faad14;
-      background: #fffbe6;
+      border-color: t.$accent-500;
+      background: t.$accent-100;
 
       .attention-value {
-        color: #faad14;
+        color: t.$accent-600;
       }
     }
 
     &.attention-low {
-      border-color: #52c41a;
-      background: #f6ffed;
+      border-color: t.$color-border;
+      background: t.$color-page;
 
       .attention-value {
-        color: #52c41a;
+        color: t.$accent-400;
       }
     }
   }
@@ -136,7 +136,7 @@
     box-shadow: t.$shadow-card;
 
     .ant-card-head {
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: 1px solid t.$color-border;
       padding: 16px 24px;
     }
   }
@@ -147,11 +147,11 @@
   }
 
   .metric-good {
-    color: t.$color-success;
+    color: t.$accent-500;
   }
 
   .metric-warning {
-    color: t.$color-warning;
+    color: t.$accent-600;
   }
 
   .dashboard-summary-box {
@@ -170,14 +170,14 @@
   .overdue-alert {
     margin-top: 24px;
     padding: 12px;
-    color: t.$color-danger;
-    background: #fff7ed;
-    border: 1px solid #fed7aa;
+    color: t.$accent-800;
+    background: t.$accent-100;
+    border: 1px solid t.$accent-300;
     border-radius: t.$radius-md;
   }
 
   .overdue-list-icon {
-    color: t.$color-danger;
+    color: t.$accent-800;
     font-size: 18px;
   }
 
@@ -191,14 +191,14 @@
 
   .ant-list-item {
     padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid t.$color-border;
 
     &:last-child {
       border-bottom: none;
     }
 
     &:hover {
-      background: #fafafa;
+      background: t.$color-page;
       padding-left: 8px;
       transition: all 0.3s ease;
     }
