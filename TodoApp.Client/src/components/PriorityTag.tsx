@@ -16,13 +16,13 @@ export const PriorityTag = ({ priority }: PriorityTagProps) => {
   switch (priorityValue) {
     case Tier.High:
     case 2:
-      return <Tag color="red">Cao</Tag>;
+      return <Tag color="#7d5411">Cao</Tag>;
     case Tier.Medium:
     case 1:
-      return <Tag color="orange">Trung bình</Tag>;
+      return <Tag color="#c28d41">Trung bình</Tag>;
     case Tier.Low:
     case 0:
-      return <Tag color="green">Thấp</Tag>;
+      return <Tag color="default">Thấp</Tag>;
     default:
       return <Tag>Không xác định</Tag>;
   }

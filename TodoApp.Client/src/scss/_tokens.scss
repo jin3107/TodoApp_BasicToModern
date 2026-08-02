@@ -1,19 +1,36 @@
-$color-primary: #1677ff;
-$color-primary-hover: #4096ff;
-$color-success: #16a34a;
-$color-warning: #d97706;
-$color-danger: #dc2626;
-$color-text: #1f2937;
-$color-text-muted: #6b7280;
-$color-border: #e5e7eb;
-$color-surface: #ffffff;
-$color-page: #f3f6fb;
-$color-sidebar: #0f172a;
+// Classical design tokens — SCSS aliases into the runtime CSS custom
+// properties declared in _classical-vars.scss (imported once, first, in
+// global.scss). Aliasing to var(--color-x) instead of static hex makes every
+// page that consumes `t.$color-*` reactive to the light/dark toggle for free.
 
-$radius-sm: 6px;
-$radius-md: 8px;
-$shadow-card: 0 10px 28px rgba(15, 23, 42, 0.08);
-$shadow-card-hover: 0 14px 36px rgba(15, 23, 42, 0.12);
+$color-primary: var(--color-accent);
+$color-primary-hover: var(--color-accent-700);
+$color-success: var(--color-accent-500);
+$color-warning: var(--color-accent-700);
+$color-danger: var(--color-accent-800);
+
+// Single-accent tonal ramp (mono scheme, per the Classical design system —
+// differentiate by shade/lightness, not by hue).
+$accent-100: var(--color-accent-100);
+$accent-300: var(--color-accent-300);
+$accent-500: var(--color-accent-500);
+$accent-700: var(--color-accent-700);
+$accent-800: var(--color-accent-800);
+
+$color-text: var(--color-text);
+$color-text-muted: var(--color-text-muted);
+$color-border: var(--color-divider);
+$color-surface: var(--color-surface);
+$color-page: var(--color-bg);
+
+$radius-sm: 2px;
+$radius-md: 4px;
+$radius-lg: 7px;
+$shadow-card: var(--shadow-md);
+$shadow-card-hover: var(--shadow-lg);
+
+$font-heading: "Cormorant Garamond", system-ui, sans-serif;
+$font-body: "Lora", system-ui, sans-serif;
 
 $screen-sm: 576px;
 $screen-md: 768px;

@@ -1,66 +1,35 @@
 @use '../../scss/tokens' as t;
 @use '../../scss/mixins' as m;
 
-.login-page {
-  @include m.auth-shell(t.$color-primary, t.$color-success);
+.login-page__card {
+  width: min(420px, 92vw);
+  @include m.card-surface;
 
-  &__panel {
-    @include m.auth-panel(420px, 1080px);
-    align-items: start;
+  .ant-card-body {
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
   }
+}
 
-  &__intro {
-    @include m.auth-intro;
-    grid-column: 1 / -1;
-    max-width: 680px;
+.login-page__header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  h2 {
+    margin: 0;
   }
+}
 
-  &__eyebrow {
-    color: t.$color-primary;
-    font-weight: 700;
-    letter-spacing: 0;
-    text-transform: uppercase;
-  }
+.login-page__subtitle {
+  color: t.$color-text-muted;
+  font-size: 13.5px;
+}
 
-  &__subtitle {
-    max-width: 520px;
-    color: t.$color-text-muted;
-    font-size: 17px;
-  }
-
-  &__image {
-    width: min(100%, 560px);
-    aspect-ratio: 16 / 10;
-    border-radius: t.$radius-md;
-    object-fit: cover;
-    box-shadow: t.$shadow-card;
-  }
-
-  &__card {
-    @include m.card-surface;
-
-    .ant-card-body {
-      padding: 32px;
-    }
-  }
-
-  &__footer {
-    width: 100%;
-    justify-content: center;
-    margin-top: 24px;
-  }
-
-  @include m.respond-down(t.$screen-sm) {
-    &__image {
-      max-height: 220px;
-    }
-
-    &__card {
-      width: 100%;
-
-      .ant-card-body {
-        padding: 24px 16px;
-      }
-    }
-  }
+.login-page__footer {
+  width: 100%;
+  justify-content: center;
 }

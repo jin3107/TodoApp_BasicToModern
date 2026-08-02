@@ -52,7 +52,7 @@ export const StatsCard = ({
   className,
   showProgress = false,
   progressPercent,
-  progressColor = '#52c41a',
+  progressColor = '#b68235',
   total,
 }: StatsCardProps) => {
   // Tự động tính percent nếu có total
@@ -65,7 +65,7 @@ export const StatsCard = ({
         value={value}
         prefix={prefix}
         suffix={suffix}
-        valueStyle={valueStyle || { color: '#1890ff', fontSize: '32px', fontWeight: 'bold' }}
+        valueStyle={valueStyle || { color: '#b68235', fontSize: '32px', fontWeight: 'bold' }}
       />
       {showProgress && calculatedPercent !== undefined && (
         <Progress
