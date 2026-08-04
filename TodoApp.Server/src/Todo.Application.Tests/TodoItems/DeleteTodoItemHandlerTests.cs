@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using Microsoft.Extensions.Logging;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace Todo.Application.Tests.TodoItems
         {
             _todoItemRepositoryMock = new Mock<ITodoItemRepository>();
             _userServiceMock = new Mock<IUserService>();
-            _handler = new DeleteTodoItemHandler(_todoItemRepositoryMock.Object, _userServiceMock.Object);
+            _handler = new DeleteTodoItemHandler(_todoItemRepositoryMock.Object, _userServiceMock.Object, new Mock<ILogger<DeleteTodoItemHandler>>().Object);
         }
 
         [Fact]
@@ -103,7 +104,7 @@ namespace Todo.Application.Tests.TodoItems
                 .ReturnsAsync(new CurrentUserDto { Id = "u1", Email = "a@test.com", Roles = new List<string> { "User" } });
 
             var itemId = Guid.NewGuid();
-            var task = new TodoItem { Id = itemId, IsDeleted = false, CreatedBy = "a@test.com" };
+            var task = new TodoItem { Id = itemId, IsDeleted = false, CreatedBy = "u1" };
             _todoItemRepositoryMock
                 .Setup(s => s.GetByIdAsync(itemId))
                 .ReturnsAsync(task);

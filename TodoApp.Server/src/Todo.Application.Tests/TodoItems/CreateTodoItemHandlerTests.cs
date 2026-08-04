@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Moq;
 using Todo.Application.Implementations.TodoItems;
 using Todo.Application.Interfaces;
@@ -20,7 +21,7 @@ namespace Todo.Application.Tests.TodoItems
         {
             _todoItemRepositoryMock = new Mock<ITodoItemRepository>();
             _userServiceMock = new Mock<IUserService>();
-            _handler = new CreateTodoItemHandler(_todoItemRepositoryMock.Object, _userServiceMock.Object);
+            _handler = new CreateTodoItemHandler(_todoItemRepositoryMock.Object, _userServiceMock.Object, new Mock<ILogger<CreateTodoItemHandler>>().Object);
         }
 
         [Fact]
@@ -50,7 +51,7 @@ namespace Todo.Application.Tests.TodoItems
             _todoItemRepositoryMock.Verify(
                 r => r.AddAsync(It.Is<TodoItem>(t =>
                     t.Title == "Học bài" &&
-                    t.CreatedBy == "a@test.com" &&
+                    t.CreatedBy == "u1" &&
                     t.IsCompleted == false)),
                 Times.Once);
         }
