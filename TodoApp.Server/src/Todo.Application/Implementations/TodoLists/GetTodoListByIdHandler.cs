@@ -1,4 +1,5 @@
 using MayNghien.Infrastructures.Models.Responses;
+using Microsoft.Extensions.Logging;
 using Todo.DTOs.Responses;
 using Todo.Application.Interfaces;
 using Todo.Application.Interfaces.Repositories;
@@ -11,11 +12,13 @@ namespace Todo.Application.Implementations.TodoLists
     {
         private readonly ITodoListRepository _todoListRepository;
         private readonly IUserService _userService;
+        private readonly ILogger<GetTodoListByIdHandler> _logger;
 
-        public GetTodoListByIdHandler(ITodoListRepository todoListRepository, IUserService userService)
+        public GetTodoListByIdHandler(ITodoListRepository todoListRepository, IUserService userService, ILogger<GetTodoListByIdHandler> logger)
         {
             _todoListRepository = todoListRepository;
             _userService = userService;
+            _logger = logger;
         }
 
         public async Task<AppResponse<TodoListResponse>> HandleAsync(Guid id)
@@ -36,7 +39,8 @@ namespace Todo.Application.Implementations.TodoLists
             }
             catch (Exception ex)
             {
-                return result.BuildError(ex.Message + " " + ex.StackTrace);
+                _logger.LogError(ex, "Failed to get TodoList {ListId}", id);
+                return result.BuildError("An error occurred while retrieving the todo list.");
             }
         }
     }

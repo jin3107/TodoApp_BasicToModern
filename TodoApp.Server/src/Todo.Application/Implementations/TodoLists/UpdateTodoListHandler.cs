@@ -1,4 +1,5 @@
 using MayNghien.Infrastructures.Models.Responses;
+using Microsoft.Extensions.Logging;
 using Todo.DTOs.Requests;
 using Todo.DTOs.Responses;
 using Todo.Application.Interfaces;
@@ -12,11 +13,13 @@ namespace Todo.Application.Implementations.TodoLists
     {
         private readonly ITodoListRepository _todoListRepository;
         private readonly IUserService _userService;
+        private readonly ILogger<UpdateTodoListHandler> _logger;
 
-        public UpdateTodoListHandler(ITodoListRepository todoListRepository, IUserService userService)
+        public UpdateTodoListHandler(ITodoListRepository todoListRepository, IUserService userService, ILogger<UpdateTodoListHandler> logger)
         {
             _todoListRepository = todoListRepository;
             _userService = userService;
+            _logger = logger;
         }
 
         public async Task<AppResponse<TodoListResponse>> HandleAsync(TodoListRequest request)
@@ -32,7 +35,7 @@ namespace Todo.Application.Implementations.TodoLists
                 if (entity == null || entity.IsDeleted == true)
                     return result.BuildError("Todo list not found or deleted.");
 
-                if (!user.Roles.Contains("SuperAdmin") && entity.CreatedBy != user.Email)
+                if (!user.Roles.Contains("SuperAdmin") && entity.CreatedBy != user.Id)
                     return result.BuildError("Forbidden: you do not own this resource.");
 
                 entity.Name = request.Name;
@@ -45,7 +48,8 @@ namespace Todo.Application.Implementations.TodoLists
             }
             catch (Exception ex)
             {
-                return result.BuildError(ex.Message + " " + ex.StackTrace);
+                _logger.LogError(ex, "TodoList: {Id} update failed.", request.Id);
+                return result.BuildError("An error occurred while updating the todo list.");
             }
         }
     }

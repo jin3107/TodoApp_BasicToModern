@@ -1,6 +1,7 @@
 using LinqKit;
 using MayNghien.Infrastructures.Models.Requests;
 using MayNghien.Infrastructures.Models.Responses;
+using Microsoft.Extensions.Logging;
 using Todo.DTOs.Responses;
 using Todo.Domain.Entities;
 using Todo.Application.Interfaces.Repositories;
@@ -15,11 +16,13 @@ namespace Todo.Application.Implementations.TodoLists
     {
         private readonly ITodoListRepository _todoListRepository;
         private readonly IUserService _userService;
+        private readonly ILogger<SearchTodoListHandler> _logger;
 
-        public SearchTodoListHandler(ITodoListRepository todoListRepository, IUserService userService)
+        public SearchTodoListHandler(ITodoListRepository todoListRepository, IUserService userService, ILogger<SearchTodoListHandler> logger)
         {
             _todoListRepository = todoListRepository;
             _userService = userService;
+            _logger = logger;
         }
 
         public async Task<AppResponse<SearchResponse<TodoListResponse>>> HandleAsync(SearchRequest request)
@@ -33,7 +36,7 @@ namespace Todo.Application.Implementations.TodoLists
 
                 var isSuperAdmin = user.Roles.Contains("SuperAdmin");
 
-                var query = BuildFilterExpression(request.Filters!, isSuperAdmin ? null : user.Email);
+                var query = BuildFilterExpression(request.Filters!, isSuperAdmin ? null : user.Id);
 
                 int pageIndex = request.PageIndex ?? 1;
                 int pageSize = request.PageSize ?? 10;
@@ -54,17 +57,18 @@ namespace Todo.Application.Implementations.TodoLists
             }
             catch (Exception ex)
             {
-                return result.BuildError(ex.Message + " " + ex.StackTrace);
+                _logger.LogError(ex, "Failed to search TodoLists");
+                return result.BuildError("An error occurred while searching todo lists.");
             }
         }
 
-        private static ExpressionStarter<TodoList> BuildFilterExpression(List<Filter> filters, string? ownerEmail)
+        private ExpressionStarter<TodoList> BuildFilterExpression(List<Filter> filters, string? ownerId)
         {
             try
             {
                 var predicate = PredicateBuilder.New<TodoList>(true);
-                if (ownerEmail != null)
-                    predicate = predicate.And(x => x.CreatedBy == ownerEmail);
+                if (ownerId != null)
+                    predicate = predicate.And(x => x.CreatedBy == ownerId);
 
                 if (filters != null)
                 {
@@ -87,7 +91,8 @@ namespace Todo.Application.Implementations.TodoLists
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message + " " + ex.StackTrace);
+                _logger.LogError(ex, "Failed to build TodoList filter expression");
+                throw;
             }
         }
     }

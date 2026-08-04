@@ -1,4 +1,5 @@
 ﻿using MayNghien.Infrastructures.Models.Requests;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Todo.Application.Common;
 using Todo.Application.Implementations.TodoItems;
@@ -19,7 +20,7 @@ namespace Todo.Application.Tests.TodoItems
         {
             _todoItemRepositoryMock = new Mock<ITodoItemRepository>();
             _userServiceMock = new Mock<IUserService>();
-            _handler = new SearchTodoItemHandler(_todoItemRepositoryMock.Object, _userServiceMock.Object);
+            _handler = new SearchTodoItemHandler(_todoItemRepositoryMock.Object, _userServiceMock.Object, new Mock<ILogger<SearchTodoItemHandler>>().Object);
         }
 
         [Fact]
@@ -85,8 +86,8 @@ namespace Todo.Application.Tests.TodoItems
             // Assert
             _todoItemRepositoryMock.Verify(r => r.SearchAsync(
                 It.Is<System.Linq.Expressions.Expression<Func<TodoItem, bool>>>(expr =>
-                    expr.Compile()(new TodoItem { CreatedBy = "owner@test.com", IsDeleted = false }) &&
-                    !expr.Compile()(new TodoItem { CreatedBy = "someone-else@test.com", IsDeleted = false })),
+                    expr.Compile()(new TodoItem { CreatedBy = "u1", IsDeleted = false }) &&
+                    !expr.Compile()(new TodoItem { CreatedBy = "someone-else-id", IsDeleted = false })),
                 It.IsAny<SortByInfo?>(),
                 1, 10), Times.Once);
         }

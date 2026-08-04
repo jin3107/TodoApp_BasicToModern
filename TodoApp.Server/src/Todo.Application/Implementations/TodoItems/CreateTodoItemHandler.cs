@@ -6,6 +6,7 @@ using Todo.Application.Interfaces;
 using Todo.Application.Interfaces.Repositories;
 using Todo.Application.Interfaces.TodoItems;
 using Todo.Application.Mapping;
+using Microsoft.Extensions.Logging;
 
 namespace Todo.Application.Implementations.TodoItems
 {
@@ -13,11 +14,13 @@ namespace Todo.Application.Implementations.TodoItems
     {
         private readonly ITodoItemRepository _todoItemRepository;
         private readonly IUserService _userService;
+        private readonly ILogger<CreateTodoItemHandler> _logger;
 
-        public CreateTodoItemHandler(ITodoItemRepository todoItemRepository, IUserService userService)
+        public CreateTodoItemHandler(ITodoItemRepository todoItemRepository, IUserService userService, ILogger<CreateTodoItemHandler> logger)
         {
             _todoItemRepository = todoItemRepository;
             _userService = userService;
+            _logger = logger;
         }
 
         public async Task<AppResponse<TodoItemResponse>> HandleAsync(TodoItemRequest request)
@@ -40,7 +43,7 @@ namespace Todo.Application.Implementations.TodoItems
                     IsCompleted = false,
                     CompletedOn = null,
                 };
-                newTask.SetCreatedInfo(user.Email);
+                newTask.SetCreatedInfo(user.Id);
                 await _todoItemRepository.AddAsync(newTask);
 
                 var response = TodoItemMapper.ToResponse(newTask);
@@ -48,7 +51,8 @@ namespace Todo.Application.Implementations.TodoItems
             }
             catch (Exception ex)
             {
-                return result.BuildError(ex.Message + " " + ex.StackTrace);
+                _logger.LogError(ex, "Item: {Title} create failed.", request.Title);
+                return result.BuildError("An error occurred while creating the item.");
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using Microsoft.Extensions.Logging;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace Todo.Application.Tests.TodoItems
         {
             _todoItemRepositoryMock = new Mock<ITodoItemRepository>();
             _userServiceMock = new Mock<IUserService>();
-            _handler = new GetTodoItemByIdHandler(_todoItemRepositoryMock.Object, _userServiceMock.Object);
+            _handler = new GetTodoItemByIdHandler(_todoItemRepositoryMock.Object, _userServiceMock.Object, new Mock<ILogger<GetTodoItemByIdHandler>>().Object);
         }
 
         [Fact]
