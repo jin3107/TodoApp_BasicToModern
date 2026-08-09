@@ -6,12 +6,6 @@ interface StatusTagProps {
   isOverdue?: boolean;
 }
 
-/**
- * Component hiển thị tag trạng thái hoàn thành
- * @param isCompleted - Trạng thái đã hoàn thành hay chưa
- * @param isOverdue - Đã quá hạn hoàn thành hay chưa (bỏ qua nếu isCompleted = true)
- * @returns Tag với icon và màu sắc tương ứng
- */
 export const StatusTag = ({ isCompleted, isOverdue }: StatusTagProps) => {
   if (isCompleted) {
     return (

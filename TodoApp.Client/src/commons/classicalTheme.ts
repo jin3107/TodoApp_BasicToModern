@@ -1,10 +1,5 @@
 import { theme, type ThemeConfig } from "antd";
 
-/**
- * Ported 1:1 from the Classical design system handoff:
- * _ds/classical-.../styles.css (`:root`) + the `[data-theme="dark"]`
- * override block in TodoApp.dc.html's <style>.
- */
 export const classicalTokens = {
   light: {
     bg: "#f3f2f2",
@@ -40,8 +35,8 @@ export const classicalTokens = {
   },
 } as const;
 
-const fontHeading = '"Cormorant Garamond", system-ui, sans-serif';
-const fontBody = '"Lora", system-ui, sans-serif';
+const fontHeading = '"Plus Jakarta Sans", system-ui, sans-serif';
+const fontBody = '"Inter", system-ui, sans-serif';
 
 export const getClassicalTheme = (isDark: boolean): ThemeConfig => {
   const t = isDark ? classicalTokens.dark : classicalTokens.light;

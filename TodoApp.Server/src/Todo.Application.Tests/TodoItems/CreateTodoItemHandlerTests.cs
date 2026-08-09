@@ -27,7 +27,6 @@ namespace Todo.Application.Tests.TodoItems
         [Fact]
         public async Task HandleAsync_ValidRequest_ReturnsSuccessAndCallsAddAsyncOnce()
         {
-            // Arrange
             _userServiceMock
                 .Setup(s => s.GetCurrentUserAsync())
                 .ReturnsAsync(new CurrentUserDto { Id = "u1", Email = "a@test.com", Roles = new List<string> { "User" } });
@@ -40,10 +39,8 @@ namespace Todo.Application.Tests.TodoItems
                 Priority = Tier.Medium
             };
 
-            // Act
             var result = await _handler.HandleAsync(request);
 
-            // Assert
             Assert.True(result.IsSuccess);
             Assert.Equal("Học bài", result.Data!.Title);
             Assert.False(result.Data.IsCompleted);
@@ -59,17 +56,14 @@ namespace Todo.Application.Tests.TodoItems
         [Fact]
         public async Task HandleAsync_UserNotFound_ReturnsErrorAndNeverCallsCreateTodoItemAsync()
         {
-            // Arrange
             _userServiceMock
                 .Setup(s => s.GetCurrentUserAsync())
                 .ReturnsAsync((CurrentUserDto?)null);
 
             var request = new TodoItemRequest { Title = "Học bài" };
 
-            // Act
             var result = await _handler.HandleAsync(request);
 
-            // Assert
             Assert.False(result.IsSuccess);
             Assert.Equal("Unauthorized.", result.Message);
 

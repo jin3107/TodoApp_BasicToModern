@@ -5,11 +5,6 @@ interface PriorityTagProps {
   priority: Tier | number;
 }
 
-/**
- * Component hiển thị tag độ ưu tiên
- * @param priority - Độ ưu tiên (Tier enum hoặc number)
- * @returns Tag với màu sắc tương ứng
- */
 export const PriorityTag = ({ priority }: PriorityTagProps) => {
   const priorityValue = typeof priority === 'number' ? priority : priority;
   

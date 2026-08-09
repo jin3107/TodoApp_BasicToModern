@@ -21,7 +21,6 @@ namespace Todo.Infrastructure
         public static IServiceCollection AddInfrastructureServices(
             this IServiceCollection services, IConfiguration configuration)
         {
-            // Cache
             var redisConn = configuration.GetConnectionString("RedisConnection");
             var redisEnabled = configuration.GetValue<bool>("RedisSettings:Enabled");
             if (redisEnabled && !string.IsNullOrEmpty(redisConn))
@@ -51,7 +50,6 @@ namespace Todo.Infrastructure
                 services.AddScoped<ICacheService, MemoryCacheService>();
             }
 
-            // Repositories
             services.AddScoped<ITodoItemRepository, TodoItemRepository>();
             services.AddScoped<ITodoListRepository, TodoListRepository>();
             services.AddScoped<ITodoItemProgressReportRepository, TodoItemProgressReportRepository>();
@@ -59,13 +57,10 @@ namespace Todo.Infrastructure
             services.AddScoped<IBlacklistedTokenRepository, BlacklistedTokenRepository>();
             services.AddScoped<IOtpCodeRepository, OtpCodeRepository>();
 
-            // Email
             services.AddScoped<IEmailService, EmailService>();
 
-            // User
             services.AddScoped<IUserService, UserService>();
 
-            // Auth handlers
             services.AddScoped<ILoginHandler, LoginHandler>();
             services.AddScoped<IRegisterHandler, RegisterHandler>();
             services.AddScoped<IRefreshTokenHandler, RefreshTokenHandler>();
@@ -74,7 +69,6 @@ namespace Todo.Infrastructure
             services.AddScoped<ISendOtpHandler, SendOtpHandler>();
             services.AddScoped<IVerifyOtpHandler, VerifyOtpHandler>();
 
-            // Quartz
             services.AddQuartz(q =>
             {
                 q.UseSimpleTypeLoader();

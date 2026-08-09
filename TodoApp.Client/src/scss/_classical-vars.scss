@@ -1,9 +1,3 @@
-// Classical design system — runtime CSS custom properties (light default,
-// dark override via [data-theme="dark"] on <html>). Ported 1:1 from the
-// design handoff's styles.css + the dark override block in TodoApp.dc.html.
-// SCSS variables in _tokens.scss alias into these so every page that already
-// consumes `t.$color-*` becomes theme-reactive for free.
-
 :root {
   --color-bg: #f3f2f2;
   --color-surface: #eae9e9;
