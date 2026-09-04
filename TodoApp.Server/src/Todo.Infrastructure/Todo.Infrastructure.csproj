@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MayNghien.Infrastructures\MayNghien.Infrastructures\MayNghien.Infrastructures.csproj" />
+    <ProjectReference Include="..\MayNghien.Infrastructures\MayNghien.Infrastructures.csproj" />
     <ProjectReference Include="..\Todo.Application\Todo.Application.csproj" />
   </ItemGroup>
 

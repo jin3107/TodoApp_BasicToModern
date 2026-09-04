@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Todo.DTOs", "Todo.DTOs\Todo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Todo.Commons", "Todo.Commons\Todo.Commons.csproj", "{818F7FAB-6290-4EA0-908F-C3A9653E20BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MayNghien.Infrastructures", "MayNghien.Infrastructures\MayNghien.Infrastructures\MayNghien.Infrastructures.csproj", "{FBFD1B66-2149-44CC-A729-B1751A9B026E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MayNghien.Infrastructures", "MayNghien.Infrastructures\MayNghien.Infrastructures.csproj", "{FBFD1B66-2149-44CC-A729-B1751A9B026E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Todo.Domain", "Todo.Domain\Todo.Domain.csproj", "{6A8D82E4-CBC1-4F2A-8BC0-C8D2A5EF3308}"
 EndProject
