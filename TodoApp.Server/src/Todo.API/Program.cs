@@ -34,6 +34,8 @@ builder.Host.UseSerilog((context, configuration) =>
 
 var app = builder.Build();
 
+await app.ApplyMigrationsAsync();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
