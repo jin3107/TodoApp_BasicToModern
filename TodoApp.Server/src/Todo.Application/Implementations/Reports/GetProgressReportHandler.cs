@@ -125,7 +125,8 @@ namespace Todo.Application.Implementations.Reports
             }
             catch (Exception ex)
             {
-                result.BuildError($"Error generating report: {ex.Message}");
+                _logger.LogError(ex, "Error generating progress report");
+                result.BuildError("An unexpected error occurred while generating the report.");
             }
             return result;
         }
