@@ -1,17 +1,12 @@
 @use './tokens' as t;
 
-// Shared plain-HTML component classes matching the Classical design system's
-// styles.css (.card / .tag / .seg), for pages that need the exact
-// kicker+title card shape or the segmented range control that AntD's own
-// Card/Statistic/Segmented don't quite reproduce.
-
 .cls-card {
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 14px;
   border-radius: t.$radius-md;
-  background: transparent;
+  background: t.$color-surface;
   border: 1px solid t.$color-border;
 }
 

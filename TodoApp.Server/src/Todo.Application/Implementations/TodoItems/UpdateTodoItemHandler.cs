@@ -5,6 +5,7 @@ using Todo.Application.Interfaces;
 using Todo.Application.Interfaces.Repositories;
 using Todo.Application.Interfaces.TodoItems;
 using Todo.Application.Mapping;
+using Microsoft.Extensions.Logging;
 
 namespace Todo.Application.Implementations.TodoItems
 {
@@ -12,11 +13,13 @@ namespace Todo.Application.Implementations.TodoItems
     {
         private readonly ITodoItemRepository _todoItemRepository;
         private readonly IUserService _userService;
+        private readonly ILogger<UpdateTodoItemHandler> _logger;
 
-        public UpdateTodoItemHandler(ITodoItemRepository todoItemRepository, IUserService userService)
+        public UpdateTodoItemHandler(ITodoItemRepository todoItemRepository, IUserService userService, ILogger<UpdateTodoItemHandler> logger)
         {
             _todoItemRepository = todoItemRepository;
             _userService = userService;
+            _logger = logger;
         }
 
         public async Task<AppResponse<TodoItemResponse>> HandleAsync(TodoItemRequest request)
@@ -32,7 +35,7 @@ namespace Todo.Application.Implementations.TodoItems
                 if (task == null || task.IsDeleted == true)
                     return result.BuildError("Item not found or deleted.");
 
-                if (!user.Roles.Contains("SuperAdmin") && task.CreatedBy != user.Email)
+                if (!user.Roles.Contains("SuperAdmin") && task.CreatedBy != user.Id)
                     return result.BuildError("Forbidden: you do not own this resource.");
 
                 task.Title = request.Title;
@@ -49,7 +52,8 @@ namespace Todo.Application.Implementations.TodoItems
             }
             catch (Exception ex)
             {
-                return result.BuildError(ex.Message + " " + ex.StackTrace);
+                _logger.LogError(ex, "Item: {Title} update failed.", request.Title);
+                return result.BuildError("An error occurred while updating the item.");
             }
         }
     }

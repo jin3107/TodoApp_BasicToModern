@@ -16,21 +16,18 @@ namespace Todo.Application
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            // TodoItem handlers
             services.AddScoped<ICreateTodoItemHandler, CreateTodoItemHandler>();
             services.AddScoped<IUpdateTodoItemHandler, UpdateTodoItemHandler>();
             services.AddScoped<IDeleteTodoItemHandler, DeleteTodoItemHandler>();
             services.AddScoped<IGetTodoItemByIdHandler, GetTodoItemByIdHandler>();
             services.AddScoped<ISearchTodoItemHandler, SearchTodoItemHandler>();
 
-            // TodoList handlers
             services.AddScoped<ICreateTodoListHandler, CreateTodoListHandler>();
             services.AddScoped<IUpdateTodoListHandler, UpdateTodoListHandler>();
             services.AddScoped<IDeleteTodoListHandler, DeleteTodoListHandler>();
             services.AddScoped<IGetTodoListByIdHandler, GetTodoListByIdHandler>();
             services.AddScoped<ISearchTodoListHandler, SearchTodoListHandler>();
 
-            // Report handlers (decorator pattern: CachedGetProgressReportHandler wraps GetProgressReportHandler)
             services.AddScoped<GetProgressReportHandler>();
             services.AddScoped<IGetProgressReportHandler>(sp =>
                 new CachedGetProgressReportHandler(
@@ -40,7 +37,6 @@ namespace Todo.Application
                 ));
             services.AddScoped<ICreateDailySnapshotHandler, CreateDailySnapshotHandler>();
 
-            // Background handlers
             services.AddScoped<IClearExpiredDataHandler, ClearExpiredDataHandler>();
             services.AddScoped<ISendDailyReportHandler, SendDailyReportHandler>();
             services.AddScoped<ISendReminderHandler, SendReminderHandler>();

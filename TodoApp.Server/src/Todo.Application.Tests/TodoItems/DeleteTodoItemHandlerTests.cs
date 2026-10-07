@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using Microsoft.Extensions.Logging;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,13 +23,12 @@ namespace Todo.Application.Tests.TodoItems
         {
             _todoItemRepositoryMock = new Mock<ITodoItemRepository>();
             _userServiceMock = new Mock<IUserService>();
-            _handler = new DeleteTodoItemHandler(_todoItemRepositoryMock.Object, _userServiceMock.Object);
+            _handler = new DeleteTodoItemHandler(_todoItemRepositoryMock.Object, _userServiceMock.Object, new Mock<ILogger<DeleteTodoItemHandler>>().Object);
         }
 
         [Fact]
         public async Task HandleAsync_UserNotFound_ReturnsErrorAndNeverCallsDeleteAsync()
         {
-            // Arrange
             _userServiceMock
                 .Setup(s => s.GetCurrentUserAsync())
                 .ReturnsAsync((CurrentUserDto?)null);
@@ -38,10 +38,8 @@ namespace Todo.Application.Tests.TodoItems
                 .Setup(s => s.GetByIdAsync(itemId))
                 .ReturnsAsync(new TodoItem { Id = itemId });
 
-            // Act
             var result = await _handler.HandleAsync(itemId);
 
-            // Assert
             Assert.False(result.IsSuccess);
             Assert.Equal("Unauthorized.", result.Message);
 
@@ -51,7 +49,6 @@ namespace Todo.Application.Tests.TodoItems
         [Fact]
         public async Task HandleAsync_RepositoryReturnsNull_ReturnsNotFoundError()
         {
-            // Arrange
             _userServiceMock
                 .Setup(s => s.GetCurrentUserAsync())
                 .ReturnsAsync(new CurrentUserDto { Id = "u1", Email = "a@test.com", Roles = new List<string> { "User" } });
@@ -61,10 +58,8 @@ namespace Todo.Application.Tests.TodoItems
                 .Setup(s => s.GetByIdAsync(itemId))
                 .ReturnsAsync((TodoItem?)null);
 
-            // Act
             var result = await _handler.HandleAsync(itemId);
 
-            // Assert
             Assert.False(result.IsSuccess);
             Assert.Equal("Item not found or deleted.", result.Message);
 
@@ -74,7 +69,6 @@ namespace Todo.Application.Tests.TodoItems
         [Fact]
         public async Task HandleAsync_TaskIsDeleted_ReturnsNotFoundError()
         {
-            // Arrange
             _userServiceMock
                 .Setup(s => s.GetCurrentUserAsync())
                 .ReturnsAsync(new CurrentUserDto { Id = "u1", Email = "a@test.com", Roles = new List<string> { "User" } });
@@ -84,10 +78,8 @@ namespace Todo.Application.Tests.TodoItems
                .Setup(s => s.GetByIdAsync(itemId))
                .ReturnsAsync(new TodoItem { Id = itemId, Title = "Học bài", IsDeleted = true });
 
-            // Act
             var result = await _handler.HandleAsync(itemId);
 
-            // Assert
             Assert.False(result.IsSuccess);
             Assert.Equal("Item not found or deleted.", result.Message);
 
@@ -97,21 +89,18 @@ namespace Todo.Application.Tests.TodoItems
         [Fact]
         public async Task HandleAsync_ValidRequest_ReturnsSuccessAndCallsDeleteAsyncOnce()
         {
-            // Arrange
             _userServiceMock
                 .Setup(r => r.GetCurrentUserAsync())
                 .ReturnsAsync(new CurrentUserDto { Id = "u1", Email = "a@test.com", Roles = new List<string> { "User" } });
 
             var itemId = Guid.NewGuid();
-            var task = new TodoItem { Id = itemId, IsDeleted = false, CreatedBy = "a@test.com" };
+            var task = new TodoItem { Id = itemId, IsDeleted = false, CreatedBy = "u1" };
             _todoItemRepositoryMock
                 .Setup(s => s.GetByIdAsync(itemId))
                 .ReturnsAsync(task);
 
-            // Act
             var result = await _handler.HandleAsync(itemId);
 
-            // Assert
             Assert.True(result.IsSuccess);
             Assert.Equal("Item deleted successfully.", result.Data);
             Assert.True(task.IsDeleted);
@@ -123,7 +112,6 @@ namespace Todo.Application.Tests.TodoItems
         [Fact]
         public async Task HandleAsync_UserNotOwnerAndNotSuperAdmin_ReturnsForbiddenError()
         {
-            // Arrange
             _userServiceMock
                 .Setup(s => s.GetCurrentUserAsync())
                 .ReturnsAsync(new CurrentUserDto { Id = "u1", Email = "a@test.com", Roles = new List<string> { "User" } });
@@ -133,10 +121,8 @@ namespace Todo.Application.Tests.TodoItems
                 .Setup(s => s.GetByIdAsync(itemId))
                 .ReturnsAsync(new TodoItem { Id = itemId, IsDeleted = false, CreatedBy = "someone-else@test.com" });
 
-            // Act
             var result = await _handler.HandleAsync(itemId);
 
-            // Assert
             Assert.False(result.IsSuccess);
             Assert.Equal("Forbidden: you do not own this resource.", result.Message);
 
@@ -147,7 +133,6 @@ namespace Todo.Application.Tests.TodoItems
         [Fact]
         public async Task HandleAsync_SuperAdminNotOwner_ReturnsSuccessAndCallsDeleteAsyncOnce()
         {
-            // Arrange
             _userServiceMock
                 .Setup(s => s.GetCurrentUserAsync())
                 .ReturnsAsync(new CurrentUserDto { Id = "u1", Email = "admin@test.com", Roles = new List<string> { "SuperAdmin" } });
@@ -158,10 +143,8 @@ namespace Todo.Application.Tests.TodoItems
                 .Setup(s => s.GetByIdAsync(itemId))
                 .ReturnsAsync(task);
 
-            // Act
             var result = await _handler.HandleAsync(itemId);
 
-            // Assert
             Assert.True(result.IsSuccess);
             Assert.Equal("Item deleted successfully.", result.Data);
             Assert.True(task.IsDeleted);

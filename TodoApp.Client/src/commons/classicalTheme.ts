@@ -1,14 +1,9 @@
 import { theme, type ThemeConfig } from "antd";
 
-/**
- * Ported 1:1 from the Classical design system handoff:
- * _ds/classical-.../styles.css (`:root`) + the `[data-theme="dark"]`
- * override block in TodoApp.dc.html's <style>.
- */
 export const classicalTokens = {
   light: {
-    bg: "#ece7dc",
-    surface: "#e4ddcd",
+    bg: "#f3f2f2",
+    surface: "#eae9e9",
     text: "#201f1d",
     accent: "#b68235",
     accentHover: "#e1ad66",
@@ -40,8 +35,8 @@ export const classicalTokens = {
   },
 } as const;
 
-const fontHeading = '"Cormorant Garamond", system-ui, sans-serif';
-const fontBody = '"Lora", system-ui, sans-serif';
+const fontHeading = '"Plus Jakarta Sans", system-ui, sans-serif';
+const fontBody = '"Inter", system-ui, sans-serif';
 
 export const getClassicalTheme = (isDark: boolean): ThemeConfig => {
   const t = isDark ? classicalTokens.dark : classicalTokens.light;
@@ -72,7 +67,7 @@ export const getClassicalTheme = (isDark: boolean): ThemeConfig => {
       Input: { borderRadius: 4, colorBgContainer: "transparent" },
       Select: { borderRadius: 4 },
       DatePicker: { borderRadius: 4 },
-      Card: { borderRadiusLG: 4, colorBgContainer: "transparent" },
+      Card: { borderRadiusLG: 4, colorBgContainer: t.surface },
       Table: {
         borderRadiusLG: 7,
         headerBg: t.surface,

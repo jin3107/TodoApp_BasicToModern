@@ -70,7 +70,7 @@ namespace Todo.Infrastructure.Implementations.Authentication
             catch (Exception ex)
             {
                 _logger.LogError(ex, "SendOtp failed");
-                return result.BuildError(ex.Message);
+                return result.BuildError("An unexpected error occurred. Please try again later.");
             }
         }
 

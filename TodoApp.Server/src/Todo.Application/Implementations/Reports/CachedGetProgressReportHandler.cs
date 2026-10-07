@@ -43,7 +43,7 @@ namespace Todo.Application.Implementations.Reports
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting progress report");
-                return result.BuildError($"An error occurred: {ex.Message}");
+                return result.BuildError("An unexpected error occurred while getting the report.");
             }
             return result;
         }

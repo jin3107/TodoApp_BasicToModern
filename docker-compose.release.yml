@@ -1,0 +1,85 @@
+# Ready-to-run stack using prebuilt images (no source code needed).
+#
+#   1. cp .env.example .env   and fill in every value
+#   2. docker compose -f docker-compose.release.yml up -d
+#   3. open http://localhost:${APP_PORT:-8080}
+#
+# Pin a version with TODOAPP_TAG=v1.0.0 in .env (default: latest).
+
+services:
+  backend:
+    image: ghcr.io/${GHCR_OWNER:-jin3107}/todoapp-backend:${TODOAPP_TAG:-latest}
+    restart: unless-stopped
+    networks: [todoapp-network]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=${MYSQL_DATABASE:-TodoApp_BToM};User=${MYSQL_USER:-todoapp};Password=${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
+      ConnectionStrings__RedisConnection: redis:6379,password=${REDIS_PASSWORD:?Set REDIS_PASSWORD in .env},abortConnect=false
+      RedisSettings__Enabled: "true"
+      Jwt__Key: ${JWT_KEY:?Set JWT_KEY in .env (min 32 chars)}
+      Jwt__Issuer: todoapp
+      Jwt__Audience: todoapp
+      EmailSettings__SmtpServer: smtp.gmail.com
+      EmailSettings__SmtpPort: 587
+      EmailSettings__SmtpUsername: ${SMTP_USERNAME:-}
+      EmailSettings__SmtpPassword: ${SMTP_PASSWORD:-}
+      EmailSettings__FromEmail: ${SMTP_USERNAME:-}
+      EmailSettings__FromName: TodoApp
+      EmailSettings__RecipientEmail: ${RECIPIENT_EMAIL:-}
+      Bootstrap__AdminEmail: ${BOOTSTRAP_ADMIN_EMAIL:?Set BOOTSTRAP_ADMIN_EMAIL in .env}
+      Bootstrap__AdminPassword: ${BOOTSTRAP_ADMIN_PASSWORD:?Set BOOTSTRAP_ADMIN_PASSWORD in .env}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    image: ghcr.io/${GHCR_OWNER:-jin3107}/todoapp-frontend:${TODOAPP_TAG:-latest}
+    restart: unless-stopped
+    networks: [todoapp-network]
+    ports:
+      - "${APP_PORT:-8080}:80"
+    depends_on:
+      - backend
+
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    networks: [todoapp-network]
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-TodoApp_BToM}
+      MYSQL_USER: ${MYSQL_USER:-todoapp}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    networks: [todoapp-network]
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:?Set REDIS_PASSWORD in .env}
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping | grep PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+
+networks:
+  todoapp-network:
+
+volumes:
+  mysql-data:
+  redis-data:

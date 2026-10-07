@@ -3,11 +3,6 @@ interface ChecklistLogoProps {
   color?: string;
 }
 
-/**
- * The exact "list-checks" mark used in the Classical design handoff's brand
- * lockup (header + auth shell) — CheckSquareOutlined is a different glyph,
- * so it's inlined here to match pixel-for-pixel.
- */
 export const ChecklistLogo = ({ size = 22, color = "var(--color-accent)" }: ChecklistLogoProps) => (
   <svg
     width={size}

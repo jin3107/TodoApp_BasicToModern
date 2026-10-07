@@ -18,7 +18,7 @@ COPY ["Todo.Application/Todo.Application.csproj", "Todo.Application/"]
 COPY ["Todo.Infrastructure/Todo.Infrastructure.csproj", "Todo.Infrastructure/"]
 COPY ["Todo.Commons/Todo.Commons.csproj", "Todo.Commons/"]
 COPY ["Todo.DTOs/Todo.DTOs.csproj", "Todo.DTOs/"]
-COPY ["MayNghien.Infrastructures/MayNghien.Infrastructures/MayNghien.Infrastructures.csproj", "MayNghien.Infrastructures/MayNghien.Infrastructures/"]
+COPY ["MayNghien.Infrastructures/MayNghien.Infrastructures.csproj", "MayNghien.Infrastructures/"]
 
 RUN dotnet restore "./Todo.API/Todo.API.csproj"
 COPY . .

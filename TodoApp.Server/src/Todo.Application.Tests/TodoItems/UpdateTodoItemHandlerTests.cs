@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -23,23 +24,20 @@ namespace Todo.Application.Tests.TodoItems
         {
             _todoItemRepositoryMock = new Mock<ITodoItemRepository>();
             _userServiceMock = new Mock<IUserService>();
-            _handler = new UpdateTodoItemHandler(_todoItemRepositoryMock.Object, _userServiceMock.Object);
+            _handler = new UpdateTodoItemHandler(_todoItemRepositoryMock.Object, _userServiceMock.Object, new Mock<ILogger<UpdateTodoItemHandler>>().Object);
         }
 
         [Fact]
         public async Task HandleAsync_UserNotFound_ReturnsErrorAndNeverCallsUpdateAsync()
         {
-            // Arrange
             _userServiceMock
                 .Setup(s => s.GetCurrentUserAsync())
                 .ReturnsAsync((CurrentUserDto?)null);
 
             var request = new TodoItemRequest { Id = Guid.NewGuid(), Title = "Học bài" };
 
-            // Act
             var result = await _handler.HandleAsync(request);
 
-            // Assert
             Assert.False(result.IsSuccess);
             Assert.Equal("Unauthorized.", result.Message);
 
@@ -50,7 +48,6 @@ namespace Todo.Application.Tests.TodoItems
         [Fact]
         public async Task HandleAsync_RepositoryReturnsNull_ReturnsNotFoundError()
         {
-            // Arrange
             _userServiceMock
                 .Setup(s => s.GetCurrentUserAsync())
                 .ReturnsAsync(new CurrentUserDto { Id = "u1", Email = "a@test.com", Roles = new List<string> { "User" } });
@@ -62,10 +59,8 @@ namespace Todo.Application.Tests.TodoItems
 
             var request = new TodoItemRequest { Id = itemId, Title = "Học bài" };
 
-            // Act
             var result = await _handler.HandleAsync(request);
 
-            // Assert
             Assert.False(result.IsSuccess);
             Assert.Equal("Item not found or deleted.", result.Message);
 
@@ -76,7 +71,6 @@ namespace Todo.Application.Tests.TodoItems
         [Fact]
         public async Task HandleAsync_TaskIsDeleted_ReturnsNotFoundError()
         {
-            // Arrange
             _userServiceMock
                 .Setup(s => s.GetCurrentUserAsync())
                 .ReturnsAsync(new CurrentUserDto { Id = "u1", Email = "a@test.com", Roles = new List<string> { "User" } });
@@ -88,10 +82,8 @@ namespace Todo.Application.Tests.TodoItems
 
             var request = new TodoItemRequest { Id = itemId, Title = "Học bài (sửa)" };
 
-            // Act
             var result = await _handler.HandleAsync(request);
 
-            // Assert
             Assert.False(result.IsSuccess);
             Assert.Equal("Item not found or deleted.", result.Message);
 
@@ -102,7 +94,6 @@ namespace Todo.Application.Tests.TodoItems
         [Fact]
         public async Task HandleAsync_UserNotOwnerAndNotSuperAdmin_ReturnsForbiddenError()
         {
-            // Arrange
             _userServiceMock
                 .Setup(s => s.GetCurrentUserAsync())
                 .ReturnsAsync(new CurrentUserDto { Id = "u1", Email = "a@test.com", Roles = new List<string> { "User" } });
@@ -114,10 +105,8 @@ namespace Todo.Application.Tests.TodoItems
 
             var request = new TodoItemRequest { Id = itemId, Title = "Học bài (sửa)" };
 
-            // Act
             var result = await _handler.HandleAsync(request);
 
-            // Assert
             Assert.False(result.IsSuccess);
             Assert.Equal("Forbidden: you do not own this resource.", result.Message);
 
@@ -128,7 +117,6 @@ namespace Todo.Application.Tests.TodoItems
         [Fact]
         public async Task HandleAsync_ValidRequest_ReturnsSuccessAndUpdatesFields()
         {
-            // Arrange
             _userServiceMock
                 .Setup(s => s.GetCurrentUserAsync())
                 .ReturnsAsync(new CurrentUserDto { Id = "u1", Email = "a@test.com", Roles = new List<string> { "User" } });
@@ -141,7 +129,7 @@ namespace Todo.Application.Tests.TodoItems
                 Description = "Cũ",
                 IsDeleted = false,
                 IsCompleted = false,
-                CreatedBy = "a@test.com"
+                CreatedBy = "u1"
             };
             _todoItemRepositoryMock
                 .Setup(s => s.GetByIdAsync(itemId))
@@ -157,10 +145,8 @@ namespace Todo.Application.Tests.TodoItems
                 IsCompleted = false
             };
 
-            // Act
             var result = await _handler.HandleAsync(request);
 
-            // Assert
             Assert.True(result.IsSuccess);
             Assert.Equal("Item updated successfully.", result.Message);
             Assert.Equal("Học bài (sửa)", result.Data!.Title);
@@ -176,13 +162,12 @@ namespace Todo.Application.Tests.TodoItems
         [Fact]
         public async Task HandleAsync_MarkAsCompletedWithoutCompletedOn_SetsCompletedOnToUtcNow()
         {
-            // Arrange
             _userServiceMock
                 .Setup(s => s.GetCurrentUserAsync())
                 .ReturnsAsync(new CurrentUserDto { Id = "u1", Email = "a@test.com", Roles = new List<string> { "User" } });
 
             var itemId = Guid.NewGuid();
-            var task = new TodoItem { Id = itemId, Title = "Học bài", IsDeleted = false, CreatedBy = "a@test.com" };
+            var task = new TodoItem { Id = itemId, Title = "Học bài", IsDeleted = false, CreatedBy = "u1" };
             _todoItemRepositoryMock
                 .Setup(s => s.GetByIdAsync(itemId))
                 .ReturnsAsync(task);
@@ -190,10 +175,8 @@ namespace Todo.Application.Tests.TodoItems
             var beforeCall = DateTime.UtcNow;
             var request = new TodoItemRequest { Id = itemId, Title = "Học bài", IsCompleted = true, CompletedOn = null };
 
-            // Act
             var result = await _handler.HandleAsync(request);
 
-            // Assert
             Assert.True(result.IsSuccess);
             Assert.NotNull(task.CompletedOn);
             Assert.True(task.CompletedOn >= beforeCall);
@@ -202,7 +185,6 @@ namespace Todo.Application.Tests.TodoItems
         [Fact]
         public async Task HandleAsync_SuperAdminNotOwner_ReturnsSuccessAndUpdatesTask()
         {
-            // Arrange
             _userServiceMock
                 .Setup(s => s.GetCurrentUserAsync())
                 .ReturnsAsync(new CurrentUserDto { Id = "u1", Email = "admin@test.com", Roles = new List<string> { "SuperAdmin" } });
@@ -215,10 +197,8 @@ namespace Todo.Application.Tests.TodoItems
 
             var request = new TodoItemRequest { Id = itemId, Title = "Học bài (admin sửa)" };
 
-            // Act
             var result = await _handler.HandleAsync(request);
 
-            // Assert
             Assert.True(result.IsSuccess);
             Assert.Equal("Học bài (admin sửa)", task.Title);
 

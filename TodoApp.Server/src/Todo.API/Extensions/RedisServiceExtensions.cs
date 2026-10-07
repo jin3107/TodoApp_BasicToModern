@@ -21,7 +21,6 @@ namespace Todo.API.Extensions
                     config.AsyncTimeout = 5000;
                     config.ConnectRetry = 3;
                     config.KeepAlive = 60;
-                    // Tăng connection pool để tránh timeout
                     config.DefaultDatabase = 0;
                     return ConnectionMultiplexer.Connect(config);
                 });

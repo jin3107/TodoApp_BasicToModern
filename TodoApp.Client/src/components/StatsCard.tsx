@@ -14,35 +14,6 @@ interface StatsCardProps {
   total?: number;
 }
 
-/**
- * Component Card thống kê với style nhất quán
- * @param title - Tiêu đề thống kê
- * @param value - Giá trị hiển thị
- * @param prefix - Icon hoặc element phía trước
- * @param suffix - Đơn vị hoặc text phía sau (vd: "/ 10", "tasks")
- * @param valueStyle - Custom style cho số liệu
- * @param className - Custom CSS class (vd: "stat-card-success")
- * @param showProgress - Có hiển thị thanh Progress không
- * @param progressPercent - Phần trăm Progress (nếu có)
- * @param progressColor - Màu thanh Progress
- * @param total - Tổng số (để tự động tính percent)
- * 
- * @example
- * <StatsCard 
- *   title="Tổng công việc"
- *   value={50}
- *   prefix={<TrophyOutlined />}
- *   valueStyle={{ color: '#1890ff' }}
- * />
- * 
- * <StatsCard 
- *   title="Đã hoàn thành"
- *   value={30}
- *   total={50}
- *   showProgress
- *   className="stat-card-success"
- * />
- */
 export const StatsCard = ({
   title,
   value,
@@ -55,7 +26,6 @@ export const StatsCard = ({
   progressColor = '#b68235',
   total,
 }: StatsCardProps) => {
-  // Tự động tính percent nếu có total
   const calculatedPercent = total ? Math.round((value / Math.max(total, 1)) * 100) : progressPercent;
   
   return (
