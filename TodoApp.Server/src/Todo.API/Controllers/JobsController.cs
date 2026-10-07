@@ -32,7 +32,7 @@ namespace Todo.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to trigger daily report job");
-                return StatusCode(500, new { Error = ex.Message });
+                return StatusCode(500, new { Error = "An unexpected error occurred." });
             }
         }
 
@@ -49,7 +49,7 @@ namespace Todo.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to trigger weekly summary job");
-                return StatusCode(500, new { Error = ex.Message });
+                return StatusCode(500, new { Error = "An unexpected error occurred." });
             }
         }
 
@@ -66,7 +66,7 @@ namespace Todo.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to trigger task reminder job");
-                return StatusCode(500, new { Error = ex.Message });
+                return StatusCode(500, new { Error = "An unexpected error occurred." });
             }
         }
 
@@ -82,7 +82,7 @@ namespace Todo.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to pause job {JobName}", jobName);
-                return StatusCode(500, new { Error = ex.Message });
+                return StatusCode(500, new { Error = "An unexpected error occurred." });
             }
         }
 
@@ -98,7 +98,7 @@ namespace Todo.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to resume job {JobName}", jobName);
-                return StatusCode(500, new { Error = ex.Message });
+                return StatusCode(500, new { Error = "An unexpected error occurred." });
             }
         }
 
@@ -124,7 +124,7 @@ namespace Todo.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to get scheduler info");
-                return StatusCode(500, new { Error = ex.Message });
+                return StatusCode(500, new { Error = "An unexpected error occurred." });
             }
         }
     }

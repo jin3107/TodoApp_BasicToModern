@@ -18,14 +18,11 @@ builder.Host.UseDefaultServiceProvider(options =>
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 
-// Infrastructure
 builder.Services.AddDatabaseConfiguration(builder.Configuration);
 
-// Business layers
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
-// API concerns
 builder.Services.AddSwaggerConfiguration();
 builder.Services.AddCorsConfiguration(builder.Configuration);
 builder.Services.AddIdentityConfiguration();
@@ -36,6 +33,8 @@ builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
 
 var app = builder.Build();
+
+await app.ApplyMigrationsAsync();
 
 if (app.Environment.IsDevelopment())
 {

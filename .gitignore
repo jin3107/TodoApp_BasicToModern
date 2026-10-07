@@ -429,6 +429,7 @@ logs/
 docker-compose.yml
 docker-compose.*.yml
 !docker-compose.yml.example
+!docker-compose.release.yml
 
 # Backups
 backups/

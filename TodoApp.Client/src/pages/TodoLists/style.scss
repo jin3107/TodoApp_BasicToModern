@@ -1,20 +1,15 @@
-/* Layout-only classes — colors/fonts now come from the app-wide Classical
-   theme (scss/_classical-vars.scss + main.tsx ConfigProvider), so this file
-   only needs structure, not its own token block. */
-
 @keyframes cl-shimmer {
   0% { background-position: -220px 0; }
   100% { background-position: 220px 0; }
 }
 
 .todo-classical {
-  font-family: var(--font-body, "Lora", system-ui, sans-serif);
+  font-family: var(--font-body, "Inter", system-ui, sans-serif);
 
   .text-muted {
     color: var(--color-text-muted);
   }
 
-  /* — layout grid — */
   .cl-grid {
     display: flex;
     flex-direction: column;
@@ -39,7 +34,6 @@
     }
   }
 
-  /* — bordered panel shared by lists + items — */
   .cl-panel {
     border: 1px solid var(--color-divider);
     border-radius: 7px;
@@ -95,7 +89,6 @@
     }
   }
 
-  /* — inline create/edit form (lists + items) — */
   .cl-inline-form {
     border: 1px solid var(--color-accent);
     border-radius: 4px;
@@ -112,7 +105,6 @@
     }
   }
 
-  /* — rows scroll area — */
   .cl-rows {
     display: flex;
     flex-direction: column;
@@ -128,7 +120,6 @@
     }
   }
 
-  /* — list row card — */
   .cl-list-row {
     cursor: pointer;
     padding: 14px;
@@ -219,7 +210,6 @@
     justify-content: center;
   }
 
-  /* — skeleton loading — */
   .cl-skeleton-block {
     border-radius: 4px;
     background: linear-gradient(90deg, var(--color-neutral-100) 0%, var(--color-neutral-200) 50%, var(--color-neutral-100) 100%);
@@ -227,7 +217,6 @@
     animation: cl-shimmer 1.3s infinite linear;
   }
 
-  /* — empty states — */
   .cl-empty {
     display: flex;
     flex-direction: column;
@@ -256,18 +245,15 @@
     p { margin: 0; font-size: 14px; }
   }
 
-  /* — native controls must track the theme explicitly (handoff bug note) — */
   select,
   input[type="date"] {
     background: var(--color-surface);
     color: var(--color-text);
-    font-family: var(--font-body, "Lora", system-ui, sans-serif);
+    font-family: var(--font-body, "Inter", system-ui, sans-serif);
   }
 }
 
-/* Undo-toast notification: portaled to body, so styled by class rather
-   than relying on .todo-classical CSS var inheritance. */
 .cl-toast-notification {
   border-radius: 4px !important;
-  font-family: "Lora", system-ui, sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
 }

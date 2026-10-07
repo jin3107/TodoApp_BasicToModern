@@ -18,6 +18,9 @@ services:
       ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=${MYSQL_DATABASE:-TodoApp_BToM};User=${MYSQL_USER:-dev};Password=${MYSQL_PASSWORD:-Dev@123}
       ConnectionStrings__RedisConnection: redis:6379,password=${REDIS_PASSWORD:-DevRedis@123},abortConnect=false
       RedisSettings__Enabled: "true"
+      Jwt__Key: ${JWT_KEY}
+      Jwt__Issuer: todoapp
+      Jwt__Audience: todoapp
       EmailSettings__SmtpServer: smtp.gmail.com
       EmailSettings__SmtpPort: 587
       EmailSettings__SmtpUsername: ${SMTP_USERNAME}

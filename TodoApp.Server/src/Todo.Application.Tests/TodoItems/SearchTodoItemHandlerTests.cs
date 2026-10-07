@@ -1,4 +1,5 @@
 ﻿using MayNghien.Infrastructures.Models.Requests;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Todo.Application.Common;
 using Todo.Application.Implementations.TodoItems;
@@ -19,13 +20,12 @@ namespace Todo.Application.Tests.TodoItems
         {
             _todoItemRepositoryMock = new Mock<ITodoItemRepository>();
             _userServiceMock = new Mock<IUserService>();
-            _handler = new SearchTodoItemHandler(_todoItemRepositoryMock.Object, _userServiceMock.Object);
+            _handler = new SearchTodoItemHandler(_todoItemRepositoryMock.Object, _userServiceMock.Object, new Mock<ILogger<SearchTodoItemHandler>>().Object);
         }
 
         [Fact]
         public async Task HandleAsync_ValidRequest_CalculatesPagingCorrectly()
         {
-            // Arrange
             _userServiceMock
                 .Setup(s => s.GetCurrentUserAsync())
                 .ReturnsAsync(new CurrentUserDto { Id = "u1", Email = "a@gmail.com", Roles = new List<string> { "User" } });
@@ -50,10 +50,8 @@ namespace Todo.Application.Tests.TodoItems
                 Filters = new List<Filter>()
             };
 
-            // Act
             var result = await _handler.HandleAsync(request);
 
-            // Assert
             Assert.True(result.IsSuccess);
             Assert.Equal(25, result.Data!.TotalRows);
             Assert.Equal(3, result.Data!.TotalPages);  // ceil(25/10) = 3
@@ -64,7 +62,6 @@ namespace Todo.Application.Tests.TodoItems
         [Fact]
         public async Task HandleAsync_NonSuperAdmin_ScopesPredicateToOwnEmail()
         {
-            // Arrange
             _userServiceMock
                 .Setup(s => s.GetCurrentUserAsync())
                 .ReturnsAsync(new CurrentUserDto { Id = "u1", Email = "owner@test.com", Roles = new List<string> { "User" } });
@@ -79,14 +76,12 @@ namespace Todo.Application.Tests.TodoItems
 
             var request = new SearchRequest { PageIndex = 1, PageSize = 10, Filters = new List<Filter>() };
 
-            // Act
             await _handler.HandleAsync(request);
 
-            // Assert
             _todoItemRepositoryMock.Verify(r => r.SearchAsync(
                 It.Is<System.Linq.Expressions.Expression<Func<TodoItem, bool>>>(expr =>
-                    expr.Compile()(new TodoItem { CreatedBy = "owner@test.com", IsDeleted = false }) &&
-                    !expr.Compile()(new TodoItem { CreatedBy = "someone-else@test.com", IsDeleted = false })),
+                    expr.Compile()(new TodoItem { CreatedBy = "u1", IsDeleted = false }) &&
+                    !expr.Compile()(new TodoItem { CreatedBy = "someone-else-id", IsDeleted = false })),
                 It.IsAny<SortByInfo?>(),
                 1, 10), Times.Once);
         }

@@ -142,6 +142,7 @@ const ChangePassword = () => {
           </Form.Item>
 
           <Button
+            type="primary"
             icon={<SendOutlined />}
             onClick={handleSendOtp}
             loading={loading}
@@ -169,6 +170,7 @@ const ChangePassword = () => {
           </Form.Item>
 
           <Button
+            type="primary"
             icon={<CheckCircleOutlined />}
             onClick={handleVerifyOtp}
             loading={loading}

@@ -1,16 +1,9 @@
-// Classical design tokens — SCSS aliases into the runtime CSS custom
-// properties declared in _classical-vars.scss (imported once, first, in
-// global.scss). Aliasing to var(--color-x) instead of static hex makes every
-// page that consumes `t.$color-*` reactive to the light/dark toggle for free.
-
 $color-primary: var(--color-accent);
 $color-primary-hover: var(--color-accent-700);
 $color-success: var(--color-accent-500);
 $color-warning: var(--color-accent-700);
 $color-danger: var(--color-accent-800);
 
-// Single-accent tonal ramp (mono scheme, per the Classical design system —
-// differentiate by shade/lightness, not by hue).
 $accent-100: var(--color-accent-100);
 $accent-300: var(--color-accent-300);
 $accent-500: var(--color-accent-500);
@@ -29,8 +22,8 @@ $radius-lg: 7px;
 $shadow-card: var(--shadow-md);
 $shadow-card-hover: var(--shadow-lg);
 
-$font-heading: "Cormorant Garamond", system-ui, sans-serif;
-$font-body: "Lora", system-ui, sans-serif;
+$font-heading: "Plus Jakarta Sans", system-ui, sans-serif;
+$font-body: "Inter", system-ui, sans-serif;
 
 $screen-sm: 576px;
 $screen-md: 768px;

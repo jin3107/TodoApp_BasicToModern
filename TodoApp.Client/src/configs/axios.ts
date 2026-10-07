@@ -1,13 +1,5 @@
 import axios from "axios";
 
-// const api = axios.create({
-//   baseURL: "https://localhost:7196",
-//   timeout: 60000, // Increase to 60 seconds
-//   headers: {
-//     'Content-Type': 'application/json',
-//   }
-// });
-
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '',
   timeout: 10000,
@@ -17,24 +9,16 @@ const api = axios.create({
   },
 });
 
-// Add request interceptor for debugging
 api.interceptors.request.use(
-  (config) => {
-    console.log('Request:', config.method?.toUpperCase(), config.url);
-    return config;
-  },
+  (config) => config,
   (error) => {
     console.error('Request error:', error);
     return Promise.reject(error);
   }
 );
 
-// Add response interceptor for better error handling
 api.interceptors.response.use(
-  (response) => {
-    console.log('Response:', response.status, response.config.url);
-    return response;
-  },
+  (response) => response,
   (error) => {
     console.error('Response error details:', {
       url: error.config?.url,

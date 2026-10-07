@@ -50,7 +50,7 @@ namespace Todo.Application.Implementations.Reports
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating daily snapshot");
-                result.BuildError($"Error creating daily snapshot: {ex.Message}");
+                result.BuildError("An unexpected error occurred while creating the daily snapshot.");
             }
             return result;
         }

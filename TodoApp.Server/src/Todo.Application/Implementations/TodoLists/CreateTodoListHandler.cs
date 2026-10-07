@@ -1,4 +1,5 @@
 using MayNghien.Infrastructures.Models.Responses;
+using Microsoft.Extensions.Logging;
 using Todo.Domain.Entities;
 using Todo.DTOs.Requests;
 using Todo.DTOs.Responses;
@@ -13,11 +14,13 @@ namespace Todo.Application.Implementations.TodoLists
     {
         private readonly ITodoListRepository _todoListRepository;
         private readonly IUserService _userService;
+        private readonly ILogger<CreateTodoListHandler> _logger;
 
-        public CreateTodoListHandler(ITodoListRepository todoListRepository, IUserService userService)
+        public CreateTodoListHandler(ITodoListRepository todoListRepository, IUserService userService, ILogger<CreateTodoListHandler> logger)
         {
             _todoListRepository = todoListRepository;
             _userService = userService;
+            _logger = logger;
         }
 
         public async Task<AppResponse<TodoListResponse>> HandleAsync(TodoListRequest request)
@@ -35,7 +38,7 @@ namespace Todo.Application.Implementations.TodoLists
                     Name = request.Name,
                     Description = request.Description,
                 };
-                entity.SetCreatedInfo(user.Email);
+                entity.SetCreatedInfo(user.Id);
                 await _todoListRepository.AddAsync(entity);
 
                 var response = TodoListMapper.ToResponse(entity);
@@ -43,7 +46,8 @@ namespace Todo.Application.Implementations.TodoLists
             }
             catch (Exception ex)
             {
-                return result.BuildError(ex.Message + " " + ex.StackTrace);
+                _logger.LogError(ex, "TodoList: {Name} create failed.", request.Name);
+                return result.BuildError("An error occurred while creating the todo list.");
             }
         }
     }

@@ -115,27 +115,24 @@ namespace Todo.API.Extensions
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ClockSkew = TimeSpan.Zero, // Không cho phép token hết hạn vẫn dùng được
+                    ClockSkew = TimeSpan.Zero,
                     ValidIssuer = configuration["Jwt:Issuer"],
                     ValidAudience = configuration["Jwt:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!))
                 };
 
-                // Đọc token từ Cookie nếu không có trong Header
                 options.Events = new JwtBearerEvents
                 {
                     OnMessageReceived = context =>
                     {
                         string? token = null;
 
-                        // Kiểm tra Authorization Header với format đúng "Bearer <token>"
                         var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
                         if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
                         {
                             token = authHeader.Substring("Bearer ".Length).Trim();
                         }
 
-                        // Nếu không có trong header, đọc từ cookie (chỉ cho phép khi có HttpOnly cookie)
                         if (string.IsNullOrEmpty(token))
                         {
                             token = context.Request.Cookies["AuthToken"];

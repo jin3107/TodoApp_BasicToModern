@@ -13,7 +13,6 @@ export const getTodoListById = async (id: string): Promise<AppResponse<TodoListR
 };
 
 export const createTodoList = async (request: TodoListRequest): Promise<AppResponse<TodoListResponse>> => {
-  console.log('Creating todo list with request:', request);
   const response = await axios.post<AppResponse<TodoListResponse>>("/todo-lists", request);
   return response.data;
 };

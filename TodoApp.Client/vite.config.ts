@@ -18,6 +18,7 @@ export default defineConfig({
     },
   },
   server: {
+    open: true,
     proxy: {
       '/authentication': 'http://localhost:5133',
       '/todo-items': 'http://localhost:5133',
