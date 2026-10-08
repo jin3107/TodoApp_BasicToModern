@@ -278,7 +278,7 @@ curl -o .env https://raw.githubusercontent.com/jin3107/TodoApp_BasicToModern/mas
 docker compose -f docker-compose.release.yml up -d
 ```
 
-Open `http://localhost:8080` (change with `APP_PORT`). Database migrations run automatically on first start. Pin a version with `TODOAPP_TAG=v1.0.0`.
+Open `http://localhost:8080` (change with `APP_PORT`). Database migrations run automatically on first start. Pin a version with `TODOAPP_TAG=1.3.0`.
 
 ### Build from source
 
