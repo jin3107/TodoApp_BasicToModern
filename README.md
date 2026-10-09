@@ -272,13 +272,13 @@ dotnet user-secrets set "EmailSettings:RecipientEmail" "recipient@example.com"
 No source code or SDK needed. Download two files, fill in `.env`, run:
 
 ```bash
-curl -O https://raw.githubusercontent.com/jin3107/TodoApp_BasicToModern/master/docker-compose.release.yml
+curl -o docker-compose.yml https://raw.githubusercontent.com/jin3107/TodoApp_BasicToModern/master/docker-compose.release.yml
 curl -o .env https://raw.githubusercontent.com/jin3107/TodoApp_BasicToModern/master/.env.example
 # edit .env: set passwords, JWT_KEY (openssl rand -base64 48), BOOTSTRAP_ADMIN_*
-docker compose -f docker-compose.release.yml up -d
+docker compose up -d
 ```
 
-Open `http://localhost:8080` (change with `APP_PORT`). Database migrations run automatically on first start. Pin a version with `TODOAPP_TAG=1.3.0`.
+Open `http://localhost:8080` (change with `APP_PORT`). Database migrations run automatically on first start. Pin a version with `TODOAPP_TAG=1.3.1`.
 
 ### Build from source
 
