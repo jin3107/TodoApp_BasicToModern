@@ -32,7 +32,7 @@ Trong `Todo.Application`:
 - `Interfaces/*Handler`: mỗi use-case một interface, ví dụ `ICreateTodoItemHandler`.
 - `Implementations/*Handler`: CQRS-style, mỗi handler làm đúng một việc.
 - `Interfaces/Repositories`: ví dụ `ITodoItemRepository`, hướng domain, không biết EF.
-- `Mapping`: AutoMapper profile.
+- `Mapping`: static entity ↔ DTO mappers.
 
 `Todo.Infrastructure` implement các interface đó (repository bằng EF Core, `ICacheService` bằng Redis, jobs bằng Quartz). `Todo.API` là nơi duy nhất gắn interface với implementation cụ thể qua DI.
 
